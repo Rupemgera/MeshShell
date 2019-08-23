@@ -5,36 +5,25 @@
 
 #include "vtk_heads.h"
 
-namespace viewtools
-{
+namespace viewtools {
 
 template <typename T>
-class Triple
-{
-public:
+class Triple {
+ public:
   Triple() {}
-  Triple(T u, T v, T w)
-  {
+  Triple(T u, T v, T w) {
     _data[0] = u;
     _data[1] = v;
     _data[2] = w;
   }
-  Triple(T *data)
-  {
-    for (int i = 0; i < 3; ++i)
-      _data[i] = data[i];
+  Triple(T *data) {
+    for (int i = 0; i < 3; ++i) _data[i] = data[i];
   }
-  const T *data() const
-  {
-    return _data;
-  }
+  const T *data() const { return _data; }
 
-  T *data()
-  {
-    return _data;
-  }
+  T *data() { return _data; }
 
-protected:
+ protected:
   T _data[3];
 };
 
@@ -43,19 +32,17 @@ using Point3d = Triple<double>;
 using Triangle = Triple<long long>;
 /*********** defines end **************/
 
-class Color : public Triple<double>
-{
-public:
+class Color : public Triple<double> {
+ public:
   Color(double *data);
   Color(double r, double g, double b);
   Color(std::string description);
 
-private:
+ private:
 };
 
-class VtkWrapper
-{
-public:
+class VtkWrapper {
+ public:
   VtkWrapper(QVTKOpenGLWidget *widget);
 
   /*vtk render functions*/
@@ -96,7 +83,7 @@ public:
   // test interface
   void testRenderFunction();
 
-private:
+ private:
   vtkSmartPointer<vtkRenderer> _renderer;
   // renderWindow
   vtkSmartPointer<vtkGenericOpenGLRenderWindow> _renderWindow;
@@ -105,4 +92,4 @@ private:
 
   std::string _settings_jsonfile;
 };
-} // namespace viewtools
+}  // namespace viewtools
