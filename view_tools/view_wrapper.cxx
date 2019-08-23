@@ -1,4 +1,4 @@
-#include "view_wrapper.h"
+﻿#include "view_wrapper.h"
 #include <fstream>
 
 namespace viewtools {
