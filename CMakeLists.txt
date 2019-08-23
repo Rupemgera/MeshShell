@@ -1,0 +1,41 @@
+﻿# CMakeList.txt : Top-level CMake project file, do global configuration
+# and include sub-projects here.
+#
+cmake_minimum_required (VERSION 3.8)
+
+set (PROJECT_NAME "MeshShell")
+project (${PROJECT_NAME})
+
+# C++ standard 
+# C++11 may be set to C++14 in the future
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set (CMAKE_CXX_STANDARD 14)
+
+if (WIN32)
+## linux 下没有bigobj的问题
+	add_compile_options(-bigobj)
+endif()
+
+## define INCLUDE_TEMPLATES to enable OVM templates functions, like FileManager
+add_definitions(-DINCLUDE_TEMPLATES)
+
+#     静态库输出目录 => 构建目录/lib
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
+#     动态库输出目录 => 构建目录/bin
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
+#     可执行程序输出目录 => 构建目录/bin
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
+
+#module path
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
+
+# Include sub-projects.
+
+add_subdirectory("view_tools")
+include_directories("view_tools")
+
+add_subdirectory("mesh_tools")
+include_directories("mesh_tools")
+
+add_subdirectory ("MeshShell")
+
