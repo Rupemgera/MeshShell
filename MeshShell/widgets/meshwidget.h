@@ -2,51 +2,49 @@
 
 #include "src/mesh_shell.h"
 
-#include <QWidget>
 #include <QFile>
 #include <QFileDialog>
+#include <QWidget>
 
 #include <memory>
 
-namespace Ui
-{
+namespace Ui {
 class MeshWidget;
 }
 
-class MeshWidget : public QWidget
-{
-	Q_OBJECT
+class MeshWidget : public QWidget {
+  Q_OBJECT
 public:
-	MeshWidget(QWidget *parent);
-	//QVtkMeshWidget(VMeshPtr mesh, QVTKOpenGLWidget *widget, QWidget *parent);
-	~MeshWidget();
+  MeshWidget(QWidget *parent);
+  // QVtkMeshWidget(VMeshPtr mesh, QVTKOpenGLWidget *widget, QWidget *parent);
+  ~MeshWidget();
 
 private:
-	Ui::MeshWidget *ui;
+  Ui::MeshWidget *ui;
 
-	void addSlot();
+  void addSlot();
 
-	/*VTK */
+  /*VTK */
 
-	VtkWrapper *_viewer;
-	std::shared_ptr<MeshShell> _mesh;
+  VtkWrapper *_viewer;
+  std::shared_ptr<MeshShell> _mesh;
 
-	bool _mesh_loaded = false;
+  bool _mesh_loaded = false;
 
-	/* functions */
+  /* functions */
 
-	void renderMesh();
+  void renderMesh();
 
-	void message(QString news);
+  void message(QString news);
 
-	/* properties */
+  /* properties */
 #ifdef __linux
-	QString _directory_path = "~/";
+  QString _directory_path = "~/";
 #endif
 #ifdef WIN32
-	QString _directory_path = "c:\\";
+  QString _directory_path = "c:\\";
 #endif
 
 private slots:
-	void readMesh();
+  void readMesh();
 };

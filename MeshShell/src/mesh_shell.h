@@ -1,5 +1,5 @@
 #include "mesh_wrapper.h"
-#include "view_wrapper.h"
+#include "view_tools/view_wrapper.h"
 
 #include <map>
 

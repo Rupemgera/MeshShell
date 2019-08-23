@@ -31,9 +31,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
 
 # Include sub-projects.
 
-add_subdirectory("view_tools")
-include_directories("view_tools")
-
 add_subdirectory("mesh_tools")
 include_directories("mesh_tools")
 
