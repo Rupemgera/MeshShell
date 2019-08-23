@@ -35,9 +35,10 @@ import_openvolumemesh()
 ## source files
  aux_source_directory(./src src_files)
  aux_source_directory(./widgets widgets_files)
+ aux_source_directory(./view_tools vtk_files)
 
 
- add_executable (MeshShell ${src_files} ${widgets_files} ${file_ui})
+ add_executable (MeshShell ${src_files} ${widgets_files} ${file_ui} ${vtk_files})
  #add_executable (${PROJECT_NAME} ${src_files} ${mesh_files} ${stress_files} ${visualization_files})
 
  ## add link libraries
@@ -45,7 +46,6 @@ import_openvolumemesh()
 	${QT5MODULE}
 	${VTK_LIBRARIES}
 	mesh_tools
-	view_tools
  )
 
 # TODO: Add tests and install targets if needed.  

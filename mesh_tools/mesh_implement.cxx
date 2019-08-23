@@ -3,21 +3,15 @@
 
 namespace meshtools {
 void MeshImpl::readFromInp(std::ifstream &fin) {
-  /*
-          读入.inp文件
-          */
+  /* 读入.inp文件 */
 
   std::string line_str;
 
-  /*
-          new a VMesh
-          */
+  /*  new a VMesh */
 
   VMeshPtr mesh_ptr(new VMesh);
 
-  /*
-          正则表达式
-          */
+  /* 正则表达式  */
 
   //匹配 *NODE信息
   std::regex node_regex("^\\*node", std::regex::icase);
@@ -36,9 +30,7 @@ void MeshImpl::readFromInp(std::ifstream &fin) {
       "^([\\d\\.Ee\\s]+),([\\d\\.Ee\\s]+),([\\d\\.Ee\\s]+"
       "),([\\d\\.Ee\\s]+),([\\d\\.Ee\\s]+)$");
 
-  /*
-          读入点信息
-          */
+  /*  读入点信息  */
 
   std::map<TF, OvmFaH> faces;
   faces.clear();
