@@ -1,0 +1,12 @@
+/home/hunauta/Repos/MeshShell/build/CMakeFiles/rebuild_cache.dir
+/home/hunauta/Repos/MeshShell/build/CMakeFiles/edit_cache.dir
+/home/hunauta/Repos/MeshShell/build/view_tools/CMakeFiles/rebuild_cache.dir
+/home/hunauta/Repos/MeshShell/build/view_tools/CMakeFiles/view_tools.dir
+/home/hunauta/Repos/MeshShell/build/view_tools/CMakeFiles/edit_cache.dir
+/home/hunauta/Repos/MeshShell/build/mesh_tools/CMakeFiles/rebuild_cache.dir
+/home/hunauta/Repos/MeshShell/build/mesh_tools/CMakeFiles/mesh_tools.dir
+/home/hunauta/Repos/MeshShell/build/mesh_tools/CMakeFiles/edit_cache.dir
+/home/hunauta/Repos/MeshShell/build/MeshShell/CMakeFiles/rebuild_cache.dir
+/home/hunauta/Repos/MeshShell/build/MeshShell/CMakeFiles/MeshShell.dir
+/home/hunauta/Repos/MeshShell/build/MeshShell/CMakeFiles/edit_cache.dir
+/home/hunauta/Repos/MeshShell/build/MeshShell/CMakeFiles/MeshShell_autogen.dir

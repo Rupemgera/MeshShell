@@ -1,0 +1,61 @@
+[
+{
+  "directory": "/home/hunauta/Repos/MeshShell/build",
+  "command": "/usr/bin/clang++-6.0  -DH5_BUILT_AS_DYNAMIC_LIB -DINCLUDE_TEMPLATES -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_SQL_LIB -DQT_WIDGETS_LIB -DVTK_HAS_OGGTHEORA_SUPPORT -isystem /usr/local/include/vtk-8.90 -isystem /opt/Qt5.9.8/5.9.8/gcc_64/include -isystem /opt/Qt5.9.8/5.9.8/gcc_64/include/QtWidgets -isystem /opt/Qt5.9.8/5.9.8/gcc_64/include/QtGui -isystem /opt/Qt5.9.8/5.9.8/gcc_64/include/QtCore -isystem /opt/Qt5.9.8/5.9.8/gcc_64/./mkspecs/linux-g++ -isystem /usr/local/include/vtk-8.90/vtkhdf5 -isystem /usr/local/include/vtk-8.90/vtkhdf5/src -isystem /usr/local/include/vtk-8.90/vtkhdf5/hl/src -isystem /usr/local/include/vtk-8.90/vtkogg/include -isystem /usr/local/include/vtk-8.90/vtklibxml2/include -isystem /opt/Qt5.9.8/5.9.8/gcc_64/include/QtSql -isystem /opt/Qt5.9.8/5.9.8/gcc_64/include/QtOpenGL  -g   -fPIC -std=gnu++14 -o view_tools/CMakeFiles/view_tools.dir/view_wrapper.cxx.o -c /home/hunauta/Repos/MeshShell/view_tools/view_wrapper.cxx",
+  "file": "/home/hunauta/Repos/MeshShell/view_tools/view_wrapper.cxx"
+},
+
+{
+  "directory": "/home/hunauta/Repos/MeshShell/build",
+  "command": "/usr/bin/clang++-6.0  -DINCLUDE_TEMPLATES -I../view_tools -I/usr/include/eigen3  -g   -std=gnu++14 -o mesh_tools/CMakeFiles/mesh_tools.dir/frame_field.cxx.o -c /home/hunauta/Repos/MeshShell/mesh_tools/frame_field.cxx",
+  "file": "/home/hunauta/Repos/MeshShell/mesh_tools/frame_field.cxx"
+},
+
+{
+  "directory": "/home/hunauta/Repos/MeshShell/build",
+  "command": "/usr/bin/clang++-6.0  -DINCLUDE_TEMPLATES -I../view_tools -I/usr/include/eigen3  -g   -std=gnu++14 -o mesh_tools/CMakeFiles/mesh_tools.dir/mesh_wrapper.cxx.o -c /home/hunauta/Repos/MeshShell/mesh_tools/mesh_wrapper.cxx",
+  "file": "/home/hunauta/Repos/MeshShell/mesh_tools/mesh_wrapper.cxx"
+},
+
+{
+  "directory": "/home/hunauta/Repos/MeshShell/build",
+  "command": "/usr/bin/clang++-6.0  -DINCLUDE_TEMPLATES -I../view_tools -I/usr/include/eigen3  -g   -std=gnu++14 -o mesh_tools/CMakeFiles/mesh_tools.dir/stress_field.cxx.o -c /home/hunauta/Repos/MeshShell/mesh_tools/stress_field.cxx",
+  "file": "/home/hunauta/Repos/MeshShell/mesh_tools/stress_field.cxx"
+},
+
+{
+  "directory": "/home/hunauta/Repos/MeshShell/build",
+  "command": "/usr/bin/clang++-6.0  -DH5_BUILT_AS_DYNAMIC_LIB -DINCLUDE_TEMPLATES -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_SQL_LIB -DQT_WIDGETS_LIB -DVTK_HAS_OGGTHEORA_SUPPORT -IMeshShell -I../MeshShell -IMeshShell/MeshShell_autogen/include -I../view_tools -I../mesh_tools -I/usr/include/eigen3 -isystem /opt/Qt5.9.8/5.9.8/gcc_64/include -isystem /opt/Qt5.9.8/5.9.8/gcc_64/include/QtCore -isystem /opt/Qt5.9.8/5.9.8/gcc_64/./mkspecs/linux-g++ -isystem /opt/Qt5.9.8/5.9.8/gcc_64/include/QtGui -isystem /opt/Qt5.9.8/5.9.8/gcc_64/include/QtWidgets -isystem /usr/local/include/vtk-8.90 -isystem /usr/local/include/vtk-8.90/vtkhdf5 -isystem /usr/local/include/vtk-8.90/vtkhdf5/src -isystem /usr/local/include/vtk-8.90/vtkhdf5/hl/src -isystem /usr/local/include/vtk-8.90/vtkogg/include -isystem /usr/local/include/vtk-8.90/vtklibxml2/include -isystem /opt/Qt5.9.8/5.9.8/gcc_64/include/QtSql -isystem /opt/Qt5.9.8/5.9.8/gcc_64/include/QtOpenGL  -g   -fPIC -std=gnu++14 -o MeshShell/CMakeFiles/MeshShell.dir/MeshShell_autogen/mocs_compilation.cpp.o -c /home/hunauta/Repos/MeshShell/build/MeshShell/MeshShell_autogen/mocs_compilation.cpp",
+  "file": "/home/hunauta/Repos/MeshShell/build/MeshShell/MeshShell_autogen/mocs_compilation.cpp"
+},
+
+{
+  "directory": "/home/hunauta/Repos/MeshShell/build",
+  "command": "/usr/bin/clang++-6.0  -DH5_BUILT_AS_DYNAMIC_LIB -DINCLUDE_TEMPLATES -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_SQL_LIB -DQT_WIDGETS_LIB -DVTK_HAS_OGGTHEORA_SUPPORT -IMeshShell -I../MeshShell -IMeshShell/MeshShell_autogen/include -I../view_tools -I../mesh_tools -I/usr/include/eigen3 -isystem /opt/Qt5.9.8/5.9.8/gcc_64/include -isystem /opt/Qt5.9.8/5.9.8/gcc_64/include/QtCore -isystem /opt/Qt5.9.8/5.9.8/gcc_64/./mkspecs/linux-g++ -isystem /opt/Qt5.9.8/5.9.8/gcc_64/include/QtGui -isystem /opt/Qt5.9.8/5.9.8/gcc_64/include/QtWidgets -isystem /usr/local/include/vtk-8.90 -isystem /usr/local/include/vtk-8.90/vtkhdf5 -isystem /usr/local/include/vtk-8.90/vtkhdf5/src -isystem /usr/local/include/vtk-8.90/vtkhdf5/hl/src -isystem /usr/local/include/vtk-8.90/vtkogg/include -isystem /usr/local/include/vtk-8.90/vtklibxml2/include -isystem /opt/Qt5.9.8/5.9.8/gcc_64/include/QtSql -isystem /opt/Qt5.9.8/5.9.8/gcc_64/include/QtOpenGL  -g   -fPIC -std=gnu++14 -o MeshShell/CMakeFiles/MeshShell.dir/src/main.cxx.o -c /home/hunauta/Repos/MeshShell/MeshShell/src/main.cxx",
+  "file": "/home/hunauta/Repos/MeshShell/MeshShell/src/main.cxx"
+},
+
+{
+  "directory": "/home/hunauta/Repos/MeshShell/build",
+  "command": "/usr/bin/clang++-6.0  -DH5_BUILT_AS_DYNAMIC_LIB -DINCLUDE_TEMPLATES -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_SQL_LIB -DQT_WIDGETS_LIB -DVTK_HAS_OGGTHEORA_SUPPORT -IMeshShell -I../MeshShell -IMeshShell/MeshShell_autogen/include -I../view_tools -I../mesh_tools -I/usr/include/eigen3 -isystem /opt/Qt5.9.8/5.9.8/gcc_64/include -isystem /opt/Qt5.9.8/5.9.8/gcc_64/include/QtCore -isystem /opt/Qt5.9.8/5.9.8/gcc_64/./mkspecs/linux-g++ -isystem /opt/Qt5.9.8/5.9.8/gcc_64/include/QtGui -isystem /opt/Qt5.9.8/5.9.8/gcc_64/include/QtWidgets -isystem /usr/local/include/vtk-8.90 -isystem /usr/local/include/vtk-8.90/vtkhdf5 -isystem /usr/local/include/vtk-8.90/vtkhdf5/src -isystem /usr/local/include/vtk-8.90/vtkhdf5/hl/src -isystem /usr/local/include/vtk-8.90/vtkogg/include -isystem /usr/local/include/vtk-8.90/vtklibxml2/include -isystem /opt/Qt5.9.8/5.9.8/gcc_64/include/QtSql -isystem /opt/Qt5.9.8/5.9.8/gcc_64/include/QtOpenGL  -g   -fPIC -std=gnu++14 -o MeshShell/CMakeFiles/MeshShell.dir/src/mesh_shell.cxx.o -c /home/hunauta/Repos/MeshShell/MeshShell/src/mesh_shell.cxx",
+  "file": "/home/hunauta/Repos/MeshShell/MeshShell/src/mesh_shell.cxx"
+},
+
+{
+  "directory": "/home/hunauta/Repos/MeshShell/build",
+  "command": "/usr/bin/clang++-6.0  -DH5_BUILT_AS_DYNAMIC_LIB -DINCLUDE_TEMPLATES -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_SQL_LIB -DQT_WIDGETS_LIB -DVTK_HAS_OGGTHEORA_SUPPORT -IMeshShell -I../MeshShell -IMeshShell/MeshShell_autogen/include -I../view_tools -I../mesh_tools -I/usr/include/eigen3 -isystem /opt/Qt5.9.8/5.9.8/gcc_64/include -isystem /opt/Qt5.9.8/5.9.8/gcc_64/include/QtCore -isystem /opt/Qt5.9.8/5.9.8/gcc_64/./mkspecs/linux-g++ -isystem /opt/Qt5.9.8/5.9.8/gcc_64/include/QtGui -isystem /opt/Qt5.9.8/5.9.8/gcc_64/include/QtWidgets -isystem /usr/local/include/vtk-8.90 -isystem /usr/local/include/vtk-8.90/vtkhdf5 -isystem /usr/local/include/vtk-8.90/vtkhdf5/src -isystem /usr/local/include/vtk-8.90/vtkhdf5/hl/src -isystem /usr/local/include/vtk-8.90/vtkogg/include -isystem /usr/local/include/vtk-8.90/vtklibxml2/include -isystem /opt/Qt5.9.8/5.9.8/gcc_64/include/QtSql -isystem /opt/Qt5.9.8/5.9.8/gcc_64/include/QtOpenGL  -g   -fPIC -std=gnu++14 -o MeshShell/CMakeFiles/MeshShell.dir/src/vtkMesh.cxx.o -c /home/hunauta/Repos/MeshShell/MeshShell/src/vtkMesh.cxx",
+  "file": "/home/hunauta/Repos/MeshShell/MeshShell/src/vtkMesh.cxx"
+},
+
+{
+  "directory": "/home/hunauta/Repos/MeshShell/build",
+  "command": "/usr/bin/clang++-6.0  -DH5_BUILT_AS_DYNAMIC_LIB -DINCLUDE_TEMPLATES -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_SQL_LIB -DQT_WIDGETS_LIB -DVTK_HAS_OGGTHEORA_SUPPORT -IMeshShell -I../MeshShell -IMeshShell/MeshShell_autogen/include -I../view_tools -I../mesh_tools -I/usr/include/eigen3 -isystem /opt/Qt5.9.8/5.9.8/gcc_64/include -isystem /opt/Qt5.9.8/5.9.8/gcc_64/include/QtCore -isystem /opt/Qt5.9.8/5.9.8/gcc_64/./mkspecs/linux-g++ -isystem /opt/Qt5.9.8/5.9.8/gcc_64/include/QtGui -isystem /opt/Qt5.9.8/5.9.8/gcc_64/include/QtWidgets -isystem /usr/local/include/vtk-8.90 -isystem /usr/local/include/vtk-8.90/vtkhdf5 -isystem /usr/local/include/vtk-8.90/vtkhdf5/src -isystem /usr/local/include/vtk-8.90/vtkhdf5/hl/src -isystem /usr/local/include/vtk-8.90/vtkogg/include -isystem /usr/local/include/vtk-8.90/vtklibxml2/include -isystem /opt/Qt5.9.8/5.9.8/gcc_64/include/QtSql -isystem /opt/Qt5.9.8/5.9.8/gcc_64/include/QtOpenGL  -g   -fPIC -std=gnu++14 -o MeshShell/CMakeFiles/MeshShell.dir/widgets/mainwindow.cxx.o -c /home/hunauta/Repos/MeshShell/MeshShell/widgets/mainwindow.cxx",
+  "file": "/home/hunauta/Repos/MeshShell/MeshShell/widgets/mainwindow.cxx"
+},
+
+{
+  "directory": "/home/hunauta/Repos/MeshShell/build",
+  "command": "/usr/bin/clang++-6.0  -DH5_BUILT_AS_DYNAMIC_LIB -DINCLUDE_TEMPLATES -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_SQL_LIB -DQT_WIDGETS_LIB -DVTK_HAS_OGGTHEORA_SUPPORT -IMeshShell -I../MeshShell -IMeshShell/MeshShell_autogen/include -I../view_tools -I../mesh_tools -I/usr/include/eigen3 -isystem /opt/Qt5.9.8/5.9.8/gcc_64/include -isystem /opt/Qt5.9.8/5.9.8/gcc_64/include/QtCore -isystem /opt/Qt5.9.8/5.9.8/gcc_64/./mkspecs/linux-g++ -isystem /opt/Qt5.9.8/5.9.8/gcc_64/include/QtGui -isystem /opt/Qt5.9.8/5.9.8/gcc_64/include/QtWidgets -isystem /usr/local/include/vtk-8.90 -isystem /usr/local/include/vtk-8.90/vtkhdf5 -isystem /usr/local/include/vtk-8.90/vtkhdf5/src -isystem /usr/local/include/vtk-8.90/vtkhdf5/hl/src -isystem /usr/local/include/vtk-8.90/vtkogg/include -isystem /usr/local/include/vtk-8.90/vtklibxml2/include -isystem /opt/Qt5.9.8/5.9.8/gcc_64/include/QtSql -isystem /opt/Qt5.9.8/5.9.8/gcc_64/include/QtOpenGL  -g   -fPIC -std=gnu++14 -o MeshShell/CMakeFiles/MeshShell.dir/widgets/meshwidget.cxx.o -c /home/hunauta/Repos/MeshShell/MeshShell/widgets/meshwidget.cxx",
+  "file": "/home/hunauta/Repos/MeshShell/MeshShell/widgets/meshwidget.cxx"
+}
+]
