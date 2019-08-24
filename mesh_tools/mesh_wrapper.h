@@ -44,6 +44,11 @@ class MeshWrapper {
 
   std::string get_mesh_name();
 
+	size_t n_vertices();
+	size_t n_edges();
+	size_t n_faces();
+	size_t n_cells();
+
 /*********** Functions end **************/
 
 

@@ -23,6 +23,14 @@ void MeshWrapper::get_face_data(
 
 std::string MeshWrapper::get_mesh_name() { return impl->mesh_name; }
 
+size_t MeshWrapper::n_vertices() { return impl->ovm_mesh->n_vertices(); }
+
+size_t MeshWrapper::n_edges() { return impl->ovm_mesh->n_edges(); }
+
+size_t MeshWrapper::n_faces() { return impl->ovm_mesh->n_faces(); }
+
+size_t MeshWrapper::n_cells() { return impl->ovm_mesh->n_cells(); }
+
 // void MeshImpl::faceData(VMeshPtr mesh, std::vector<double[3]> &points,
 // std::vector<int[3]> &faces)
 // {

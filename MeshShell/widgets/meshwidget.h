@@ -27,7 +27,7 @@ private:
   /*VTK */
 
   VtkWrapper *_viewer;
-  std::shared_ptr<MeshShell> _mesh;
+  std::shared_ptr<MeshShell> _shell;
 
   bool _mesh_loaded = false;
 
@@ -35,16 +35,22 @@ private:
 
   void renderMesh();
 
+	void updateMeshInfo();
+
   void message(QString news);
+
+	int getRenderStyle();
 
   /* properties */
 #ifdef __linux
   QString _directory_path = "~/";
 #endif
 #ifdef WIN32
-  QString _directory_path = "c:\\";
+  QString _directory_path = "D:\\Users\\A\\Documents\\Models";
 #endif
 
 private slots:
   void readMesh();
+
+	void updateMeshRenderStyle();
 };
