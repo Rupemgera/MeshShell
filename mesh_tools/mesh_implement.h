@@ -40,56 +40,54 @@ struct TF {
   }
 };
 
-  class MeshImpl {
-  private:
-    /*********** Functions begin **************/
+class MeshImpl {
+private:
+  /*********** Functions begin **************/
 
-    void readFromInp(std::ifstream &fin);
+  void readFromInp(std::ifstream &fin);
 
-    void readFromOvm(std::ifstream &fin);
+  void readFromOvm(std::ifstream &fin);
 
-    void addCell(std::vector<OvmVeH> &v, std::map<TF, OvmFaH> &faces);
+  void addCell(std::vector<OvmVeH> &v, std::map<TF, OvmFaH> &faces);
 
-    bool isSameHalfface(const std::vector<int> &f1, const std::vector<int> &f2);
+  bool isSameHalfface(const std::vector<int> &f1, const std::vector<int> &f2);
 
-    /*********** Functions end **************/
+  /*********** Functions end **************/
 
-	/*********** Properties begin **************/
+  /*********** Properties begin **************/
+  
+  /*********** Properties end **************/
 
-    /*********** Properties end **************/
+protected:
+public:
+  MeshImpl();
 
-  protected:
-    
-  public:
+  /*********** Functions begin **************/
 
-	  MeshImpl();
-	
-    /*********** Functions begin **************/
+  void readMesh(std::string filename);
 
-    void readMesh(std::string filename);
+  void saveToOVM(std::string filename);
 
-    void saveToOVM(std::string filename);
+  // 分离文件的路径,文件名和后缀名
+  // 0:path
+  // 1:filename
+  // 2:extension
+  // 3:filename without extension
+  std::vector<std::string> separateFilename(std::string filename);
 
-	// 分离文件的路径,文件名和后缀名
-    // 0:path
-    // 1:filename
-    // 2:extension
-    // 3:filename without extension
-    std::vector<std::string> separateFilename(std::string filename);
+  void get_face_data(std::vector<Eigen::Vector3d> &points,
+                     std::vector<Eigen::Matrix<long long, 3, 1>> &faces);
 
-	void get_face_data(std::vector<Eigen::Vector3d> &points,
-                  std::vector<Eigen::Matrix<long long, 3, 1>> &faces);
+  /*********** Functions end **************/
 
-    /*********** Functions end **************/
+  /*********** Properties begin **************/
 
-    /*********** Properties begin **************/
+	VMeshPtr ovm_mesh = nullptr;
 
-    VMeshPtr ovm_mesh = nullptr;
+  bool mesh_loaded = false;
 
-	bool mesh_loaded = false;
+  std::string mesh_name = "";
 
-    std::string mesh_name = "";
-
-    /*********** Properties end **************/
-  };
-}
+  /*********** Properties end **************/
+};
+} // namespace meshtools

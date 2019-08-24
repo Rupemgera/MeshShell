@@ -194,4 +194,46 @@ bool VtkWrapper::readJsonSettings() {
 
 void VtkWrapper::testRenderFunction() {}
 
-}  // namespace viewtools
+ActorControler::ActorControler(vtkSmartPointer<vtkActor> actor)
+    : _actor(actor) {}
+
+void ActorControler::setRenderSyle(int nRenderStyle) {
+  if (nRenderStyle & 2) {
+    _actor->VisibilityOn();
+    // surface type : points(0), wireframe(1) or surface(2)
+    _actor->GetProperty()->SetRepresentation(2);
+    _actor->GetProperty()->SetColor(render_status.face_color.data());
+    render_status.face_on = true;
+
+    // also render edges
+    if (nRenderStyle & 1) {
+      _actor->GetProperty()->SetEdgeVisibility(true);
+      _actor->GetProperty()->SetEdgeColor(render_status.edge_color.data());
+      render_status.edge_on = true;
+    } else {
+      _actor->GetProperty()->SetEdgeVisibility(false);
+      render_status.edge_on = false;
+    }
+  } else if (nRenderStyle & 1) // only render edges
+  {
+    _actor->VisibilityOn();
+    _actor->GetProperty()->SetRepresentationToWireframe();
+    _actor->GetProperty()->SetColor(render_status.edge_color.data());
+    render_status.face_on = false;
+    render_status.edge_on = true;
+  } else {
+    _actor->VisibilityOff();
+    render_status.face_on = false;
+    render_status.edge_on = false;
+  }
+
+} // namespace viewtools
+
+void ActorControler::setColor(Color face_color, Color edge_color) {
+  render_status.face_color = face_color.data();
+  render_status.edge_color = edge_color.data();
+}
+vtkSmartPointer<vtkActor> ActorControler::get_actor() {
+  return _actor;
+}
+}

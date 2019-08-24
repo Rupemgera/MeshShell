@@ -41,6 +41,38 @@ class Color : public Triple<double> {
  private:
 };
 
+class ActorControler {
+private:
+
+  vtkSmartPointer<vtkActor> _actor;
+
+public:
+
+	struct {
+    // whether edges are rendered
+    bool edge_on = false;
+
+    Color edge_color = Color(0.0, 0.0, 1.0);
+
+    // whether faces are rendered
+    bool face_on = false;
+
+    Color face_color = Color(1.0, 1.0, 1.0);
+
+    // whether to render stress field
+    bool field_on = false;
+  } render_status;
+
+	ActorControler(vtkSmartPointer<vtkActor> actor);
+
+	void setRenderSyle(int nRenderStyle);
+
+	void setColor(Color face_color = Color(1.0,1.0,1.0), Color edge_color = Color(0.0,0.0,1.0));
+
+	vtkSmartPointer<vtkActor> get_actor();
+
+};
+
 class VtkWrapper {
  public:
   VtkWrapper(QVTKOpenGLWidget *widget);
