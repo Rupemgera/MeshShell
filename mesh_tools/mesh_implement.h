@@ -1,4 +1,4 @@
-#include "meshDefs.h"
+ï»¿#include "meshDefs.h"
 #include <vector>
 
 namespace meshtools {
@@ -50,6 +50,8 @@ private:
 
   void addCell(std::vector<OvmVeH> &v, std::map<TF, OvmFaH> &faces);
 
+	void tetFaces(std::vector<Eigen::Matrix<long long, 3, 1>> &faces, long long v[4]);
+
   bool isSameHalfface(const std::vector<int> &f1, const std::vector<int> &f2);
 
   /*********** Functions end **************/
@@ -68,14 +70,17 @@ public:
 
   void saveToOVM(std::string filename);
 
-  // ·ÖÀëÎÄ¼şµÄÂ·¾¶,ÎÄ¼şÃûºÍºó×ºÃû
+  // åˆ†ç¦»æ–‡ä»¶çš„è·¯å¾„,æ–‡ä»¶åå’Œåç¼€å
   // 0:path
   // 1:filename
   // 2:extension
   // 3:filename without extension
   std::vector<std::string> separateFilename(std::string filename);
 
-  void get_face_data(std::vector<Eigen::Vector3d> &points,
+  void getFaceData(std::vector<Eigen::Vector3d> &points,
+                     std::vector<Eigen::Matrix<long long, 3, 1>> &faces);
+
+	void getShrinkMesh(std::vector<Eigen::Vector3d> &points,
                      std::vector<Eigen::Matrix<long long, 3, 1>> &faces);
 
   /*********** Functions end **************/

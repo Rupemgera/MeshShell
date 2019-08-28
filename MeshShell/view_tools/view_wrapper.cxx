@@ -170,20 +170,6 @@ vtkSmartPointer<vtkActor> VtkWrapper::processMesh(
   return face_actor;
 }
 
-void VtkWrapper::toggleSurfaceRepresentation(int nRenderType) {
-  auto actors = _renderer->GetActors();
-  // figure out there are how many actors
-  int num = actors->GetNumberOfItems();
-  // reset the index
-  actors->InitTraversal();
-  for (int i = 0; i < num; i++) {
-    auto actor = actors->GetNextActor();
-    actor->GetProperty()->SetRepresentation(nRenderType);
-  }
-
-  //_renderer->Modified();
-}
-
 // not completed
 bool VtkWrapper::readJsonSettings() {
   std::ifstream fin(_settings_jsonfile);
@@ -196,6 +182,11 @@ void VtkWrapper::testRenderFunction() {}
 
 ActorControler::ActorControler(vtkSmartPointer<vtkActor> actor)
     : _actor(actor) {}
+
+void ActorControler::setVisibility(bool visibility)
+{
+	_actor->SetVisibility(visibility);
+}
 
 void ActorControler::setRenderSyle(int nRenderStyle) {
   if (nRenderStyle & 2) {

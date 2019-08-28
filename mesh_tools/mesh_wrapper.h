@@ -39,8 +39,11 @@ class MeshWrapper {
   // 3:filename without extension
   std::vector<std::string> separateFilename(std::string filename);
 
-  void get_face_data(std::vector<Eigen::Vector3d> &points,
+  void getFaceData(std::vector<Eigen::Vector3d> &points,
                 std::vector<Eigen::Matrix<long long, 3, 1>> &faces);
+
+	void getShrinkMesh(std::vector<Eigen::Vector3d> &points,
+                     std::vector<Eigen::Matrix<long long, 3, 1>> &faces);
 
   std::string get_mesh_name();
 

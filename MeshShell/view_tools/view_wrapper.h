@@ -1,5 +1,6 @@
 #pragma once
 
+#include <initializer_list>
 #include <iostream>
 #include <vector>
 
@@ -7,9 +8,30 @@
 
 namespace viewtools {
 
-template <typename T>
-class Triple {
- public:
+template <typename T, int size> class tuple {
+protected:
+  T _data[size];
+
+public:
+  tuple(){};
+  tuple(std::initializer_list<T> para) {
+    int n = std::min(para.size(), size);
+    for (int i = 0; i < n; ++i) {
+      _data[i] = para[i];
+    }
+  }
+  tuple(T *para) {
+    for (int i = 0; i < size; ++i) {
+      _data[i] = para[i];
+    }
+  }
+  const T *data() const { return _data; }
+
+  T *data() { return _data; }
+};
+
+template <typename T> class Triple : public tuple<T, 3> {
+public:
   Triple() {}
   Triple(T u, T v, T w) {
     _data[0] = u;
@@ -17,14 +39,9 @@ class Triple {
     _data[2] = w;
   }
   Triple(T *data) {
-    for (int i = 0; i < 3; ++i) _data[i] = data[i];
+    for (int i = 0; i < 3; ++i)
+      _data[i] = data[i];
   }
-  const T *data() const { return _data; }
-
-  T *data() { return _data; }
-
- protected:
-  T _data[3];
 };
 
 /*********** defines begin **************/
@@ -33,22 +50,20 @@ using Triangle = Triple<long long>;
 /*********** defines end **************/
 
 class Color : public Triple<double> {
- public:
+public:
   Color(double *data);
   Color(double r, double g, double b);
   Color(std::string description);
 
- private:
+private:
 };
 
 class ActorControler {
 private:
-
   vtkSmartPointer<vtkActor> _actor;
 
 public:
-
-	struct {
+  struct {
     // whether edges are rendered
     bool edge_on = false;
 
@@ -63,18 +78,20 @@ public:
     bool field_on = false;
   } render_status;
 
-	ActorControler(vtkSmartPointer<vtkActor> actor);
+  ActorControler(vtkSmartPointer<vtkActor> actor);
 
-	void setRenderSyle(int nRenderStyle);
+	void setVisibility(bool visibility);
 
-	void setColor(Color face_color = Color(1.0,1.0,1.0), Color edge_color = Color(0.0,0.0,1.0));
+  void setRenderSyle(int nRenderStyle);
 
-	vtkSmartPointer<vtkActor> get_actor();
+  void setColor(Color face_color = Color(1.0, 1.0, 1.0),
+                Color edge_color = Color(0.0, 0.0, 1.0));
 
+  vtkSmartPointer<vtkActor> get_actor();
 };
 
 class VtkWrapper {
- public:
+public:
   VtkWrapper(QVTKOpenGLWidget *widget);
 
   /*vtk render functions*/
@@ -101,13 +118,8 @@ class VtkWrapper {
   vtkSmartPointer<vtkActor> processMesh(const std::vector<Point3d> &points,
                                         const std::vector<Triangle> &faces);
 
-  /*
-          set surface property of mesh
-          0 : VTK_POINTS
-          1 : VTK_WIREFRAME
-          2 : VTK_SURFACE
-          */
-  void toggleSurfaceRepresentation(int nRenderType);
+  /*vtkSmartPointer<vtkActor>
+  processShrinkMesh(const std::vector<Point3d> &points, );*/
 
   //
   bool readJsonSettings();
@@ -115,7 +127,7 @@ class VtkWrapper {
   // test interface
   void testRenderFunction();
 
- private:
+private:
   vtkSmartPointer<vtkRenderer> _renderer;
   // renderWindow
   vtkSmartPointer<vtkGenericOpenGLRenderWindow> _renderWindow;
@@ -124,4 +136,4 @@ class VtkWrapper {
 
   std::string _settings_jsonfile;
 };
-}  // namespace viewtools
+} // namespace viewtools

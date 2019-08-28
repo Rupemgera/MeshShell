@@ -21,7 +21,11 @@ public:
 
 	void updateMeshRenderStyle(int nRenderStyle);
 
+	void drawShrink(int nRenderStyle = 3);
+
   bool mesh_loaded = false;
+
+	bool shrinked = false;
 
 	std::string mesh_name;
 
@@ -31,7 +35,9 @@ protected:
 
   VtkWrapper *_viewer;
 
-	ActorControler *_main_actor;
+	ActorControler *_main_actor = nullptr;
+
+	ActorControler *_shrink_actor = nullptr;
   
   ActorMap map_actors;
 };
