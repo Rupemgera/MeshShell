@@ -1,9 +1,10 @@
-#include "mesh_implement.h"
+ï»¿#include "mesh_implement.h"
 #include <regex>
+#include <assert.h>
 
 namespace meshtools {
-void MeshImpl::readFromInp(std::ifstream &fin) {
-  /* ¶ÁÈë.inpÎÄ¼ş */
+void MeshImpl::readFromInp(std::ifstream& fin) {
+  /* è¯»å…¥.inpæ–‡ä»¶ */
 
   std::string line_str;
 
@@ -11,18 +12,18 @@ void MeshImpl::readFromInp(std::ifstream &fin) {
 
   VMeshPtr mesh_ptr(new VMesh);
 
-  /* ÕıÔò±í´ïÊ½  */
+  /* æ­£åˆ™è¡¨è¾¾å¼  */
 
-  //Æ¥Åä *NODEĞÅÏ¢
+  //åŒ¹é… *NODEä¿¡æ¯
   std::regex node_regex("^\\*node", std::regex::icase);
 
-  //Æ¥Åä *ELEMENTĞÅÏ¢
+  //åŒ¹é… *ELEMENTä¿¡æ¯
   std::regex element_regex("^\\*element", std::regex::icase);
 
-  //Æ¥Åä *
+  //åŒ¹é… *
   std::regex comments_regex("\\*{2}|^$");
 
-  //ÊäÈë¸ñÊ½
+  //è¾“å…¥æ ¼å¼
 
   std::regex node_format(
       "^([\\d\\.Ee\\s]+),([\\d\\.Ee\\s]+),([\\d\\.Ee\\s]+),([\\d\\.Ee\\s]+)$");
@@ -30,7 +31,7 @@ void MeshImpl::readFromInp(std::ifstream &fin) {
       "^([\\d\\.Ee\\s]+),([\\d\\.Ee\\s]+),([\\d\\.Ee\\s]+"
       "),([\\d\\.Ee\\s]+),([\\d\\.Ee\\s]+)$");
 
-  /*  ¶ÁÈëµãĞÅÏ¢  */
+  /*  è¯»å…¥ç‚¹ä¿¡æ¯  */
 
   std::map<TF, OvmFaH> faces;
   faces.clear();
@@ -39,7 +40,8 @@ void MeshImpl::readFromInp(std::ifstream &fin) {
   bool node_section = false, element_section = false;
 
   while (std::getline(fin, line_str)) {
-    if (line_str == "") continue;
+    if (line_str == "")
+      continue;
     if (line_str[0] == '*') {
       if (std::regex_search(line_str, node_regex)) {
         node_section = true;
@@ -50,7 +52,7 @@ void MeshImpl::readFromInp(std::ifstream &fin) {
       }
     } else {
       if (node_section) {
-        //Æ¥Åäµ½*NODE£¬¿ªÊ¼´Ótmp1¶ÁÈëµãĞÅÏ¢
+        //åŒ¹é…åˆ°*NODEï¼Œå¼€å§‹ä»tmp1è¯»å…¥ç‚¹ä¿¡æ¯
         int id;
         double x, y, z;
         // std::cout << tmp1.c_str() <<std::endl;
@@ -60,7 +62,7 @@ void MeshImpl::readFromInp(std::ifstream &fin) {
 #ifdef _WIN64
         sscanf_s(line_str.c_str(), "%d, %lf , %lf , %lf", &id, &x, &y, &z);
 #endif  // _WIN64 \
-	//²åÈëÍø¸ñµã
+	//æ’å…¥ç½‘æ ¼ç‚¹
         mesh_ptr->add_vertex(MeshPoint(x, y, z));
       } else if (element_section) {
         int id;
@@ -73,7 +75,7 @@ void MeshImpl::readFromInp(std::ifstream &fin) {
         sscanf_s(line_str.c_str(), "%d, %d ,%d , %d , %d", &id, v, v + 1, v + 2,
                  v + 3);
 #endif  // _WIN64 \
-	//int×ª»»Îªhandle
+	//intè½¬æ¢ä¸ºhandle
         std::vector<OvmVeH> vs;
         vs.clear();
         // inp index start from 1 while OVM from 0
@@ -88,7 +90,7 @@ void MeshImpl::readFromInp(std::ifstream &fin) {
   }
 }
 
-void MeshImpl::readFromOvm(std::ifstream &fin) {
+void MeshImpl::readFromOvm(std::ifstream& fin) {
   OpenVolumeMesh::IO::FileManager manager;
   manager.readStream(fin, *ovm_mesh);
 }
@@ -121,9 +123,8 @@ std::vector<std::string> MeshImpl::separateFilename(std::string filename) {
   return ret;
 }
 
-void MeshImpl::get_face_data(
-    std::vector<Eigen::Vector3d> &points,
-    std::vector<Eigen::Matrix<long long, 3, 1>> &faces) {
+void MeshImpl::getFaceData(std::vector<Eigen::Vector3d>& points,
+                           std::vector<Eigen::Matrix<long long, 3, 1>>& faces) {
   if (mesh_loaded == false) {
     std::cout << "mesh not loaded" << std::endl;
     return;
@@ -151,17 +152,52 @@ void MeshImpl::get_face_data(
   }
 }
 
-bool MeshImpl::isSameHalfface(const std::vector<int> &f1,
-                              const std::vector<int> &f2) {
+void MeshImpl::getShrinkMesh(
+    std::vector<Eigen::Vector3d>& points,
+    std::vector<Eigen::Matrix<long long, 3, 1>>& faces) {
+  double rate = 0.2;
+  size_t n = ovm_mesh->n_cells();
+	faces.clear();
+	points.clear();
+	faces.reserve(n * 4);
+	points.reserve(n * 4);
+	/*faces.resize(n * 4);
+	points.resize(n * 4);*/
+	int k = 0, idf = 0;
+  for (auto citer : ovm_mesh->cells()) {
+    std::vector<OvmVec3d> vertices;
+    OvmVec3d tet_center(0.0, 0.0, 0.0);
+    for (auto vciter = ovm_mesh->cv_iter(citer); vciter.valid(); ++vciter) {
+			vertices.push_back(ovm_mesh->vertex(*vciter));
+      tet_center += ovm_mesh->vertex(*vciter);
+    }
+		tet_center /= vertices.size();
+		for (auto& v : vertices) {
+			v = v + (tet_center - v) * rate;
+			points.push_back(Eigen::Vector3d(v.data()));
+		}
+		long long v[4] = { k,k + 1,k + 2,k + 3 };
+		k += 4;
+		// å°†å››ä¸ªé¡¶ç‚¹æ„æˆçš„tetçš„å››ä¸ªé¢pushè¿›faces
+		tetFaces(faces, v);
+  }
+
+	assert(faces.size() == n * 4);
+	assert(points.size() == n * 4);
+
+}
+
+bool MeshImpl::isSameHalfface(const std::vector<int>& f1,
+                              const std::vector<int>& f2) {
   if ((f1[0] == f2[0] && f1[1] == f2[1]) ||
       (f1[1] == f2[0] && f1[2] == f2[1]) || (f1[2] == f2[0] && f1[0] == f2[1]))
     return true;
   return false;
 }
 
-void MeshImpl::addCell(std::vector<OvmVeH> &v, std::map<TF, OvmFaH> &faces) {
+void MeshImpl::addCell(std::vector<OvmVeH>& v, std::map<TF, OvmFaH>& faces) {
   /*
-          ±äÁ¿¶¨Òå
+          å˜é‡å®šä¹‰
           */
 
   OvmFaH f0, f1, f2, f3;
@@ -232,7 +268,24 @@ void MeshImpl::addCell(std::vector<OvmVeH> &v, std::map<TF, OvmFaH> &faces) {
   ovm_mesh->add_cell(hf);
 }
 
-MeshImpl::MeshImpl() { ovm_mesh = VMeshPtr(new VMesh); }
+void MeshImpl::tetFaces(std::vector<Eigen::Matrix<long long, 3, 1>>& faces, long long v[4])
+{
+	for(int i = 0;i<4;++i){
+		Eigen::Matrix<long long, 3, 1> face_vertices;
+		int k = 0;
+		for(auto j = 0;j<4;++j){
+			if(j!=i){
+				face_vertices[k] = v[j];
+				k++;
+			}
+		}
+		faces.push_back(face_vertices);
+	}
+}
+
+MeshImpl::MeshImpl() {
+  ovm_mesh = VMeshPtr(new VMesh);
+}
 
 void MeshImpl::readMesh(std::string filename) {
   std::ifstream fin(filename);

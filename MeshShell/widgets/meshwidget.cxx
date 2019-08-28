@@ -21,6 +21,7 @@ void MeshWidget::addSlot() {
           &MeshWidget::updateMeshRenderStyle);
   connect(this->ui->checkBox_face, &QCheckBox::toggled, this,
           &MeshWidget::updateMeshRenderStyle);
+	connect(this->ui->radioButton_normal, &QRadioButton::toggled, this, &MeshWidget::geometryChange);
 }
 
 void MeshWidget::updateMeshInfo() {
@@ -43,6 +44,15 @@ int MeshWidget::getRenderStyle() {
 
 void MeshWidget::updateMeshRenderStyle() {
   _shell->updateMeshRenderStyle(getRenderStyle());
+}
+void MeshWidget::geometryChange()
+{
+	if(ui->radioButton_normal->isChecked()){
+		_shell->drawMesh();
+	}
+	else if(ui->radioButton_shrink->isChecked()){
+		_shell->drawShrink();
+	}
 }
 void MeshWidget::readMesh() {
   

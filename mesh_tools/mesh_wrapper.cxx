@@ -15,10 +15,16 @@ std::vector<std::string> MeshWrapper::separateFilename(std::string filename) {
   return impl->separateFilename(filename);
 }
 
-void MeshWrapper::get_face_data(
+void MeshWrapper::getFaceData(
     std::vector<Eigen::Vector3d>& points,
                            std::vector<Eigen::Matrix<long long, 3, 1>>& faces) {
-  impl->get_face_data(points, faces);
+  impl->getFaceData(points, faces);
+}
+
+void MeshWrapper::getShrinkMesh(
+    std::vector<Eigen::Vector3d> &points,
+    std::vector<Eigen::Matrix<long long, 3, 1>> &faces) {
+  impl->getShrinkMesh(points, faces);
 }
 
 std::string MeshWrapper::get_mesh_name() { return impl->mesh_name; }

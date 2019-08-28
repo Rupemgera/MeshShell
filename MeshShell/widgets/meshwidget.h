@@ -53,4 +53,6 @@ private slots:
   void readMesh();
 
 	void updateMeshRenderStyle();
+
+	void geometryChange();
 };
