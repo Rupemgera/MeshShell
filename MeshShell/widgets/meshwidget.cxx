@@ -15,13 +15,16 @@ MeshWidget::~MeshWidget() {
 }
 
 void MeshWidget::addSlot() {
-  connect(this->ui->pushButton_read, &QPushButton::clicked, this,
-          &MeshWidget::readMesh);
-  connect(this->ui->checkBox_edge, &QCheckBox::toggled, this,
-          &MeshWidget::updateMeshRenderStyle);
-  connect(this->ui->checkBox_face, &QCheckBox::toggled, this,
-          &MeshWidget::updateMeshRenderStyle);
-	connect(this->ui->radioButton_normal, &QRadioButton::toggled, this, &MeshWidget::geometryChange);
+	connect(this->ui->pushButton_read, &QPushButton::clicked, this,
+		&MeshWidget::readMesh);
+	connect(this->ui->checkBox_edge, &QCheckBox::toggled, this,
+		&MeshWidget::updateMeshRenderStyle);
+	connect(this->ui->checkBox_face, &QCheckBox::toggled, this,
+		&MeshWidget::updateMeshRenderStyle);
+	connect(this->ui->radioButton_normal, &QRadioButton::toggled, this,
+		&MeshWidget::geometryChange);
+	connect(this->ui->pushButton_test, &QPushButton::clicked, this,
+		&MeshWidget::test);
 }
 
 void MeshWidget::updateMeshInfo() {
@@ -53,6 +56,15 @@ void MeshWidget::geometryChange()
 	else if(ui->radioButton_shrink->isChecked()){
 		_shell->drawShrink();
 	}
+}
+void MeshWidget::test()
+{
+	std::vector<double> s;
+	s.push_back(1);
+	s.push_back(2);
+	s.push_back(3);
+	s.push_back(4);
+	_shell->setVertexScalars(s, 0, 4);
 }
 void MeshWidget::readMesh() {
   

@@ -23,6 +23,10 @@ public:
 
 	void drawShrink(int nRenderStyle = 3);
 
+	void setVertexScalars(std::vector<double> &scalars, double lower_bound, double upper_bound);
+
+	void renderScalars(vtkSmartPointer<vtkActor> actor, bool flag);
+
   bool mesh_loaded = false;
 
 	bool shrinked = false;

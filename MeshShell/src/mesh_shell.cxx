@@ -103,3 +103,14 @@ void MeshShell::drawShrink(int nRenderStyle)
 
 	_viewer->refresh();
 }
+
+void MeshShell::setVertexScalars(std::vector<double>& scalars, double lower_bound, double upper_bound)
+{
+	_viewer->setVertexScalars(scalars,lower_bound,upper_bound,_main_actor->get_actor());
+}
+
+void MeshShell::renderScalars(vtkSmartPointer<vtkActor> actor, bool flag)
+{
+	auto mapper = actor->GetMapper();
+	mapper->SetScalarVisibility(flag);
+}
