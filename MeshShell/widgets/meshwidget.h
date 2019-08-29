@@ -55,4 +55,6 @@ private slots:
 	void updateMeshRenderStyle();
 
 	void geometryChange();
+
+	void test();
 };
