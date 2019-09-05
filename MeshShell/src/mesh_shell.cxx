@@ -1,44 +1,116 @@
 #include "mesh_shell.h"
 
-MeshShell::MeshShell(VtkWrapper *viewer) { _viewer = viewer; }
+MeshShell::MeshShell(VtkWrapper *viewer): _viewer(viewer) { 
+	ovm_mesh = new MeshWrapper();
+}
 
-void MeshShell::drawMesh() {
-  std::vector<viewtools::Point3d> points;
-  std::vector<viewtools::Triangle> faces;
+MeshShell::~MeshShell() { delete ovm_mesh; }
 
-  if (mesh_loaded == false) {
-    std::cout << "mesh not loaded" << std::endl;
-    return;
-  }
-  int nv = ovm_mesh->n_vertices();
-  points.resize(nv);
-  int nf = ovm_mesh->n_faces();
-  faces.resize(nf);
+void MeshShell::drawMesh(int nRenderStyle) {
+	if (_main_actor == nullptr) {
+		std::vector<Eigen::Vector3d> points;
+		std::vector<Eigen::Matrix<long long, 3, 1>> faces;
 
-  // get points data
-  for (auto viter : ovm_mesh->vertices()) {
-    auto p = ovm_mesh->vertex(viter);
-    points[viter.idx()] = p.data();
-  }
+		ovm_mesh->getFaceData(points, faces);
 
-  // get faces data
-  for (auto fiter : ovm_mesh->faces()) {
-    long long v[3];
-    int k = 0;
-    for (auto j = ovm_mesh->fv_iter(fiter); j.valid(); ++j) {
-      v[k] = j->idx();
-      k++;
-    }
-    faces[fiter.idx()] = v;
-  }
+		std::vector<viewtools::Point3d> vtk_points;
+		vtk_points.reserve(points.size());
+		for (auto i : points) {
+			vtk_points.push_back(i.data());
+		}
+		std::vector<viewtools::Triangle> vtk_faces;
+		vtk_faces.reserve(faces.size());
+		for (auto j : faces) {
+			vtk_faces.push_back(j.data());
+		}
 
-  auto actor = _viewer->processMesh(points, faces);
-  auto map_item = map_actors.find(mesh_name);
-  if (map_item != map_actors.end()) {
-    map_item->second = actor;
+		_main_actor = new ActorControler(_viewer->processMesh(vtk_points, vtk_faces));
+		mesh_name = ovm_mesh->get_mesh_name();
+		/*auto map_item = map_actors.find(mesh_name);
+		if (map_item != map_actors.end()) {
+			map_item->second = actor;
+		} else {
+			map_actors.insert(ActorMap::value_type(mesh_name, actor));
+			}*/
+		_viewer->renderActor(_main_actor->get_actor());
+	}
+
+	if (_shrink_actor != nullptr)
+		_shrink_actor->setVisibility(false);
+
+	// 1 : render edge 2 : render face 3 = 2 + 1
+  _main_actor->setRenderSyle(nRenderStyle);
+  _main_actor->setColor();
+	shrinked = false;
+
+	_viewer->refresh();
+}
+
+void MeshShell::readMesh(std::string filename) {
+  ovm_mesh->readMesh(filename);
+  mesh_loaded = true;
+}
+
+void MeshShell::updateMeshRenderStyle(int nRenderStyle) {
+  /*if (nRenderStyle == 0) {
+    _viewer->removeActor(_main_actor->get_actor());
   } else {
-    map_actors.insert(ActorMap::value_type(mesh_name, actor));
-  }
+    if (_main_actor->render_status.edge_on == false &&
+        _main_actor->render_status.face_on == false)
+      _viewer->renderActor(_main_actor->get_actor());
+    _main_actor->setRenderSyle(nRenderStyle);
+  }*/
+	if (shrinked){
+		_shrink_actor->setRenderSyle(nRenderStyle);
+	}else{
+		_main_actor->setRenderSyle(nRenderStyle);
+	}
+  
+  _viewer->refresh();
+}
 
-  _viewer->renderActor(actor);
+void MeshShell::drawShrink(int nRenderStyle)
+{
+	if(_shrink_actor == nullptr){
+		std::vector<Eigen::Vector3d> points;
+		std::vector<Eigen::Matrix<long long, 3, 1>> faces;
+
+		ovm_mesh->getShrinkMesh(points, faces);
+
+		std::vector<viewtools::Point3d> vtk_points;
+		vtk_points.reserve(points.size());
+		for (auto i : points) {
+			vtk_points.push_back(i.data());
+		}
+		std::vector<viewtools::Triangle> vtk_faces;
+		vtk_faces.reserve(faces.size());
+		for (auto j : faces) {
+			vtk_faces.push_back(j.data());
+		}
+
+		_shrink_actor = new ActorControler(_viewer->processMesh(vtk_points, vtk_faces));
+
+		_viewer->renderActor(_shrink_actor->get_actor());
+	}
+
+	if (_main_actor != nullptr)
+		_main_actor->setVisibility(false);
+
+	// 1 : render edge 2 : render face 3 = 2 + 1
+	_shrink_actor->setRenderSyle(nRenderStyle);
+	_shrink_actor->setColor();
+	shrinked = true;
+
+	_viewer->refresh();
+}
+
+void MeshShell::setVertexScalars(std::vector<double>& scalars, double lower_bound, double upper_bound)
+{
+	_viewer->setVertexScalars(scalars,lower_bound,upper_bound,_main_actor->get_actor());
+}
+
+void MeshShell::renderScalars(vtkSmartPointer<vtkActor> actor, bool flag)
+{
+	auto mapper = actor->GetMapper();
+	mapper->SetScalarVisibility(flag);
 }
