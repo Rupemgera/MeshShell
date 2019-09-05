@@ -29,8 +29,8 @@ include(eigen3)
 import_eigen()
 
 ## OpenVolumeMesh
-include(OpenVolumeMesh)
-import_openvolumemesh()
+#include(OpenVolumeMesh)
+#import_openvolumemesh()
 
 ## source files
  aux_source_directory(./src src_files)

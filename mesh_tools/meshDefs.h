@@ -3,10 +3,10 @@
 #include <memory>
 
 #include <Eigen/Dense>
-#include <OpenVolumeMesh/Mesh/PolyhedralMesh.hh>
-#include <OpenVolumeMesh/Core/OpenVolumeMeshHandle.hh>
-#include <OpenVolumeMesh/FileManager/FileManager.hh>
-#include <OpenVolumeMesh/Attribs/NormalAttrib.hh>
+#include "OpenVolumeMesh/Mesh/PolyhedralMesh.hh"
+#include "OpenVolumeMesh/Core/OpenVolumeMeshHandle.hh"
+#include "OpenVolumeMesh/FileManager/FileManager.hh"
+#include "OpenVolumeMesh/Attribs/NormalAttrib.hh"
 
 //definitions for polyhedral meshes
 using OvmVeH = OpenVolumeMesh::VertexHandle;
