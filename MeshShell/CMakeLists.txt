@@ -28,10 +28,6 @@ import_vtk()
 include(eigen3)
 import_eigen()
 
-## OpenVolumeMesh
-#include(OpenVolumeMesh)
-#import_openvolumemesh()
-
 ## source files
  aux_source_directory(./src src_files)
  aux_source_directory(./widgets widgets_files)

@@ -11,14 +11,6 @@ project (${PROJECT_NAME})
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 set (CMAKE_CXX_STANDARD 14)
 
-if (WIN32)
-## linux 下没有bigobj的问题
-	add_compile_options(-bigobj)
-endif()
-
-## define INCLUDE_TEMPLATES to enable OVM templates functions, like FileManager
-add_definitions(-DINCLUDE_TEMPLATES)
-
 #     静态库输出目录 => 构建目录/lib
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
 #     动态库输出目录 => 构建目录/bin
