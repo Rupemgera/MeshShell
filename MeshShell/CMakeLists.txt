@@ -33,8 +33,8 @@ import_eigen()
  # aux_source_directory(./widgets widgets_files)
  # aux_source_directory(./view_tools vtk_files)
  file(GLOB_RECURSE src_files *.cxx *.cpp *.h *.hh *.hpp)
-
- add_executable(MeshShell ${src_files} ${file_ui})
+ set(source_list ${src_files} ${file_ui})
+ add_executable(MeshShell ${source_list})
  #add_executable (MeshShell ${src_files} ${widgets_files} ${file_ui} ${vtk_files})
  #add_executable (${PROJECT_NAME} ${src_files} ${mesh_files} ${stress_files} ${visualization_files})
 
@@ -44,5 +44,14 @@ import_eigen()
 	${VTK_LIBRARIES}
 	mesh_tools
  )
+
+ if(MSVC)
+	foreach(srcf ${source_list})
+		file(RELATIVE_PATH source "${PROJECT_SOURCE_DIR}" "${srcf}")
+		get_filename_component(source_path "${source}" DIRECTORY)
+		string(REPLACE "/" "\\" source_path_msvc "${source_path}")
+		source_group("${source_path_msvc}" FILES "${source}")
+	endforeach()
+ endif()
 
 # TODO: Add tests and install targets if needed.  
