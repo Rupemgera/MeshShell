@@ -51,6 +51,8 @@ void MeshShell::readMesh(std::string filename) {
   mesh_loaded = true;
 }
 
+void MeshShell::readStress(std::string filename) {}
+
 void MeshShell::updateMeshRenderStyle(int nRenderStyle) {
   /*if (nRenderStyle == 0) {
     _viewer->removeActor(_main_actor->get_actor());
@@ -114,3 +116,5 @@ void MeshShell::renderScalars(vtkSmartPointer<vtkActor> actor, bool flag)
 	auto mapper = actor->GetMapper();
 	mapper->SetScalarVisibility(flag);
 }
+
+void MeshShell::stressSingularity(double tolerance) {}
