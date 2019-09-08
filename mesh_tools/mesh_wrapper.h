@@ -30,6 +30,8 @@ class MeshWrapper {
 
   void readMesh(std::string filename);
 
+	void readStressField(std::string filename);
+
   void saveToOVM(std::string filename);
 
   // 分离文件的路径,文件名和后缀名
