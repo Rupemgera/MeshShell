@@ -101,6 +101,10 @@ void MeshImpl::saveToOVM(std::string filename) {
   manager.writeFile(filename, *ovm_mesh);
 }
 
+void MeshImpl::readStressField(std::string filename) {
+	field->readInStress(filename,ovm_mesh);
+}
+
 std::vector<std::string> MeshImpl::separateFilename(std::string filename) {
   std::vector<std::string> ret;
   ret.clear();
@@ -285,11 +289,17 @@ void MeshImpl::tetFaces(std::vector<Eigen::Matrix<long long, 3, 1>>& faces, long
 
 MeshImpl::MeshImpl() {
   ovm_mesh = VMeshPtr(new VMesh);
+	field = new PrincipalStressField();
+}
+
+MeshImpl::~MeshImpl() {
+	delete field;
 }
 
 void MeshImpl::readMesh(std::string filename) {
   std::ifstream fin(filename);
 
+	// 若之前已经载入过mesh了，则将之前的注销重新new一个空mesh
   if (mesh_loaded) {
     ovm_mesh = VMeshPtr(new VMesh);
   }
