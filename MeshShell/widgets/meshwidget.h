@@ -33,11 +33,7 @@ private:
 
   /* functions */
 
-  void renderMesh();
-
 	void updateMeshInfo();
-
-  void message(QString news);
 
 	int getRenderStyle();
 
@@ -52,9 +48,13 @@ private:
 private slots:
   void readMesh();
 
+	void readStressField();
+
 	void updateMeshRenderStyle();
 
 	void geometryChange();
+
+	void stressSingularity();
 
 	void test();
 };

@@ -25,6 +25,10 @@ void MeshWidget::addSlot() {
 		&MeshWidget::geometryChange);
 	connect(this->ui->pushButton_test, &QPushButton::clicked, this,
 		&MeshWidget::test);
+	connect(this->ui->pushButton_readStressFile, &QPushButton::clicked, this,
+		&MeshWidget::readStressField);
+	connect(this->ui->checkBox_stressSingularity,&QCheckBox::toggled,this,
+		&MeshWidget::stressSingularity);
 }
 
 void MeshWidget::updateMeshInfo() {
@@ -45,6 +49,8 @@ int MeshWidget::getRenderStyle() {
   return nRenderStyle;
 }
 
+void MeshWidget::readStressField() {}
+
 void MeshWidget::updateMeshRenderStyle() {
   _shell->updateMeshRenderStyle(getRenderStyle());
 }
@@ -56,6 +62,9 @@ void MeshWidget::geometryChange()
 	else if(ui->radioButton_shrink->isChecked()){
 		_shell->drawShrink();
 	}
+}
+void MeshWidget::stressSingularity() {
+
 }
 void MeshWidget::test()
 {

@@ -19,6 +19,8 @@ public:
 
   void readMesh(std::string filename);
 
+	void readStress(std::string filename);
+
 	void updateMeshRenderStyle(int nRenderStyle);
 
 	void drawShrink(int nRenderStyle = 3);
@@ -26,6 +28,8 @@ public:
 	void setVertexScalars(std::vector<double> &scalars, double lower_bound, double upper_bound);
 
 	void renderScalars(vtkSmartPointer<vtkActor> actor, bool flag);
+
+	void stressSingularity(double tolerance);
 
   bool mesh_loaded = false;
 
