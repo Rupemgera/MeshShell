@@ -1,9 +1,9 @@
 #pragma once
-
-/***********
-本文件包含处理mesh的工具
-1. 读入inp文件，返回OpenVolumeMesh对象
-************/
+/********************************/
+// @author : lyz
+// @content: provide interfaces to lib users
+// @birth : 2019-09-08
+/********************************/
 
 #include <Eigen/Dense>
 #include <string>
@@ -15,13 +15,15 @@ namespace meshtools {
 前置声明
 */
 class MeshImpl;
-template <typename T>
-struct Triple {
-  T x, y, z;
-};
+
+/*
+class define
+*/
+
+template <typename T> struct Triple { T x, y, z; };
 
 class MeshWrapper {
- public:
+public:
   MeshWrapper();
 
   ~MeshWrapper();
@@ -30,7 +32,7 @@ class MeshWrapper {
 
   void readMesh(std::string filename);
 
-	void readStressField(std::string filename);
+  void readStressField(std::string filename);
 
   void saveToOVM(std::string filename);
 
@@ -42,25 +44,23 @@ class MeshWrapper {
   std::vector<std::string> separateFilename(std::string filename);
 
   void getFaceData(std::vector<Eigen::Vector3d> &points,
-                std::vector<Eigen::Matrix<long long, 3, 1>> &faces);
+                   std::vector<Eigen::Matrix<long long, 3, 1>> &faces);
 
-	void getShrinkMesh(std::vector<Eigen::Vector3d> &points,
+  void getShrinkMesh(std::vector<Eigen::Vector3d> &points,
                      std::vector<Eigen::Matrix<long long, 3, 1>> &faces);
 
   std::string get_mesh_name();
 
-	size_t n_vertices();
-	size_t n_edges();
-	size_t n_faces();
-	size_t n_cells();
+  size_t n_vertices();
+  size_t n_edges();
+  size_t n_faces();
+  size_t n_cells();
 
-/*********** Functions end **************/
+  /*********** Functions end **************/
 
-
-
- protected:
- private:
+protected:
+private:
   MeshImpl *impl;
 };
 
-}  // namespace meshtools
+} // namespace meshtools
