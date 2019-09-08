@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.8)
 
-PROJECT(mesh_tools)
+project(mesh_tools)
 
 
 if (MSVC)
@@ -16,6 +16,8 @@ import_eigen()
 ## OpenVolumeMesh
 #include(OpenVolumeMesh)
 #import_openvolumemesh()
+
+include_directories(${PROJECT_SOURCE_DIR})
 
 set(directories 
 ./OpenVolumeMesh/Attribs
@@ -49,5 +51,16 @@ acg_append_files (sources "*.cc" ${directories})
 acg_append_files (mesh_sources "*.cxx" .)
 acg_append_files (mesh_headers "*h" .)
 
+set(source_list ${sources} ${headers} ${mesh_sources} ${mesh_headers})
 
-add_library(mesh_tools STATIC ${sources} ${headers} ${mesh_sources} ${mesh_headers})
+
+add_library(mesh_tools STATIC ${source_list})
+
+if(MSVC)
+	foreach(srcf ${source_list})
+		file(RELATIVE_PATH source "${PROJECT_SOURCE_DIR}" "${srcf}")
+		get_filename_component(source_path "${source}" DIRECTORY)
+		string(REPLACE "/" "\\" source_path_msvc "${source_path}")
+		source_group("${source_path_msvc}" FILES "${source}")
+	endforeach()
+endif()
