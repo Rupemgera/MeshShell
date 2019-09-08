@@ -48,10 +48,19 @@ endmacro ()
 # collect all header and source files
 acg_append_files (headers "*.hh" ${directories})
 acg_append_files (sources "*.cc" ${directories})
-acg_append_files (mesh_sources "*.cxx" .)
-acg_append_files (mesh_headers "*h" .)
+acg_append_files (impl_headers "*.h" "./Implementation")
+acg_append_files (impl_sources "*.cxx" "./Implementation")
+acg_append_files (wrap_sources "*.cxx" .)
+acg_append_files (wrap_headers "*h" .)
 
-set(source_list ${sources} ${headers} ${mesh_sources} ${mesh_headers})
+set(source_list 
+${sources} 
+${headers} 
+${wrap_sources} 
+${wrap_headers} 
+${impl_headers} 
+${impl_sources}
+)
 
 
 add_library(mesh_tools STATIC ${source_list})

@@ -1,4 +1,9 @@
-﻿#include "meshDefs.h"
+/********************************/
+// @author : lyz
+// @content: class mesh
+// @birth : 2019-09-07
+/********************************/
+#include "meshDefs.h"
 #include "stress_field.h"
 #include <vector>
 
@@ -6,6 +11,11 @@ namespace meshtools {
 /*
 data struct defines
 */
+
+// TF is a struct to store 3 vertices of a halfface
+// the order of vertices is ignored,
+// which means hf1 = 1-2-3 equals hf2 = 2-3-1
+// while hf1 = 1-2-3 does not equals hf2 = 3-2-1
 struct TF {
   int first;
   int second;
@@ -51,20 +61,23 @@ private:
 
   void addCell(std::vector<OvmVeH> &v, std::map<TF, OvmFaH> &faces);
 
-	void tetFaces(std::vector<Eigen::Matrix<long long, 3, 1>> &faces, long long v[4]);
+  void tetFaces(std::vector<Eigen::Matrix<long long, 3, 1>> &faces,
+                long long v[4]);
 
   bool isSameHalfface(const std::vector<int> &f1, const std::vector<int> &f2);
 
   /*********** Functions end **************/
 
   /*********** Properties begin **************/
-  
+
   /*********** Properties end **************/
 
 protected:
 public:
+  // new ovm_mesh, filed
   MeshImpl();
-	~MeshImpl();
+  // delete filed. ovm_mesh is a shared_ptr, which does not need delete
+  ~MeshImpl();
 
   /*********** Functions begin **************/
 
@@ -72,7 +85,7 @@ public:
 
   void saveToOVM(std::string filename);
 
-	void readStressField(std::string filename);
+  void readStressField(std::string filename);
 
   // 分离文件的路径,文件名和后缀名
   // 0:path
@@ -82,18 +95,18 @@ public:
   std::vector<std::string> separateFilename(std::string filename);
 
   void getFaceData(std::vector<Eigen::Vector3d> &points,
-                     std::vector<Eigen::Matrix<long long, 3, 1>> &faces);
+                   std::vector<Eigen::Matrix<long long, 3, 1>> &faces);
 
-	void getShrinkMesh(std::vector<Eigen::Vector3d> &points,
+  void getShrinkMesh(std::vector<Eigen::Vector3d> &points,
                      std::vector<Eigen::Matrix<long long, 3, 1>> &faces);
 
   /*********** Functions end **************/
 
   /*********** Properties begin **************/
 
-	VMeshPtr ovm_mesh = nullptr;
+  VMeshPtr ovm_mesh = nullptr;
 
-	PrincipalStressField *field = nullptr;
+  PrincipalStressField *field = nullptr;
 
   bool mesh_loaded = false;
 
