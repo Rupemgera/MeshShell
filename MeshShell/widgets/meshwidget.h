@@ -56,6 +56,8 @@ private slots:
 
 	void updateMeshRenderStyle();
 
+	void updateMeshOpacity();
+
 	void geometryChange();
 
 	void stressSingularity();

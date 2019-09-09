@@ -70,6 +70,10 @@ void ActorControler::setRenderSyle(int nRenderStyle) {
   }
 }
 
+void ActorControler::setOpacity(double opacity) {
+	_actor->GetProperty()->SetOpacity(opacity);
+}
+
 void ActorControler::setColor(Color edge_color, Color face_color) {
   render_status.face_color = face_color.data();
   render_status.edge_color = edge_color.data();
@@ -82,6 +86,25 @@ vtkSmartPointer<vtkActor> ActorControler::get_actor() { return _actor; }
 
 /************************* ActorControler  end  *************************/
 
+/************************* ActorTable  end  *************************/
+
+void ActorTable::insert(ActorControler *u) {
+	_table.insert(std::make_pair(u->name,u));
+}
+
+std::map<std::string, ActorControler *>::iterator ActorTable::find(std::string key) {
+	return _table.find(key);
+}
+
+std::map<std::string, ActorControler *>::iterator ActorTable::begin() {
+  return _table.begin();
+}
+
+std::map<std::string, ActorControler *>::iterator ActorTable::end() {
+  return _table.end();
+}
+
+/************************* ActorTable  end  *************************/
 VtkWrapper::VtkWrapper(QVTKOpenGLWidget *Qwidget) {
   // Create the usual rendering stuff
 
