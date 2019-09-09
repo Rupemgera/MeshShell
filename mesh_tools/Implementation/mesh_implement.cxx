@@ -1,9 +1,9 @@
 ﻿#include "mesh_implement.h"
-#include <regex>
 #include <assert.h>
+#include <regex>
 
 namespace meshtools {
-void MeshImpl::readFromInp(std::ifstream& fin) {
+void MeshImpl::readFromInp(std::ifstream &fin) {
   /* 读入.inp文件 */
 
   std::string line_str;
@@ -27,9 +27,8 @@ void MeshImpl::readFromInp(std::ifstream& fin) {
 
   std::regex node_format(
       "^([\\d\\.Ee\\s]+),([\\d\\.Ee\\s]+),([\\d\\.Ee\\s]+),([\\d\\.Ee\\s]+)$");
-  std::regex element_format(
-      "^([\\d\\.Ee\\s]+),([\\d\\.Ee\\s]+),([\\d\\.Ee\\s]+"
-      "),([\\d\\.Ee\\s]+),([\\d\\.Ee\\s]+)$");
+  std::regex element_format("^([\\d\\.Ee\\s]+),([\\d\\.Ee\\s]+),([\\d\\.Ee\\s]+"
+                            "),([\\d\\.Ee\\s]+),([\\d\\.Ee\\s]+)$");
 
   /*  读入点信息  */
 
@@ -58,10 +57,10 @@ void MeshImpl::readFromInp(std::ifstream& fin) {
         // std::cout << tmp1.c_str() <<std::endl;
 #ifdef __linux
         sscanf(line_str.c_str(), "%d, %lf , %lf , %lf", &id, &x, &y, &z);
-#endif  // __linux
+#endif // __linux
 #ifdef _WIN64
         sscanf_s(line_str.c_str(), "%d, %lf , %lf , %lf", &id, &x, &y, &z);
-#endif  // _WIN64 \
+#endif // _WIN64 \
 	//插入网格点
         mesh_ptr->add_vertex(MeshPoint(x, y, z));
       } else if (element_section) {
@@ -70,11 +69,11 @@ void MeshImpl::readFromInp(std::ifstream& fin) {
 #ifdef __linux
         sscanf(line_str.c_str(), "%d, %d ,%d , %d , %d", &id, v, v + 1, v + 2,
                v + 3);
-#endif  // __linux
+#endif // __linux
 #ifdef _WIN64
         sscanf_s(line_str.c_str(), "%d, %d ,%d , %d , %d", &id, v, v + 1, v + 2,
                  v + 3);
-#endif  // _WIN64 \
+#endif // _WIN64 \
 	//int转换为handle
         std::vector<OvmVeH> vs;
         vs.clear();
@@ -90,7 +89,7 @@ void MeshImpl::readFromInp(std::ifstream& fin) {
   }
 }
 
-void MeshImpl::readFromOvm(std::ifstream& fin) {
+void MeshImpl::readFromOvm(std::ifstream &fin) {
   OpenVolumeMesh::IO::FileManager manager;
   manager.readStream(fin, *ovm_mesh);
 }
@@ -102,7 +101,7 @@ void MeshImpl::saveToOVM(std::string filename) {
 }
 
 void MeshImpl::readStressField(std::string filename) {
-	field->readInStress(filename,ovm_mesh);
+  field->readInStress(filename, ovm_mesh);
 }
 
 std::vector<std::string> MeshImpl::separateFilename(std::string filename) {
@@ -127,8 +126,8 @@ std::vector<std::string> MeshImpl::separateFilename(std::string filename) {
   return ret;
 }
 
-void MeshImpl::getFaceData(std::vector<Eigen::Vector3d>& points,
-                           std::vector<Eigen::Matrix<long long, 3, 1>>& faces) {
+void MeshImpl::getFaceData(std::vector<Eigen::Vector3d> &points,
+                           std::vector<Eigen::Matrix<long long, 3, 1>> &faces) {
   if (mesh_loaded == false) {
     std::cout << "mesh not loaded" << std::endl;
     return;
@@ -157,49 +156,48 @@ void MeshImpl::getFaceData(std::vector<Eigen::Vector3d>& points,
 }
 
 void MeshImpl::getShrinkMesh(
-    std::vector<Eigen::Vector3d>& points,
-    std::vector<Eigen::Matrix<long long, 3, 1>>& faces) {
+    std::vector<Eigen::Vector3d> &points,
+    std::vector<Eigen::Matrix<long long, 3, 1>> &faces) {
   double rate = 0.2;
   size_t n = ovm_mesh->n_cells();
-	faces.clear();
-	points.clear();
-	faces.reserve(n * 4);
-	points.reserve(n * 4);
-	/*faces.resize(n * 4);
-	points.resize(n * 4);*/
-	int k = 0, idf = 0;
+  faces.clear();
+  points.clear();
+  faces.reserve(n * 4);
+  points.reserve(n * 4);
+  /*faces.resize(n * 4);
+  points.resize(n * 4);*/
+  int k = 0, idf = 0;
   for (auto citer : ovm_mesh->cells()) {
     std::vector<OvmVec3d> vertices;
     OvmVec3d tet_center(0.0, 0.0, 0.0);
     for (auto vciter = ovm_mesh->cv_iter(citer); vciter.valid(); ++vciter) {
-			vertices.push_back(ovm_mesh->vertex(*vciter));
+      vertices.push_back(ovm_mesh->vertex(*vciter));
       tet_center += ovm_mesh->vertex(*vciter);
     }
-		tet_center /= vertices.size();
-		for (auto& v : vertices) {
-			v = v + (tet_center - v) * rate;
-			points.push_back(Eigen::Vector3d(v.data()));
-		}
-		long long v[4] = { k,k + 1,k + 2,k + 3 };
-		k += 4;
-		// 将四个顶点构成的tet的四个面push进faces
-		tetFaces(faces, v);
+    tet_center /= vertices.size();
+    for (auto &v : vertices) {
+      v = v + (tet_center - v) * rate;
+      points.push_back(Eigen::Vector3d(v.data()));
+    }
+    long long v[4] = {k, k + 1, k + 2, k + 3};
+    k += 4;
+    // 将四个顶点构成的tet的四个面push进faces
+    tetFaces(faces, v);
   }
 
-	assert(faces.size() == n * 4);
-	assert(points.size() == n * 4);
-
+  assert(faces.size() == n * 4);
+  assert(points.size() == n * 4);
 }
 
-bool MeshImpl::isSameHalfface(const std::vector<int>& f1,
-                              const std::vector<int>& f2) {
+bool MeshImpl::isSameHalfface(const std::vector<int> &f1,
+                              const std::vector<int> &f2) {
   if ((f1[0] == f2[0] && f1[1] == f2[1]) ||
       (f1[1] == f2[0] && f1[2] == f2[1]) || (f1[2] == f2[0] && f1[0] == f2[1]))
     return true;
   return false;
 }
 
-void MeshImpl::addCell(std::vector<OvmVeH>& v, std::map<TF, OvmFaH>& faces) {
+void MeshImpl::addCell(std::vector<OvmVeH> &v, std::map<TF, OvmFaH> &faces) {
   /*
           变量定义
           */
@@ -272,34 +270,32 @@ void MeshImpl::addCell(std::vector<OvmVeH>& v, std::map<TF, OvmFaH>& faces) {
   ovm_mesh->add_cell(hf);
 }
 
-void MeshImpl::tetFaces(std::vector<Eigen::Matrix<long long, 3, 1>>& faces, long long v[4])
-{
-	for(int i = 0;i<4;++i){
-		Eigen::Matrix<long long, 3, 1> face_vertices;
-		int k = 0;
-		for(auto j = 0;j<4;++j){
-			if(j!=i){
-				face_vertices[k] = v[j];
-				k++;
-			}
-		}
-		faces.push_back(face_vertices);
-	}
+void MeshImpl::tetFaces(std::vector<Eigen::Matrix<long long, 3, 1>> &faces,
+                        long long v[4]) {
+  for (int i = 0; i < 4; ++i) {
+    Eigen::Matrix<long long, 3, 1> face_vertices;
+    int k = 0;
+    for (auto j = 0; j < 4; ++j) {
+      if (j != i) {
+        face_vertices[k] = v[j];
+        k++;
+      }
+    }
+    faces.push_back(face_vertices);
+  }
 }
 
 MeshImpl::MeshImpl() {
   ovm_mesh = VMeshPtr(new VMesh);
-	field = new PrincipalStressField();
+  field = new PrincipalStressField();
 }
 
-MeshImpl::~MeshImpl() {
-	delete field;
-}
+MeshImpl::~MeshImpl() { delete field; }
 
 void MeshImpl::readMesh(std::string filename) {
   std::ifstream fin(filename);
 
-	// 若之前已经载入过mesh了，则将之前的注销重新new一个空mesh
+  // 若之前已经载入过mesh了，则将之前的注销重新new一个空mesh
   if (mesh_loaded) {
     ovm_mesh = VMeshPtr(new VMesh);
   }
@@ -314,4 +310,4 @@ void MeshImpl::readMesh(std::string filename) {
 
   mesh_loaded = true;
 }
-}  // namespace meshtools
+} // namespace meshtools

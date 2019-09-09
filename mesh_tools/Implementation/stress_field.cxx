@@ -14,7 +14,8 @@
  | YX YY YZ |
  | ZX ZY ZZ |
 */
-bool PrincipalStressField::readInStress(std::string filename, VMeshPtr mesh, bool save) {
+bool PrincipalStressField::readInStress(std::string filename, VMeshPtr mesh,
+                                        bool save) {
   int n;
   double sigma[6];
 
@@ -46,8 +47,8 @@ bool PrincipalStressField::readInStress(std::string filename, VMeshPtr mesh, boo
       if (tmp == "")
         continue;
         /*
-					读取stress的六个独立分量
-				*/
+                                        读取stress的六个独立分量
+                                */
 #ifdef __linux
       sscanf(tmp.c_str(), "%d , %lf %lf %lf %lf %lf %lf", &n, sigma, sigma + 1,
              sigma + 2, sigma + 3, sigma + 4, sigma + 5);
@@ -57,7 +58,7 @@ bool PrincipalStressField::readInStress(std::string filename, VMeshPtr mesh, boo
                sigma + 1, sigma + 2, sigma + 3, sigma + 4, sigma + 5);
 #endif // _WIN64
 
-			tensors[n-1].reset(sigma);
+      tensors[n - 1].reset(sigma);
     }
   } else {
 
@@ -65,8 +66,8 @@ bool PrincipalStressField::readInStress(std::string filename, VMeshPtr mesh, boo
       if (tmp == "")
         continue;
         /*
-					读取stress的六个独立分量
-				*/
+                                        读取stress的六个独立分量
+                                */
 #ifdef __linux
       sscanf(tmp.c_str(), "%d , %lf %lf %lf %lf %lf %lf", &n, sigma, sigma + 1,
              sigma + 2, sigma + 3, sigma + 4, sigma + 5);
@@ -76,7 +77,7 @@ bool PrincipalStressField::readInStress(std::string filename, VMeshPtr mesh, boo
                sigma + 1, sigma + 2, sigma + 3, sigma + 4, sigma + 5);
 #endif // _WIN64
 
-			tensors.push_back(StressTensor(sigma));
+      tensors.push_back(StressTensor(sigma));
     }
   }
 
@@ -85,7 +86,7 @@ bool PrincipalStressField::readInStress(std::string filename, VMeshPtr mesh, boo
   // calculate tets center poisition
   setCellCenter(mesh);
 
-	if (save == true) {
+  if (save == true) {
     // save to another form
     size_t dot_position = filename.find_last_of('.');
     std::string extension = filename.substr(dot_position + 1);
@@ -93,23 +94,37 @@ bool PrincipalStressField::readInStress(std::string filename, VMeshPtr mesh, boo
     std::ofstream fout(rest_filename + "txt");
     saveStress(fout);
   }
-  
+
   return true;
 }
 
 bool PrincipalStressField::saveStress(std::ofstream &fout) {
   for (int i = 0; i < _location.size(); ++i) {
     fout << i << ' ';
-    fout << tensors[i].eig_vectors(0, 0) << ' ' << tensors[i].eig_vectors(1, 0) << ' '
-         << tensors[i].eig_vectors(2, 0) << ' ';
-    fout << tensors[i].eig_vectors(0, 1) << ' ' << tensors[i].eig_vectors(1, 1) << ' '
-         << tensors[i].eig_vectors(2, 1) << ' ';
-    fout << tensors[i].eig_vectors(0, 2) << ' ' << tensors[i].eig_vectors(1, 2) << ' '
-         << tensors[i].eig_vectors(2, 2) << ' ';
+    fout << tensors[i].eig_vectors(0, 0) << ' ' << tensors[i].eig_vectors(1, 0)
+         << ' ' << tensors[i].eig_vectors(2, 0) << ' ';
+    fout << tensors[i].eig_vectors(0, 1) << ' ' << tensors[i].eig_vectors(1, 1)
+         << ' ' << tensors[i].eig_vectors(2, 1) << ' ';
+    fout << tensors[i].eig_vectors(0, 2) << ' ' << tensors[i].eig_vectors(1, 2)
+         << ' ' << tensors[i].eig_vectors(2, 2) << ' ';
     fout << _location[i][0] << ' ' << _location[i][1] << ' ' << _location[i][2]
          << std::endl;
   }
   return true;
+}
+
+void PrincipalStressField::singularityLoaction(
+    std::vector<Eigen::Vector3d> &loc, double tolerance) {
+  size_t n = tensors.size();
+  auto diff = [tolerance](double &x, double &y, double &z) {
+    return std::abs(x - y) < tolerance || std::abs(z - y) < tolerance;
+  };
+  for (size_t i = 0; i < n; i++) {
+    StressTensor &t = tensors[i];
+    if (diff(t.eig_values[0], t.eig_values[1], t.eig_values[2])) {
+      loc.push_back(Eigen::Vector3d(_location[i].data()));
+    }
+  }
 }
 
 // calculate the position of center point of tets
@@ -130,7 +145,7 @@ PrincipalStressField::PrincipalStressField() {
   /* initialize */
   /*_stress.clear();
   _frames.clear();*/
-	tensors.clear();
+  tensors.clear();
   _n = -1;
 }
 
@@ -185,9 +200,9 @@ void PrincipalStressField::get_principal_dirs(std::vector<MeshPoint> &ret,
 //		//		for (int col_id = 0;col_id < 3;col_id++)
 //		//		{
 //		//
-//fout<<SOM3[regular_inx[s_ind]][row_id][col_id]<<" ";
+// fout<<SOM3[regular_inx[s_ind]][row_id][col_id]<<" ";
 //		//
-//std::cout<<SOM3[regular_inx[s_ind]][row_id][col_id]<<" ";
+// std::cout<<SOM3[regular_inx[s_ind]][row_id][col_id]<<" ";
 //		//		}
 //		//		std::cout<<std::endl;
 //		//		fout<<std::endl;
@@ -204,16 +219,20 @@ void PrincipalStressField::get_principal_dirs(std::vector<MeshPoint> &ret,
 //		{
 //			OvmHaEgH current_heh = mesh->halfedge_handle(*iter, 0);
 //			std::vector<OvmHaFaH> adj_hfhs;
-//			for (auto hehf_it = mesh->hehf_iter(current_heh); hehf_it;
-//hehf_it++)
+//			for (auto hehf_it = mesh->hehf_iter(current_heh);
+// hehf_it; hehf_it++)
 //			{
 //				adj_hfhs.push_back(*hehf_it);
 //			}
 //			OvmCeH start_cell = mesh->incident_cell(adj_hfhs[0]);
 //			OvmCeH end_cell =
-//mesh->incident_cell(mesh->opposite_halfface_handle(adj_hfhs[adj_hfhs.size() -
-//1])); 			OvmVec3d a = frames[start_cell].x_vec; OvmVec3d b =
-//frames[end_cell].x_vec; 			_Matrix_3 M; 			if ((a - b).length() < 1e-7)
+// mesh->incident_cell(mesh->opposite_halfface_handle(adj_hfhs[adj_hfhs.size() -
+// 1])); 			OvmVec3d a = frames[start_cell].x_vec; OvmVec3d
+// b
+// =
+// frames[end_cell].x_vec; 			_Matrix_3 M; if
+// ((a
+// - b).length() < 1e-7)
 //			{
 //				M[0][0] = 1;
 //				M[0][1] = 0;
@@ -237,30 +256,43 @@ void PrincipalStressField::get_principal_dirs(std::vector<MeshPoint> &ret,
 //				double miu = atan2(cro_len, dot(a, b));
 //				M[0][0] = cos(miu) + (1 - cos(miu))*u[0] * u[0];
 //				M[0][1] = (1 - cos(miu))*u[0] * u[1] -
-//sin(miu)*u[2]; 				M[0][2] = (1 - cos(miu))*u[0] * u[2] + sin(miu)*u[1]; 				M[1][0] =
-//(1 - cos(miu))*u[1] * u[0] + sin(miu)*u[2]; 				M[1][1] = cos(miu) + (1 -
-//cos(miu))*u[1] * u[1]; 				M[1][2] = (1 - cos(miu))*u[1] * u[2] - sin(miu)*u[0];
-//				M[2][0] = (1 - cos(miu))*u[2] * u[0] -
-//sin(miu)*u[1]; 				M[2][1] = (1 - cos(miu))*u[2] * u[1] + sin(miu)*u[0]; 				M[2][2] =
-//cos(miu) + (1 - cos(miu))*u[2] * u[2];
+// sin(miu)*u[2]; 				M[0][2] = (1 - cos(miu))*u[0] *
+// u[2]
+// + sin(miu)*u[1]; 				M[1][0] = (1 - cos(miu))*u[1] *
+// u[0] + sin(miu)*u[2]; 				M[1][1] = cos(miu) + (1
+//-
+// cos(miu))*u[1] * u[1]; 				M[1][2] = (1 -
+// cos(miu))*u[1]
+// *
+// u[2] - sin(miu)*u[0]; 				M[2][0] = (1 -
+// cos(miu))*u[2]
+// * u[0] - sin(miu)*u[1]; M[2][1] = (1 - cos(miu))*u[2] * u[1] + sin(miu)*u[0];
+// M[2][2] = cos(miu) + (1 - cos(miu))*u[2] * u[2];
 //			}
 //			Matrix_3 Re(M);
 //			Matrix_3 new_F0 = Re *
-//(frames[start_cell].m().transpose()); 			OvmVec3d x_v = OvmVec3d(new_F0(0,0),
-//new_F0(1,0), new_F0(2,0)); 			OvmVec3d y_v = OvmVec3d(new_F0(0,1), new_F0(1,1),
-//new_F0(2,1)); 			OvmVec3d z_v = OvmVec3d(new_F0(0,2), new_F0(1,2), new_F0(2,2));
-//			meshtools::Frame new_f0(frames[start_cell].center, x_v, y_v,
-//z_v); 			int index = meshtools::Frame::matching_Matrix(new_f0, frames[end_cell]);
-//			_Matrix_3 final_m = { SOM3[index][0][0], SOM3[index][0][1],
-//SOM3[index][0][2], SOM3[index][1][0], SOM3[index][1][1], SOM3[index][1][2],
-//SOM3[index][2][0], SOM3[index][2][1], SOM3[index][2][2] }; 			Matrix_3
-//Final_M(final_m); 			for (int hf_i = 0; hf_i < adj_hfhs.size(); hf_i++)
+//(frames[start_cell].m().transpose()); 			OvmVec3d x_v =
+// OvmVec3d(new_F0(0,0), new_F0(1,0), new_F0(2,0));
+// OvmVec3d y_v = OvmVec3d(new_F0(0,1), new_F0(1,1), new_F0(2,1));
+// OvmVec3d z_v = OvmVec3d(new_F0(0,2), new_F0(1,2), new_F0(2,2));
+//			meshtools::Frame new_f0(frames[start_cell].center, x_v,
+// y_v,
+// z_v); 			int index =
+// meshtools::Frame::matching_Matrix(new_f0, frames[end_cell]);
+// _Matrix_3 final_m = { SOM3[index][0][0], SOM3[index][0][1],
+// SOM3[index][0][2], SOM3[index][1][0], SOM3[index][1][1], SOM3[index][1][2],
+// SOM3[index][2][0], SOM3[index][2][1], SOM3[index][2][2] };
+// Matrix_3 Final_M(final_m); 			for (int hf_i = 0; hf_i <
+// adj_hfhs.size(); hf_i++)
 //			{
-//				index = matching_matrices[adj_hfhs[adj_hfhs.size() - 1
-//- hf_i]]; 				_Matrix_3 m = { SOM3[index][0][0], SOM3[index][0][1],
-//SOM3[index][0][2], SOM3[index][1][0], SOM3[index][1][1], SOM3[index][1][2],
-//SOM3[index][2][0], SOM3[index][2][1], SOM3[index][2][2] }; 				Final_M = Final_M *
-//Matrix_3(m);
+//				index =
+// matching_matrices[adj_hfhs[adj_hfhs.size()
+//-
+// 1
+//- hf_i]]; 				_Matrix_3 m = { SOM3[index][0][0],
+// SOM3[index][0][1], SOM3[index][0][2], SOM3[index][1][0], SOM3[index][1][1],
+// SOM3[index][1][2], SOM3[index][2][0], SOM3[index][2][1], SOM3[index][2][2] };
+// Final_M = Final_M * Matrix_3(m);
 //			}
 //			for (int row = 0; row < 3; row++)
 //			{
@@ -274,19 +306,21 @@ void PrincipalStressField::get_principal_dirs(std::vector<MeshPoint> &ret,
 //		{
 //			std::vector<OvmHaFaH> adj_hfhs;
 //			OvmHaEgH current_heh = mesh->halfedge_handle(*iter, 0);
-//			for (auto hehf_it = mesh->hehf_iter(current_heh); hehf_it;
-//hehf_it++)
+//			for (auto hehf_it = mesh->hehf_iter(current_heh);
+// hehf_it; hehf_it++)
 //			{
 //				adj_hfhs.push_back(*hehf_it);
 //			}
 //			Matrix_3 Final_M(1);
 //			for (int hf_i = 0; hf_i < adj_hfhs.size(); hf_i++)
 //			{
-//				int index = matching_matrices[adj_hfhs[adj_hfhs.size()
-//- 1 - hf_i]]; 				_Matrix_3 m = { SOM3[index][0][0], SOM3[index][0][1],
-//SOM3[index][0][2], SOM3[index][1][0], SOM3[index][1][1], SOM3[index][1][2],
-//SOM3[index][2][0], SOM3[index][2][1], SOM3[index][2][2] }; 				Final_M = Final_M *
-//Matrix_3(m);
+//				int index =
+// matching_matrices[adj_hfhs[adj_hfhs.size()
+//- 1 - hf_i]]; 				_Matrix_3 m = {
+// SOM3[index][0][0], SOM3[index][0][1], SOM3[index][0][2], SOM3[index][1][0],
+// SOM3[index][1][1],
+// SOM3[index][1][2], SOM3[index][2][0], SOM3[index][2][1], SOM3[index][2][2] };
+// Final_M = Final_M * Matrix_3(m);
 //			}
 //			for (int row = 0; row < 3; row++)
 //			{
@@ -305,7 +339,8 @@ void PrincipalStressField::get_principal_dirs(std::vector<MeshPoint> &ret,
 //			{
 //				//正常奇异线
 //				//std::cout<<"Regular singularity
-//"<<clo_idx<<std::endl; 				regular_singular_ehs.insert(*iter);
+//"<<clo_idx<<std::endl;
+// regular_singular_ehs.insert(*iter);
 //
 //			}
 //			else
@@ -322,7 +357,7 @@ bool PrincipalStressField::resize(size_t elements_number) {
   _n = elements_number;
   /*_stress.resize(elements_number);
   _frames.resize(elements_number);*/
-	tensors.resize(elements_number);
+  tensors.resize(elements_number);
   return true;
 }
 
@@ -331,7 +366,7 @@ void StressTensor::init(double *tensor_component) {
       tensor_component[3], tensor_component[1], tensor_component[4],
       tensor_component[5], tensor_component[4], tensor_component[2];
 
-	Eigen::SelfAdjointEigenSolver<Matrix_3> solver(_tensor);
+  Eigen::SelfAdjointEigenSolver<Matrix_3> solver(_tensor);
   auto real_values = solver.eigenvalues();
   double values[] = {real_values(0), real_values(1), real_values(2)};
   int order[] = {0, 1, 2};
@@ -347,24 +382,18 @@ void StressTensor::init(double *tensor_component) {
     }
   }
 
-	// save eigen value
+  // save eigen value
   for (int i = 0; i < 3; i++) {
     eig_values[i] = values[i];
     eig_vectors.col(i) = vectors.col(order[i]);
   }
-
 }
 
-StressTensor::StressTensor() { 
-	double zeros[] = {0,0,0,0,0,0};
-	init(zeros); 
+StressTensor::StressTensor() {
+  double zeros[] = {0, 0, 0, 0, 0, 0};
+  init(zeros);
 }
 
-StressTensor::StressTensor(double *tensor_component) {
-	init(tensor_component); }
+StressTensor::StressTensor(double *tensor_component) { init(tensor_component); }
 
-void StressTensor::reset(double *tensor_component) {
-	init(tensor_component);
-}
-
-
+void StressTensor::reset(double *tensor_component) { init(tensor_component); }

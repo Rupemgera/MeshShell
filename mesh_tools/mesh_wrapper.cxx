@@ -17,6 +17,11 @@ void MeshWrapper::readStressField(std::string filename) {
   impl->readStressField(filename);
 }
 
+void MeshWrapper::singularityLoaction(std::vector<Eigen::Vector3d> &loc,
+                                      double tolerance) {
+impl->field->singularityLoaction(loc,tolerance);
+}
+
 void MeshWrapper::saveToOVM(std::string filename) { impl->saveToOVM(filename); }
 
 std::vector<std::string> MeshWrapper::separateFilename(std::string filename) {

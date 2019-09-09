@@ -1,4 +1,4 @@
-#include "mesh_shell.h"
+﻿#include "mesh_shell.h"
 
 MeshShell::MeshShell(VtkWrapper *viewer): _viewer(viewer) { 
 	ovm_mesh = new MeshWrapper();
@@ -117,4 +117,6 @@ void MeshShell::renderScalars(vtkSmartPointer<vtkActor> actor, bool flag)
 	mapper->SetScalarVisibility(flag);
 }
 
-void MeshShell::stressSingularity(double tolerance) {}
+void MeshShell::stressSingularity(double tolerance) {
+std::vector<Eigen::Vector3d> singularites;
+}

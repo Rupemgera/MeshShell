@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 /********************************/
 // @author : lyz
 // @content: provide interfaces to lib users
@@ -12,7 +12,7 @@
 namespace meshtools {
 
 /*
-Ç°ÖÃÉùÃ÷
+å‰ç½®å£°æ˜
 */
 class MeshImpl;
 
@@ -32,11 +32,9 @@ public:
 
   void readMesh(std::string filename);
 
-  void readStressField(std::string filename);
-
   void saveToOVM(std::string filename);
 
-  // ·ÖÀëÎÄ¼şµÄÂ·¾¶,ÎÄ¼şÃûºÍºó×ºÃû
+  // åˆ†ç¦»æ–‡ä»¶çš„è·¯å¾„,æ–‡ä»¶åå’Œåç¼€å
   // 0:path
   // 1:filename
   // 2:extension
@@ -57,6 +55,25 @@ public:
   size_t n_cells();
 
   /*********** Functions end **************/
+
+  /********** stress related functions begin **********/
+
+  /**
+      input two groups of data, separated by ','
+      first group contains 1 integer, that is the id of the cell
+      second group contains 6 decimal, that the 6 tensor stress component,
+      ordered by XX YY ZZ XY YZ ZX
+  */
+  void readStressField(std::string filename);
+
+  /**
+      @param loc  coordinates of singularites
+      find stresses that two of three eig_value are less than tolerance,save to
+     loc
+  */
+  void singularityLoaction(std::vector<Eigen::Vector3d> &loc, double tolerance);
+
+  /********** stress related functions  end  **********/
 
 protected:
 private:
