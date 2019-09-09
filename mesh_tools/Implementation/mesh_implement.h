@@ -6,7 +6,7 @@
 ////////////////////////////////////
 
 #include "meshDefs.h"
-#include "stress_field.h"
+//#include "stress_field.h"
 #include <vector>
 
 namespace meshtools {
@@ -92,8 +92,6 @@ public:
 
   void saveToOVM(std::string filename);
 
-  void readStressField(std::string filename);
-
   // 分离文件的路径,文件名和后缀名
   // 0:path
   // 1:filename
@@ -112,8 +110,6 @@ public:
   /*********** Properties begin **************/
 
   VMeshPtr ovm_mesh = nullptr;
-
-  PrincipalStressField *field = nullptr;
 
   bool mesh_loaded = false;
 

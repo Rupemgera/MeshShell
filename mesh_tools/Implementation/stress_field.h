@@ -12,6 +12,8 @@
 #include <unordered_set>
 #include <vector>
 
+namespace meshtools{
+
 /*
 常量及别名定义
 */
@@ -57,8 +59,6 @@ public:
 /**
 主应力场类
 成员变量：
-点集：保存每点的坐标
-向量集：每点的三个主应力方向，大小从小到大
 成员函数：
 */
 class PrincipalStressField {
@@ -68,6 +68,8 @@ public:
   */
 
   std::vector<StressTensor> tensors;
+
+	std::vector<MeshPoint> location;
 
   /*
   data end
@@ -114,8 +116,8 @@ public:
 
   //设定mesh
   const bool set_mesh(VMeshPtr mesh);
-  void get_locations(std::vector<MeshPoint> &ret);
-  void get_principal_dirs(std::vector<MeshPoint> &ret, int P = 0);
+  void get_locations(std::vector<Eigen::Vector3d> &ret);
+  void get_principal_dirs(std::vector<Eigen::Vector3d> &ret, int P = 0);
   // const std::vector<Matrix_3> &get_dirs();
 
   /*****************
@@ -132,7 +134,6 @@ public:
 private:
   /*成员变量*/
   size_t _n;
-  std::vector<MeshPoint> _location;
   // mesh的指针
   std::shared_ptr<VMesh> _mesh = nullptr;
 
@@ -151,3 +152,4 @@ private:
 
   bool resize(size_t element_number);
 };
+} // namespace meshtools

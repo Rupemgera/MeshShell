@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "src/mesh_shell.h"
 
@@ -37,6 +37,8 @@ private:
 
 	int getRenderStyle();
 
+	std::string filenameFromDialog(const char* dialog_name, const char *filter);
+
   /* properties */
 #ifdef __linux
   QString _directory_path = "~/";
@@ -49,6 +51,8 @@ private slots:
   void readMesh();
 
 	void readStressField();
+
+	void drawStressField();
 
 	void updateMeshRenderStyle();
 
