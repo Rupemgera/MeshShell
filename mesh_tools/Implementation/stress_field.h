@@ -5,14 +5,12 @@
 ####################
 ***/
 
+#include "frame_field.h"
+#include <Eigen/Dense>
 #include <fstream>
 #include <string>
 #include <unordered_set>
 #include <vector>
-
-#include <Eigen/Dense>
-
-#include "frame_field.h"
 
 /*
 常量及别名定义
@@ -31,50 +29,49 @@ using VMesh = OpenVolumeMesh::GeometricPolyhedralMeshV3d;
 //定义场是基于何种单元。如顶点stress或体stress
 enum STRESS_ELEMENT_TYPE { Node, Cell, NotDefined };
 
-/*
-应力张量类
+/**
+    eig_value    ordered decreasingly
+    eig_vectors    orders correspond to eig_value
 */
-
 class StressTensor {
 private:
   void init(double *tensor_component);
 
 public:
-	/*
-	data begin
-	*/
+  /*
+  data begin
+  */
 
-	Matrix_3 _tensor;
+  Matrix_3 _tensor;
   double eig_values[3];
   Matrix_3 eig_vectors;
 
-	/*
-	data end
-	*/
+  /*
+  data end
+  */
   StressTensor();
   StressTensor(double *tensor_component);
-	void reset(double *tensor_component);
+  void reset(double *tensor_component);
 };
 
-/*
+/**
 主应力场类
 成员变量：
 点集：保存每点的坐标
 向量集：每点的三个主应力方向，大小从小到大
 成员函数：
-
 */
 class PrincipalStressField {
 public:
-	/*
-	data begin
-	*/
+  /*
+  data begin
+  */
 
-	std::vector<StressTensor> tensors;
+  std::vector<StressTensor> tensors;
 
-	/*
-	data end
-	*/
+  /*
+  data end
+  */
   /*deprecated
 
   //读入mesh
@@ -85,19 +82,32 @@ public:
   PrincipalStressField(std::string mesh_filename, std::string stress_filename);
   */
 
-  /*构造函数*/
-
   PrincipalStressField();
 
-  /*析构函数*/
   ~PrincipalStressField();
 
   /*类成员函数*/
-  //读入单元应力
-  bool readInStress(std::string filename, VMeshPtr mesh = nullptr, bool save = false);
 
-  //保存单元应力
+  /**
+      @param save    if true, save stress field to vector form. default false.
+      @see saveStress
+  */
+  bool readInStress(std::string filename, VMeshPtr mesh = nullptr,
+                    bool save = false);
+
+  /**
+      one line for one cell
+      1 int represent cell id, then follows 9 decimals ,every 3 represent a
+     vector. Each vector is a unit vector
+  */
   bool saveStress(std::ofstream &stress_fout);
+
+  /**
+      @param loc  coordinates of singularites
+      find stresses that two of three eig_value are less than tolerance,save to
+     loc
+  */
+  void singularityLoaction(std::vector<Eigen::Vector3d> &loc, double tolerance);
 
   //设定每个单元的中心点的位置
   bool setCellCenter(VMeshPtr mesh);

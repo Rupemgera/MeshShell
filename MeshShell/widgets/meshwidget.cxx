@@ -1,4 +1,4 @@
-#include "meshwidget.h"
+﻿#include "meshwidget.h"
 #include "ui_meshwidget.h"
 MeshWidget::MeshWidget(QWidget *parent)
     : QWidget(parent), ui(new Ui::MeshWidget) {
@@ -64,7 +64,9 @@ void MeshWidget::geometryChange()
 	}
 }
 void MeshWidget::stressSingularity() {
-
+	double tolerance = ui->doubleSpinBox_stressSingularityTolerance->value();
+	std::vector<Eigen::Vector3d> singularites;
+	_shell->ovm_mesh->singularityLoaction(singularites,tolerance);
 }
 void MeshWidget::test()
 {

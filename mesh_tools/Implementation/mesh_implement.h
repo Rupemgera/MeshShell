@@ -1,8 +1,10 @@
-/********************************/
-// @author : lyz
-// @content: class mesh
-// @birth : 2019-09-07
-/********************************/
+﻿////////////////////////////////////
+/// @file mesh_implement.h
+/// @brief class mesh
+/// @author  lyz
+/// @date 2019-09-08
+////////////////////////////////////
+
 #include "meshDefs.h"
 #include "stress_field.h"
 #include <vector>
@@ -59,6 +61,12 @@ private:
 
   void readFromOvm(std::ifstream &fin);
 
+  /** insert a tetrahedral cell to mesh
+      @param v  vertices of the tet
+      @param faces  map from halfface(TF) to face, tell whether the face
+                    it belong to had been added. faces shold be empty when
+                    first use addCell.
+  */
   void addCell(std::vector<OvmVeH> &v, std::map<TF, OvmFaH> &faces);
 
   void tetFaces(std::vector<Eigen::Matrix<long long, 3, 1>> &faces,
@@ -72,7 +80,6 @@ private:
 
   /*********** Properties end **************/
 
-protected:
 public:
   // new ovm_mesh, filed
   MeshImpl();
