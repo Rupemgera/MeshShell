@@ -12,7 +12,7 @@ MeshShell::~MeshShell() {
   if (_shrink_actor != nullptr) {
     delete _shrink_actor;
   }
-  for (auto u : map_actors) {
+  for (auto u : _actors_table) {
     delete u.second;
   }
 }
@@ -38,11 +38,11 @@ void MeshShell::drawMesh(int nRenderStyle) {
     _main_actor = new ActorControler(
         "main_actor", _viewer->processMesh(points, vtk_faces));
     mesh_name = ovm_mesh->get_mesh_name();
-    /*auto map_item = map_actors.find(mesh_name);
-    if (map_item != map_actors.end()) {
+    /*auto map_item = _actors_table.find(mesh_name);
+    if (map_item != _actors_table.end()) {
             map_item->second = actor;
     } else {
-            map_actors.insert(ActorMap::value_type(mesh_name, actor));
+            _actors_table.insert(ActorMap::value_type(mesh_name, actor));
             }*/
     _viewer->renderActor(_main_actor->get_actor());
   }
@@ -79,6 +79,14 @@ void MeshShell::updateMeshRenderStyle(int nRenderStyle) {
   }
 
   _viewer->refresh();
+}
+
+void MeshShell::updateFaceOpacity(double opacity, int geometryStyle) {
+	if (geometryStyle == 1){
+		_main_actor->setOpacity(opacity);
+	}else if(geometryStyle == 2){
+		_shrink_actor->setOpacity(opacity);
+	}
 }
 
 void MeshShell::drawShrink(int nRenderStyle) {
@@ -132,21 +140,50 @@ void MeshShell::readStressField(std::string filename) {
 }
 
 void MeshShell::drawStressField(bool major, bool middle, bool minor) {
-  // if we have got data
+  
 	ActorControler *major_ptr;
-  if (map_actors.find("major_principals") != map_actors.end()) {
-		major_ptr = map_actors.find("major_principals")->second;
+	ActorControler *middle_ptr;
+	ActorControler *minor_ptr;
+
+	// if we have got data
+  if (_actors_table.find("major_principals") != _actors_table.end()) {
+		major_ptr = _actors_table.find("major_principals")->second;
+		middle_ptr = _actors_table.find("middle_principals")->second;
+		minor_ptr = _actors_table.find("minor_principals")->second;
   } else {
     // we get the data
     std::vector<Eigen::Vector3d> loc;
     std::vector<Eigen::Vector3d> major_v;
     std::vector<Eigen::Vector3d> middle_v;
     std::vector<Eigen::Vector3d> minor_v;
+
+		// major principal vector
     ovm_mesh->get_principal_vectors(loc, major_v, middle_v, minor_v);
 		major_ptr = new ActorControler("major_principals",_viewer->processHedgehog(loc,major_v));
-		insert_actor(major_ptr);
+		major_ptr->setColor(viewtools::Color(1.0,0.0,0.0));
+		_actors_table.insert(major_ptr);
+
+		// middle principal vector
+		middle_ptr = new ActorControler("middle_principals",_viewer->processHedgehog(loc,middle_v));
+		_actors_table.insert(middle_ptr);
+		middle_ptr->setColor(viewtools::Color(0.0,1.0,0.0));
+
+		// minor principal vector
+		minor_ptr = new ActorControler("minor_principals",_viewer->processHedgehog(loc,minor_v));
+		_actors_table.insert(minor_ptr);
+		minor_ptr->setColor(viewtools::Color(0.0,0.0,1.0));
+
+		// register actor
+		_viewer->renderActor(major_ptr->get_actor());
+		_viewer->renderActor(middle_ptr->get_actor());
+		_viewer->renderActor(minor_ptr->get_actor());
   }
-	_viewer->renderActor(major_ptr->get_actor());
+	
+	// decide visibility
+	major_ptr->setVisibility(major);
+	middle_ptr->setVisibility(middle);
+	minor_ptr->setVisibility(minor);
+
 	_viewer->refresh();
 }
 
@@ -158,11 +195,7 @@ void MeshShell::stressSingularity(double tolerance) {
       new ActorControler("singularity", _viewer->processPoints(singularites));
   si_view->setPointSize(14.0);
   si_view->setColor(viewtools::Color(1, 0, 0));
-  insert_actor(si_view);
+  _actors_table.insert(si_view);
   _viewer->renderActor(si_view->get_actor());
   _viewer->refresh();
-}
-
-void MeshShell::insert_actor(ActorControler *a) {
-	map_actors.insert(std::make_pair(a->name,a));
 }

@@ -31,6 +31,8 @@ void MeshWidget::addSlot() {
 		&MeshWidget::stressSingularity);
 	connect(this->ui->checkBox_render_stress,&QCheckBox::toggled,this,
 		&MeshWidget::drawStressField);
+	/*connect(this->ui->doubleSpinBox_opacity,&QDoubleSpinBox::valueChanged(double),this,
+		&MeshWidget::updateMeshOpacity);*/
 }
 
 void MeshWidget::updateMeshInfo() {
@@ -78,15 +80,29 @@ void MeshWidget::readStressField() {
 }
 
 void MeshWidget::drawStressField() {
-	bool mjr,mdd,mnr;
-	mjr = ui->checkBox_major->isChecked();
-	mdd = ui->checkBox_mid->isChecked();
-	mnr = ui->checkBox_minor->isChecked();
-	_shell->drawStressField(mjr,mdd,mnr);
+  bool mjr, mdd, mnr;
+  if (ui->checkBox_render_stress->isChecked()) {
+    mjr = ui->checkBox_major->isChecked();
+    mdd = ui->checkBox_mid->isChecked();
+    mnr = ui->checkBox_minor->isChecked();
+  } else {
+    mjr = mdd = mnr = false;
+  }
+  _shell->drawStressField(mjr, mdd, mnr);
 }
 
 void MeshWidget::updateMeshRenderStyle() {
   _shell->updateMeshRenderStyle(getRenderStyle());
+}
+void MeshWidget::updateMeshOpacity() {
+	double opacity = ui->doubleSpinBox_opacity->value();
+	int geometry;
+	if (ui->radioButton_shrink->isChecked()){
+		geometry = 2;
+	}else{
+		geometry = 1;
+	}
+	_shell->updateFaceOpacity(opacity,geometry);
 }
 void MeshWidget::geometryChange()
 {

@@ -3,6 +3,7 @@
 #include "view_templates.hpp"
 #include "vtk_heads.h"
 #include <Eigen/Dense>
+#include <map>
 
 namespace viewtools {
 
@@ -36,6 +37,8 @@ public:
 
   void setRenderSyle(int nRenderStyle);
 
+	void setOpacity(double opacity);
+
   void setColor(Color edge_color = Color(0.0, 0.0, 1.0),
                 Color face_color = Color(1.0, 1.0, 1.0));
 
@@ -46,6 +49,25 @@ public:
   vtkSmartPointer<vtkActor> get_actor();
 
   std::string name;
+};
+
+/**
+	maintain all active actors.
+
+*/
+class ActorTable{
+protected:
+	std::map<std::string, ActorControler *> _table;
+
+public:
+	void insert(ActorControler *u);
+
+	std::map<std::string, ActorControler *>::iterator find(std::string key);
+
+	std::map<std::string, ActorControler *>::iterator begin();
+
+	std::map<std::string, ActorControler *>::iterator end();
+
 };
 
 class VtkWrapper {
@@ -78,8 +100,8 @@ public:
   vtkSmartPointer<vtkActor> processHedgehog(const std::vector<Eigen::Vector3d> &points,
                                             const std::vector<Eigen::Vector3d> &vectors,
                                             Color color = Color(1, 0, 0),
-                                            double scale_factor = 1.0,
-                                            double line_width = 1.5);
+                                            double scale_factor = 0.8,
+                                            double line_width = 1.0);
 
   /* mesh */
 
