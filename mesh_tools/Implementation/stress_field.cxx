@@ -14,6 +14,7 @@
  | YX YY YZ |
  | ZX ZY ZZ |
 */
+namespace meshtools{
 bool PrincipalStressField::readInStress(std::string filename, VMeshPtr mesh,
                                         bool save) {
   int n;
@@ -99,7 +100,7 @@ bool PrincipalStressField::readInStress(std::string filename, VMeshPtr mesh,
 }
 
 bool PrincipalStressField::saveStress(std::ofstream &fout) {
-  for (int i = 0; i < _location.size(); ++i) {
+  for (int i = 0; i < location.size(); ++i) {
     fout << i << ' ';
     fout << tensors[i].eig_vectors(0, 0) << ' ' << tensors[i].eig_vectors(1, 0)
          << ' ' << tensors[i].eig_vectors(2, 0) << ' ';
@@ -107,7 +108,7 @@ bool PrincipalStressField::saveStress(std::ofstream &fout) {
          << ' ' << tensors[i].eig_vectors(2, 1) << ' ';
     fout << tensors[i].eig_vectors(0, 2) << ' ' << tensors[i].eig_vectors(1, 2)
          << ' ' << tensors[i].eig_vectors(2, 2) << ' ';
-    fout << _location[i][0] << ' ' << _location[i][1] << ' ' << _location[i][2]
+    fout << location[i][0] << ' ' << location[i][1] << ' ' << location[i][2]
          << std::endl;
   }
   return true;
@@ -122,21 +123,21 @@ void PrincipalStressField::singularityLoaction(
   for (size_t i = 0; i < n; i++) {
     StressTensor &t = tensors[i];
     if (diff(t.eig_values[0], t.eig_values[1], t.eig_values[2])) {
-      loc.push_back(Eigen::Vector3d(_location[i].data()));
+      loc.push_back(Eigen::Vector3d(location[i].data()));
     }
   }
 }
 
 // calculate the position of center point of tets
 bool PrincipalStressField::setCellCenter(VMeshPtr mesh) {
-  _location.resize(mesh->n_cells());
+  location.resize(mesh->n_cells());
   for (auto citer = mesh->cells_begin(); citer != mesh->cells_end(); ++citer) {
     MeshPoint c(0, 0, 0);
     for (auto viter = mesh->cv_iter(*citer); viter.valid(); ++viter) {
       MeshPoint p = mesh->vertex(*viter);
       c += p;
     }
-    _location[citer->idx()] = c / 4;
+    location[citer->idx()] = c / 4;
   }
   return true;
 }
@@ -156,11 +157,13 @@ const bool PrincipalStressField::set_mesh(VMeshPtr mesh) {
   return true;
 }
 
-void PrincipalStressField::get_locations(std::vector<MeshPoint> &ret) {
-  ret = _location;
+void PrincipalStressField::get_locations(std::vector<Eigen::Vector3d> &ret) {
+	ret.reserve(location.size());
+	for(auto d : location)
+		ret.push_back(Eigen::Vector3d(d.data()));
 }
 
-void PrincipalStressField::get_principal_dirs(std::vector<MeshPoint> &ret,
+void PrincipalStressField::get_principal_dirs(std::vector<Eigen::Vector3d> &ret,
                                               int P) {
   ret.resize(tensors.size());
   for (int i = 0; i < tensors.size(); ++i) {
@@ -397,3 +400,4 @@ StressTensor::StressTensor() {
 StressTensor::StressTensor(double *tensor_component) { init(tensor_component); }
 
 void StressTensor::reset(double *tensor_component) { init(tensor_component); }
+} // namespace meshtools

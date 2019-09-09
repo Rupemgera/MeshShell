@@ -16,6 +16,8 @@ namespace meshtools {
 */
 class MeshImpl;
 
+class PrincipalStressField;
+
 /*
 class define
 */
@@ -66,6 +68,11 @@ public:
   */
   void readStressField(std::string filename);
 
+  void get_principal_vectors(std::vector<Eigen::Vector3d> &loc,
+                             std::vector<Eigen::Vector3d> &major,
+                             std::vector<Eigen::Vector3d> &middle,
+                             std::vector<Eigen::Vector3d> &minor);
+
   /**
       @param loc  coordinates of singularites
       find stresses that two of three eig_value are less than tolerance,save to
@@ -78,6 +85,7 @@ public:
 protected:
 private:
   MeshImpl *impl;
+  PrincipalStressField *field;
 };
 
 } // namespace meshtools

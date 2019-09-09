@@ -5,21 +5,39 @@
 /********************************/
 #include "mesh_wrapper.h"
 #include "Implementation/mesh_implement.h"
+#include "Implementation/stress_field.h"
 
 namespace meshtools {
-MeshWrapper::MeshWrapper() : impl(new MeshImpl) {}
+MeshWrapper::MeshWrapper()
+    : impl(new MeshImpl), field(new PrincipalStressField) {}
 
 MeshWrapper::~MeshWrapper() { delete impl; }
 
 void MeshWrapper::readMesh(std::string filename) { impl->readMesh(filename); }
 
 void MeshWrapper::readStressField(std::string filename) {
-  impl->readStressField(filename);
+  // impl->readStressField(filename);
+	if(impl->mesh_loaded){
+		field->readInStress(filename,impl->ovm_mesh);
+	}else{
+		field->readInStress(filename);
+  }
+	std::cout<<"field : "<<field->tensors.size()<<std::endl;
+}
+
+void MeshWrapper::get_principal_vectors(std::vector<Eigen::Vector3d> &loc,
+                                        std::vector<Eigen::Vector3d> &major,
+                                        std::vector<Eigen::Vector3d> &middle,
+                                        std::vector<Eigen::Vector3d> &minor) {
+	field->get_locations(loc);
+  field->get_principal_dirs(major,0);
+	field->get_principal_dirs(middle,1);
+	field->get_principal_dirs(minor,2);
 }
 
 void MeshWrapper::singularityLoaction(std::vector<Eigen::Vector3d> &loc,
                                       double tolerance) {
-impl->field->singularityLoaction(loc,tolerance);
+  field->singularityLoaction(loc, tolerance);
 }
 
 void MeshWrapper::saveToOVM(std::string filename) { impl->saveToOVM(filename); }

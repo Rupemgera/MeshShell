@@ -1,33 +1,83 @@
 ﻿#pragma once
-#include "view_wrapper.h"
+
+#include <initializer_list>
+#include <iostream>
+#include <vector>
+#include <assert.h>
 
 namespace viewtools {
-template <int cell_n>
-inline vtkSmartPointer<vtkPolyData> VtkWrapper::processPolyData(
-    const std::vector<Point3d> &points,
-    const std::vector<tuple<long long, cell_n>> &polys) {
-  /* insert vertices */
-  vtkNew<vtkPoints> nodes;
-  size_t n_vertices = points.size();
-  nodes->GetData()->Allocate(n_vertices);
-  for (int i = 0; i < n_vertices; ++i) {
-    nodes->InsertPoint(i, points[i].data());
+template <typename T, size_t size> class tuple {
+protected:
+  T _data[size];
+
+public:
+  tuple(){};
+  tuple(std::initializer_list<T> para) {
+    size_t n = para.size();
+    assert(n == size);
+    size_t i = 0;
+    for (auto u : para) {
+      _data[i] = u;
+      i++;
+    }
   }
-
-  /* insert polys */
-  vtkNew<vtkCellArray> cells;
-  size_t n_faces = polys.size();
-  //每个单元有4个数据 1个存储顶点个数，3个存储面片顶点的标号
-  cells->GetData()->Allocate((1 + cell_n) * n_faces);
-  for (auto i = 0; i < n_faces; ++i) {
-    cells->InsertNextCell(cell_n, polys[i].data());
+  tuple(T *para) {
+    for (int i = 0; i < size; ++i) {
+      _data[i] = para[i];
+    }
   }
+  const T *data() const { return _data; }
 
-  /* form mesh data */
+  T *data() { return _data; }
+};
 
-  vtkNew<vtkPolyData> data;
-  data->SetPoints(nodes);
-  data->SetPolys(cells);
-  return data;
-}
+template <typename T> class Triple : public tuple<T, 3> {
+public:
+  Triple() {}
+  Triple(T u, T v, T w) {
+    _data[0] = u;
+    _data[1] = v;
+    _data[2] = w;
+  }
+  Triple(T *data) {
+    for (int i = 0; i < 3; ++i)
+      _data[i] = data[i];
+  }
+};
+
+/** vtkFacetTuple
+        store vertices's ids of a face that will be rendered.
+*/
+template <size_t cell_n> class vtkFacetTuple : public tuple<long long, cell_n> {
+public:
+	vtkFacetTuple(){}
+  vtkFacetTuple(long long *vertices) {
+    for (size_t i = 0; i < cell_n; i++) {
+      _data[i] = vertices[i];
+    }
+  }
+  vtkFacetTuple(std::initializer_list<long long> para) {
+    size_t n = para.size();
+    assert(n == cell_n);
+    size_t i = 0;
+    for (auto u : para) {  
+      _data[i] = u;
+      i++;
+    }
+  }
+};
+
+/*********** defines begin **************/
+using Point3d = Triple<double>;
+using Triangle = vtkFacetTuple<3>;
+/*********** defines end **************/
+
+class Color : public Triple<double> {
+public:
+  Color(double *data);
+  Color(double r, double g, double b);
+  Color(std::string description);
+
+private:
+};
 } // namespace viewtools

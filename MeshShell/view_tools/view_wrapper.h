@@ -1,65 +1,13 @@
 ﻿#pragma once
 
-#include <initializer_list>
-#include <iostream>
-#include <vector>
-
+#include "view_templates.hpp"
 #include "vtk_heads.h"
+#include <Eigen/Dense>
 
 namespace viewtools {
 
-template <typename T, int size> class tuple {
-protected:
-  T _data[size];
-
-public:
-  tuple(){};
-  tuple(std::initializer_list<T> para) {
-    int n = std::min(para.size(), size);
-    for (int i = 0; i < n; ++i) {
-      _data[i] = para[i];
-    }
-  }
-  tuple(T *para) {
-    for (int i = 0; i < size; ++i) {
-      _data[i] = para[i];
-    }
-  }
-  const T *data() const { return _data; }
-
-  T *data() { return _data; }
-};
-
-template <typename T> class Triple : public tuple<T, 3> {
-public:
-  Triple() {}
-  Triple(T u, T v, T w) {
-    _data[0] = u;
-    _data[1] = v;
-    _data[2] = w;
-  }
-  Triple(T *data) {
-    for (int i = 0; i < 3; ++i)
-      _data[i] = data[i];
-  }
-};
-
-/*********** defines begin **************/
-using Point3d = Triple<double>;
-using Triangle = Triple<long long>;
-/*********** defines end **************/
-
-class Color : public Triple<double> {
-public:
-  Color(double *data);
-  Color(double r, double g, double b);
-  Color(std::string description);
-
-private:
-};
-
 class ActorControler {
-private:
+protected:
   vtkSmartPointer<vtkActor> _actor;
 
 public:
@@ -76,18 +24,28 @@ public:
 
     // whether to render stress field
     bool field_on = false;
+
+    ////// properties of points //////////////
+
+    float point_size = 1.0;
   } render_status;
 
-  ActorControler(vtkSmartPointer<vtkActor> actor);
+  ActorControler(std::string name, vtkSmartPointer<vtkActor> actor);
 
   void setVisibility(bool visibility);
 
   void setRenderSyle(int nRenderStyle);
 
-  void setColor(Color face_color = Color(1.0, 1.0, 1.0),
-                Color edge_color = Color(0.0, 0.0, 1.0));
+  void setColor(Color edge_color = Color(0.0, 0.0, 1.0),
+                Color face_color = Color(1.0, 1.0, 1.0));
+
+  ////////////// function about points render //////////////////
+
+  void setPointSize(float size);
 
   vtkSmartPointer<vtkActor> get_actor();
+
+  std::string name;
 };
 
 class VtkWrapper {
@@ -113,26 +71,26 @@ public:
   */
   template <int cell_n>
   vtkSmartPointer<vtkPolyData>
-  processPolyData(const std::vector<Point3d> &points,
-                  const std::vector<tuple<long long, cell_n>> &polys);
+  processPolyData(const std::vector<Eigen::Vector3d> &points,
+                  const std::vector<vtkFacetTuple<cell_n>> &polys);
 
   /* vector field */
-  vtkSmartPointer<vtkActor> processHedgehog(const std::vector<Point3d> &points,
-                                            const std::vector<Point3d> &vectors,
+  vtkSmartPointer<vtkActor> processHedgehog(const std::vector<Eigen::Vector3d> &points,
+                                            const std::vector<Eigen::Vector3d> &vectors,
+                                            Color color = Color(1, 0, 0),
                                             double scale_factor = 1.0,
-                                            double line_width = 2.0,
-                                            Color color = Color(1, 0, 0));
+                                            double line_width = 1.5);
 
   /* mesh */
 
-  vtkSmartPointer<vtkActor> processMesh(const std::vector<Point3d> &points,
+  vtkSmartPointer<vtkActor> processMesh(const std::vector<Eigen::Vector3d> &points,
                                         const std::vector<Triangle> &faces);
 
   /* Vertex Scalar */
   void setVertexScalars(std::vector<double> &scalars, double lower_bound,
                         double upper_bound, vtkSmartPointer<vtkActor> actor);
 
-  vtkSmartPointer<vtkActor> processPoints(std::vector<Point3d> &points);
+  vtkSmartPointer<vtkActor> processPoints(std::vector<Eigen::Vector3d> &points);
 
   /********** process data  end  **********/
 
@@ -156,4 +114,4 @@ private:
 };
 } // namespace viewtools
 
-#include "view_templates.hpp"
+#include "view_templates_impl.hpp"

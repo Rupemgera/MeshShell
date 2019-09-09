@@ -29,6 +29,8 @@ void MeshWidget::addSlot() {
 		&MeshWidget::readStressField);
 	connect(this->ui->checkBox_stressSingularity,&QCheckBox::toggled,this,
 		&MeshWidget::stressSingularity);
+	connect(this->ui->checkBox_render_stress,&QCheckBox::toggled,this,
+		&MeshWidget::drawStressField);
 }
 
 void MeshWidget::updateMeshInfo() {
@@ -49,7 +51,39 @@ int MeshWidget::getRenderStyle() {
   return nRenderStyle;
 }
 
-void MeshWidget::readStressField() {}
+std::string MeshWidget::filenameFromDialog(const char* dialog_name, const char *filter) {
+  QString qfname =
+      QFileDialog::getOpenFileName(0, dialog_name, _directory_path, filter);
+
+  if (qfname == "") {
+    return "";
+  }
+
+	/********** save last opened path *************/
+
+  int i = qfname.lastIndexOf('/');
+  _directory_path = qfname.left(i);
+
+	return qfname.toStdString();
+}
+
+void MeshWidget::readStressField() {
+	std::string filename = filenameFromDialog("Open Stress File", "csv files(*.csv)");
+
+	ui->pushButton_readStressFile->setDisabled(true);
+
+	_shell->readStressField(filename);
+
+	std::cout<<"read Stress Field down"<<std::endl;
+}
+
+void MeshWidget::drawStressField() {
+	bool mjr,mdd,mnr;
+	mjr = ui->checkBox_major->isChecked();
+	mdd = ui->checkBox_mid->isChecked();
+	mnr = ui->checkBox_minor->isChecked();
+	_shell->drawStressField(mjr,mdd,mnr);
+}
 
 void MeshWidget::updateMeshRenderStyle() {
   _shell->updateMeshRenderStyle(getRenderStyle());
@@ -65,8 +99,8 @@ void MeshWidget::geometryChange()
 }
 void MeshWidget::stressSingularity() {
 	double tolerance = ui->doubleSpinBox_stressSingularityTolerance->value();
-	std::vector<Eigen::Vector3d> singularites;
-	_shell->ovm_mesh->singularityLoaction(singularites,tolerance);
+	_shell->stressSingularity(tolerance);
+	std::cout<<"singularities calculation down"<<std::endl;
 }
 void MeshWidget::test()
 {
@@ -78,30 +112,14 @@ void MeshWidget::test()
 	_shell->setVertexScalars(s, 0, 4);
 }
 void MeshWidget::readMesh() {
-  
-
-  QString qfname =
-      QFileDialog::getOpenFileName(0, "Open mesh file", _directory_path,
-                                   "OVM files(*.ovm);;Abaqus inp files(*.inp)");
-
-  if (qfname == "") {
-    return;
-  }
+	std::string filename = filenameFromDialog("Open Mesh File", "OVM files(*.ovm);;Abaqus inp files(*.inp)"); 
 
 	ui->pushButton_read->setDisabled(true);
-
-  /********** save last opened path *************/
-
-  int i = qfname.lastIndexOf('/');
-  _directory_path = qfname.left(i);
-
-  // meshtools::MeshProcessingTools::separateFilename(qfname.toStdString());
-  std::ifstream fin(qfname.toStdString());
 
   /********** Mesh *************/
 
   _shell = std::shared_ptr<MeshShell>(new MeshShell(_viewer));
-  _shell->readMesh(qfname.toStdString());
+  _shell->readMesh(filename);
   _shell->drawMesh(getRenderStyle());
   updateMeshInfo();
 }

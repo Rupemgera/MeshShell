@@ -100,10 +100,6 @@ void MeshImpl::saveToOVM(std::string filename) {
   manager.writeFile(filename, *ovm_mesh);
 }
 
-void MeshImpl::readStressField(std::string filename) {
-  field->readInStress(filename, ovm_mesh);
-}
-
 std::vector<std::string> MeshImpl::separateFilename(std::string filename) {
   std::vector<std::string> ret;
   ret.clear();
@@ -287,10 +283,10 @@ void MeshImpl::tetFaces(std::vector<Eigen::Matrix<long long, 3, 1>> &faces,
 
 MeshImpl::MeshImpl() {
   ovm_mesh = VMeshPtr(new VMesh);
-  field = new PrincipalStressField();
+  //field = new PrincipalStressField();
 }
 
-MeshImpl::~MeshImpl() { delete field; }
+MeshImpl::~MeshImpl() {} // delete field; }
 
 void MeshImpl::readMesh(std::string filename) {
   std::ifstream fin(filename);

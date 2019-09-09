@@ -29,6 +29,59 @@ Color::Color(std::string description) : Triple() {
 
 /*********** Color end **************/
 
+/************************* ActorControler begin *************************/
+
+ActorControler::ActorControler(std::string name,
+                               vtkSmartPointer<vtkActor> actor)
+    : name(name), _actor(actor) {}
+
+void ActorControler::setVisibility(bool visibility) {
+  _actor->SetVisibility(visibility);
+}
+
+void ActorControler::setRenderSyle(int nRenderStyle) {
+  if (nRenderStyle & 2) {
+    _actor->VisibilityOn();
+    // surface type : points(0), wireframe(1) or surface(2)
+    _actor->GetProperty()->SetRepresentation(2);
+    _actor->GetProperty()->SetColor(render_status.face_color.data());
+    render_status.face_on = true;
+
+    // also render edges
+    if (nRenderStyle & 1) {
+      _actor->GetProperty()->SetEdgeVisibility(true);
+      _actor->GetProperty()->SetEdgeColor(render_status.edge_color.data());
+      render_status.edge_on = true;
+    } else {
+      _actor->GetProperty()->SetEdgeVisibility(false);
+      render_status.edge_on = false;
+    }
+  } else if (nRenderStyle & 1) // only render edges
+  {
+    _actor->VisibilityOn();
+    _actor->GetProperty()->SetRepresentationToWireframe();
+    _actor->GetProperty()->SetColor(render_status.edge_color.data());
+    render_status.face_on = false;
+    render_status.edge_on = true;
+  } else {
+    _actor->VisibilityOff();
+    render_status.face_on = false;
+    render_status.edge_on = false;
+  }
+}
+
+void ActorControler::setColor(Color edge_color, Color face_color) {
+  render_status.face_color = face_color.data();
+  render_status.edge_color = edge_color.data();
+}
+void ActorControler::setPointSize(float size) {
+  render_status.point_size = size;
+  _actor->GetProperty()->SetPointSize(size);
+}
+vtkSmartPointer<vtkActor> ActorControler::get_actor() { return _actor; }
+
+/************************* ActorControler  end  *************************/
+
 VtkWrapper::VtkWrapper(QVTKOpenGLWidget *Qwidget) {
   // Create the usual rendering stuff
 
@@ -87,9 +140,10 @@ int VtkWrapper::refresh() {
   return 0;
 }
 
-vtkSmartPointer<vtkActor> VtkWrapper::processHedgehog(
-    const std::vector<Point3d> &points, const std::vector<Point3d> &vectors,
-    double scale_factor, double line_width, Color color) {
+vtkSmartPointer<vtkActor>
+VtkWrapper::processHedgehog(const std::vector<Eigen::Vector3d> &points,
+                            const std::vector<Eigen::Vector3d> &vectors, Color color,
+                            double scale_factor, double line_width) {
   size_t n = points.size();
   vtkNew<vtkPoints> locs;
   locs->Allocate(n);
@@ -133,30 +187,34 @@ vtkSmartPointer<vtkActor> VtkWrapper::processHedgehog(
 }
 
 vtkSmartPointer<vtkActor>
-VtkWrapper::processMesh(const std::vector<Point3d> &points,
+VtkWrapper::processMesh(const std::vector<Eigen::Vector3d> &points,
                         const std::vector<Triangle> &faces) {
-  /* insert vertices */
-  vtkNew<vtkPoints> nodes;
-  size_t n_vertices = points.size();
-  nodes->GetData()->Allocate(n_vertices);
-  for (int i = 0; i < n_vertices; ++i) {
-    nodes->InsertPoint(i, points[i].data());
-  }
+  ///* insert vertices */
+  // vtkNew<vtkPoints> nodes;
+  // size_t n_vertices = points.size();
+  // nodes->GetData()->Allocate(n_vertices);
+  // for (int i = 0; i < n_vertices; ++i) {
+  //  nodes->InsertPoint(i, points[i].data());
+  //}
 
-  /* insert faces */
-  vtkNew<vtkCellArray> triangles;
-  size_t n_faces = faces.size();
-  //每个单元有4个数据 1个表示点的数量，3个表示顶点的标号
-  triangles->GetData()->Allocate((1 + 3) * n_faces);
-  for (auto i = 0; i < n_faces; ++i) {
-    triangles->InsertNextCell(3, faces[i].data());
-  }
+  ///* insert faces */
+  // vtkNew<vtkCellArray> triangles;
+  // size_t n_faces = faces.size();
+  ////每个单元有4个数据 1个表示点的数量，3个表示顶点的标号
+  // triangles->GetData()->Allocate((1 + 3) * n_faces);
+  // for (auto i = 0; i < n_faces; ++i) {
+  //  triangles->InsertNextCell(3, faces[i].data());
+  //}
 
-  /* form mesh data */
+  ///* form mesh data */
 
-  vtkNew<vtkPolyData> mesh_data;
-  mesh_data->SetPoints(nodes);
-  mesh_data->SetPolys(triangles);
+  // vtkNew<vtkPolyData> mesh_data;
+  // mesh_data->SetPoints(nodes);
+  // mesh_data->SetPolys(triangles);
+
+  /// use processPolyData ///
+
+  auto mesh_data = processPolyData<3>(points, faces);
 
   /***** mapper *****/
 
@@ -192,21 +250,13 @@ void VtkWrapper::setVertexScalars(std::vector<double> &scalars,
 }
 
 vtkSmartPointer<vtkActor>
-VtkWrapper::processPoints(std::vector<Point3d> &points) {
-  vtkNew<vtkPoints> p;
-  vtkNew<vtkCellArray> cells;
-  vtkNew<vtkPolyData> data;
-  size_t n = points.size();
-  p->GetData()->Allocate(n);
-  cells->GetData()->Allocate(n);
-  size_t i = 0;
-  for (auto u : points) {
-    p->InsertPoint(i, u.data());
-    cells->InsertNextCell(1);
-    cells->InsertCellPoint(i);
+VtkWrapper::processPoints(std::vector<Eigen::Vector3d> &points) {
+  std::vector<vtkFacetTuple<1>> polys;
+  polys.resize(points.size());
+  for (int i = 0; i < points.size(); ++i) {
+    polys[i] = {i};
   }
-  data->SetPoints(p);
-  data->SetPolys(cells);
+  auto data = processPolyData<1>(points, polys);
 
   vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputData(data);
@@ -225,49 +275,4 @@ bool VtkWrapper::readJsonSettings() {
 }
 
 void VtkWrapper::testRenderFunction() {}
-
-ActorControler::ActorControler(vtkSmartPointer<vtkActor> actor)
-    : _actor(actor) {}
-
-void ActorControler::setVisibility(bool visibility) {
-  _actor->SetVisibility(visibility);
-}
-
-void ActorControler::setRenderSyle(int nRenderStyle) {
-  if (nRenderStyle & 2) {
-    _actor->VisibilityOn();
-    // surface type : points(0), wireframe(1) or surface(2)
-    _actor->GetProperty()->SetRepresentation(2);
-    _actor->GetProperty()->SetColor(render_status.face_color.data());
-    render_status.face_on = true;
-
-    // also render edges
-    if (nRenderStyle & 1) {
-      _actor->GetProperty()->SetEdgeVisibility(true);
-      _actor->GetProperty()->SetEdgeColor(render_status.edge_color.data());
-      render_status.edge_on = true;
-    } else {
-      _actor->GetProperty()->SetEdgeVisibility(false);
-      render_status.edge_on = false;
-    }
-  } else if (nRenderStyle & 1) // only render edges
-  {
-    _actor->VisibilityOn();
-    _actor->GetProperty()->SetRepresentationToWireframe();
-    _actor->GetProperty()->SetColor(render_status.edge_color.data());
-    render_status.face_on = false;
-    render_status.edge_on = true;
-  } else {
-    _actor->VisibilityOff();
-    render_status.face_on = false;
-    render_status.edge_on = false;
-  }
-
-} // namespace viewtools
-
-void ActorControler::setColor(Color face_color, Color edge_color) {
-  render_status.face_color = face_color.data();
-  render_status.edge_color = edge_color.data();
-}
-vtkSmartPointer<vtkActor> ActorControler::get_actor() { return _actor; }
 } // namespace viewtools
