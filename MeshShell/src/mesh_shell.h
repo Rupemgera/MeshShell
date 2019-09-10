@@ -33,6 +33,15 @@ public:
 
   void renderScalars(vtkSmartPointer<vtkActor> actor, bool flag);
 
+	/************************* actor related begin *************************/
+
+	/**
+		@return		return true if actor exits, false if not
+	*/
+	bool setVisibility(std::string actor_name, bool visi);
+
+	/************************* actor related end *************************/
+
   /************************* stress begin *************************/
 
 	/**
@@ -46,7 +55,9 @@ public:
   void drawStressField(bool major = true, bool middle = false,
                        bool minor = false);
 
-  void stressSingularity(double tolerance);
+  void stressSingularity(double tolerance, double point_size = 10.0);
+
+	void singularitySizeChange(int point_size);
 
   /************************* stress  end  *************************/
 

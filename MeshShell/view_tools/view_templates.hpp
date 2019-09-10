@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include <Eigen/Dense>
 #include <initializer_list>
 #include <iostream>
 #include <vector>
@@ -48,28 +49,16 @@ public:
 /** vtkFacetTuple
         store vertices's ids of a face that will be rendered.
 */
-template <size_t cell_n> class vtkFacetTuple : public tuple<long long, cell_n> {
-public:
-	vtkFacetTuple(){}
-  vtkFacetTuple(long long *vertices) {
-    for (size_t i = 0; i < cell_n; i++) {
-      _data[i] = vertices[i];
-    }
-  }
-  vtkFacetTuple(std::initializer_list<long long> para) {
-    size_t n = para.size();
-    assert(n == cell_n);
-    size_t i = 0;
-    for (auto u : para) {  
-      _data[i] = u;
-      i++;
-    }
-  }
-};
+template <size_t cell_n>
+using vtkFacetTuple = tuple<long long, cell_n>;
 
 /*********** defines begin **************/
+
 using Point3d = Triple<double>;
-using Triangle = vtkFacetTuple<3>;
+template <int n>
+// VertexList<n> is a n-list storing the vertices of a facet
+using VertexList = Eigen::Matrix<long long, n, 1>;
+
 /*********** defines end **************/
 
 class Color : public Triple<double> {

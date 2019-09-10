@@ -18,11 +18,18 @@ class MeshImpl;
 
 class PrincipalStressField;
 
+/// defines
+
+template <int n>
+using FaceList = Eigen::Matrix<long long, n, 1>;
+
+///
+
 /*
 class define
 */
 
-template <typename T> struct Triple { T x, y, z; };
+//template <typename T> struct Triple { T x, y, z; };
 
 class MeshWrapper {
 public:
@@ -44,12 +51,15 @@ public:
   std::vector<std::string> separateFilename(std::string filename);
 
   void getFaceData(std::vector<Eigen::Vector3d> &points,
-                   std::vector<Eigen::Matrix<long long, 3, 1>> &faces);
+                   std::vector<FaceList<3>> &inner_faces,
+                   std::vector<FaceList<3>> &boundary_face);
 
   void getShrinkMesh(std::vector<Eigen::Vector3d> &points,
                      std::vector<Eigen::Matrix<long long, 3, 1>> &faces);
 
   std::string get_mesh_name();
+
+	double cellSize();
 
   size_t n_vertices();
   size_t n_edges();

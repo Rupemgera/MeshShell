@@ -2,7 +2,6 @@
 
 #include "view_templates.hpp"
 #include "vtk_heads.h"
-#include <Eigen/Dense>
 #include <map>
 
 namespace viewtools {
@@ -13,7 +12,7 @@ protected:
 
 public:
   ActorControler(std::string name, vtkSmartPointer<vtkActor> actor);
-	virtual ~ActorControler();
+  virtual ~ActorControler();
 
   void setVisibility(bool visibility);
 
@@ -23,7 +22,7 @@ public:
 
   virtual void setColor(Color color);
 
-	virtual void setSize(double size);
+  virtual void setSize(double size);
 
   vtkSmartPointer<vtkActor> get_actor();
 
@@ -44,10 +43,9 @@ public:
     Color face_color = Color(1.0, 1.0, 1.0);
   } render_status;
 
-	MeshActorControler(std::string name, vtkSmartPointer<vtkActor> actor);
+  MeshActorControler(std::string name, vtkSmartPointer<vtkActor> actor);
 
-	void setRenderSyle(int nRenderStyle);
-
+  void setRenderSyle(int nRenderStyle);
 };
 
 class PointsActorControler : public ActorControler {
@@ -64,10 +62,10 @@ public:
 
   ////////////// function about points render //////////////////
 
-	/**
-		set size of points
-	*/
-  void setSize(float size);
+  /**
+          set size of points
+  */
+  void setSize(double size);
 };
 
 /**
@@ -101,6 +99,7 @@ public:
 class VtkWrapper {
 public:
   VtkWrapper(QVTKOpenGLWidget *widget);
+  ~VtkWrapper();
 
   /*vtk render functions*/
 
@@ -114,9 +113,9 @@ public:
 
   int refresh();
 
-	/* reset camera */
+  /* reset camera */
 
-	void resetCamera();
+  void resetCamera();
 
   /********** process data begin **********/
 
@@ -126,20 +125,20 @@ public:
   template <int cell_n>
   vtkSmartPointer<vtkPolyData>
   processPolyData(const std::vector<Eigen::Vector3d> &points,
-                  const std::vector<vtkFacetTuple<cell_n>> &polys);
+                  const std::vector<VertexList<cell_n>> &polys);
 
   /* vector field */
   vtkSmartPointer<vtkActor>
   processHedgehog(const std::vector<Eigen::Vector3d> &points,
                   const std::vector<Eigen::Vector3d> &vectors,
-                  Color color = Color(1, 0, 0), double scale_factor = 0.8,
-                  double line_width = 1.0);
+                  double scale_factor = 0.8, double line_width = 1.0);
 
   /* mesh */
 
+  template <int cell_n>
   vtkSmartPointer<vtkActor>
   processMesh(const std::vector<Eigen::Vector3d> &points,
-              const std::vector<Triangle> &faces);
+              const std::vector<VertexList<cell_n>> &faces);
 
   /* Vertex Scalar */
   void setVertexScalars(std::vector<double> &scalars, double lower_bound,
@@ -148,9 +147,6 @@ public:
   vtkSmartPointer<vtkActor> processPoints(std::vector<Eigen::Vector3d> &points);
 
   /********** process data  end  **********/
-
-  /*vtkSmartPointer<vtkActor>
-  processShrinkMesh(const std::vector<Point3d> &points, );*/
 
   //
   bool readJsonSettings();

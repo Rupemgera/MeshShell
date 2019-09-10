@@ -1,4 +1,4 @@
-#ifndef MAINWINDOW_H
+﻿#ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
 #include "meshwidget.h"
@@ -53,7 +53,9 @@ private:
 	/*slots functions*/
 private slots:
 
-	void NewMeshShell();
+	void newMeshShell();
+
+	void closeMeshShell(int id);
 
 	// void trigerMemu(QAction *act);
 

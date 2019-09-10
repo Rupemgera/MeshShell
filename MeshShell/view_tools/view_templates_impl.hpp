@@ -4,8 +4,10 @@
 namespace viewtools {
 template <int cell_n>
 inline vtkSmartPointer<vtkPolyData>
+//VtkWrapper::processPolyData(const std::vector<Eigen::Vector3d> &points,
+//                            const std::vector<Eigen::Matrix<long long, cell_n,1>> &polys) {
 VtkWrapper::processPolyData(const std::vector<Eigen::Vector3d> &points,
-                            const std::vector<vtkFacetTuple<cell_n>> &polys) {
+                            const std::vector<VertexList<cell_n>> &polys) {
   /* insert vertices */
   vtkNew<vtkPoints> nodes;
   size_t n_vertices = points.size();
@@ -34,5 +36,26 @@ VtkWrapper::processPolyData(const std::vector<Eigen::Vector3d> &points,
   else
     data->SetPolys(cells);
   return data;
+}
+
+template <int cell_n>
+vtkSmartPointer<vtkActor>
+VtkWrapper::processMesh(const std::vector<Eigen::Vector3d> &points,
+                        const std::vector<VertexList<cell_n>> &faces) {
+  /// use processPolyData ///
+
+  auto mesh_data = processPolyData<cell_n>(points, faces);
+
+  /***** mapper *****/
+
+  vtkNew<vtkPolyDataMapper> mapper;
+  mapper->SetInputData(mesh_data);
+
+  /********** actors *************/
+
+  vtkNew<vtkActor> face_actor;
+  face_actor->SetMapper(mapper);
+
+  return face_actor;
 }
 } // namespace viewtools
