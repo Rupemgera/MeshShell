@@ -5,6 +5,8 @@
 using MeshWrapper = meshtools::MeshWrapper;
 using VtkWrapper = viewtools::VtkWrapper;
 using ActorControler = viewtools::ActorControler;
+using MeshActorControler = viewtools::MeshActorControler;
+using PointsActorControler = viewtools::PointsActorControler;
 /*********** defines end **************/
 
 class MeshShell {
