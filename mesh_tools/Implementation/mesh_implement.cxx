@@ -122,16 +122,18 @@ std::vector<std::string> MeshImpl::separateFilename(std::string filename) {
   return ret;
 }
 
-void MeshImpl::getFaceData(std::vector<Eigen::Vector3d> &points,
-                           std::vector<Eigen::Matrix<long long, 3, 1>> &faces) {
+void MeshImpl::getFaceData(
+    std::vector<Eigen::Vector3d> &points,
+    std::vector<Eigen::Matrix<long long, 3, 1>> &inner_faces,
+    std::vector<Eigen::Matrix<long long, 3, 1>> &boundary_face) {
   if (mesh_loaded == false) {
     std::cout << "mesh not loaded" << std::endl;
     return;
   }
   size_t nv = ovm_mesh->n_vertices();
   points.resize(nv);
-  size_t nf = ovm_mesh->n_faces();
-  faces.resize(nf);
+  // size_t nf = ovm_mesh->n_faces();
+  // inner_faces.resize(nf);
 
   // get points data
   for (auto viter : ovm_mesh->vertices()) {
@@ -147,7 +149,11 @@ void MeshImpl::getFaceData(std::vector<Eigen::Vector3d> &points,
       v[k] = j->idx();
       k++;
     }
-    faces[fiter.idx()] = v;
+    if (ovm_mesh->is_boundary(fiter)) {
+      boundary_face.push_back(v);
+    } else {
+      inner_faces.push_back(v);
+    }
   }
 }
 
@@ -183,6 +189,30 @@ void MeshImpl::getShrinkMesh(
 
   assert(faces.size() == n * 4);
   assert(points.size() == n * 4);
+}
+
+double MeshImpl::cellSize() {
+  double minr = 1e20, maxr = 0;
+  for (auto citer = ovm_mesh->cells_begin(); citer != ovm_mesh->cells_end();
+       ++citer) {
+    MeshPoint c(0, 0, 0);
+    MeshPoint p[4];
+    int k = 0;
+    for (auto viter = ovm_mesh->cv_iter(*citer); viter.valid(); ++viter) {
+      p[k] = ovm_mesh->vertex(*viter);
+      c += p[k];
+      k++;
+    }
+    c = c / 4;
+    for (size_t i = 0; i < 4; i++) {
+      double tmp = (p[i] - c).norm();
+      if (tmp < minr)
+        minr = tmp;
+      if (tmp > maxr)
+        maxr = tmp;
+    }
+  }
+  return (maxr + minr) / 2;
 }
 
 bool MeshImpl::isSameHalfface(const std::vector<int> &f1,
@@ -283,7 +313,7 @@ void MeshImpl::tetFaces(std::vector<Eigen::Matrix<long long, 3, 1>> &faces,
 
 MeshImpl::MeshImpl() {
   ovm_mesh = VMeshPtr(new VMesh);
-  //field = new PrincipalStressField();
+  // field = new PrincipalStressField();
 }
 
 MeshImpl::~MeshImpl() {} // delete field; }

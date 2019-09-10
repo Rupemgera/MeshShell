@@ -154,10 +154,12 @@ private:
 
   /*成员函数*/
 
-	void readStressWithMesh(std::ifstream &stress_fin, VMeshPtr mesh = nullptr);
+	void readStressHypermeshStyle(std::ifstream &stress_fin, VMeshPtr mesh = nullptr);
 
-	void readStressWithNoMesh(std::ifstream &stress_fin);
+	void readStressAbaqusStyle(std::ifstream &stress_fin);
 
-  bool resize(size_t element_number);
+  bool resize(size_t elements_number);
+
+	bool reserve(size_t elements_number);
 };
 } // namespace meshtools

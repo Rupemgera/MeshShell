@@ -81,9 +81,9 @@ private:
   /*********** Properties end **************/
 
 public:
-  // new ovm_mesh, filed
+  // new ovm_mesh
   MeshImpl();
-  // delete filed. ovm_mesh is a shared_ptr, which does not need delete
+  // ovm_mesh is a shared_ptr, which does not need delete
   ~MeshImpl();
 
   /*********** Functions begin **************/
@@ -100,10 +100,16 @@ public:
   std::vector<std::string> separateFilename(std::string filename);
 
   void getFaceData(std::vector<Eigen::Vector3d> &points,
-                   std::vector<Eigen::Matrix<long long, 3, 1>> &faces);
+                   std::vector<Eigen::Matrix<long long, 3, 1>> &inner_faces,
+                   std::vector<Eigen::Matrix<long long, 3, 1>> &boundary_face);
 
   void getShrinkMesh(std::vector<Eigen::Vector3d> &points,
                      std::vector<Eigen::Matrix<long long, 3, 1>> &faces);
+
+  /**
+          reture average size of cells, for frame render
+  */
+  double cellSize();
 
   /*********** Functions end **************/
 

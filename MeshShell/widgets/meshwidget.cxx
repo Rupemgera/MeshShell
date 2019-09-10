@@ -6,44 +6,45 @@ MeshWidget::MeshWidget(QWidget *parent)
 
   _viewer = new VtkWrapper(ui->viewerWidget);
 
-	_shell = std::shared_ptr<MeshShell>(new MeshShell(_viewer));
+  _shell = std::shared_ptr<MeshShell>(new MeshShell(_viewer));
 
   addSlot();
 }
 
 MeshWidget::~MeshWidget() {
-	delete _viewer;
+  delete _viewer;
   delete ui;
 }
 
 void MeshWidget::addSlot() {
-	connect(this->ui->pushButton_read, &QPushButton::clicked, this,
-		&MeshWidget::readMesh);
-	connect(this->ui->checkBox_edge, &QCheckBox::toggled, this,
-		&MeshWidget::updateMeshRenderStyle);
-	connect(this->ui->checkBox_face, &QCheckBox::toggled, this,
-		&MeshWidget::updateMeshRenderStyle);
-	connect(this->ui->radioButton_normal, &QRadioButton::toggled, this,
-		&MeshWidget::geometryChange);
-	connect(this->ui->pushButton_test, &QPushButton::clicked, this,
-		&MeshWidget::test);
-	connect(this->ui->pushButton_readStressFile, &QPushButton::clicked, this,
-		&MeshWidget::readStressField);
-	connect(this->ui->checkBox_stressSingularity,&QCheckBox::toggled,this,
-		&MeshWidget::stressSingularity);
+  connect(this->ui->pushButton_read, &QPushButton::clicked, this,
+          &MeshWidget::readMesh);
+  connect(this->ui->checkBox_edge, &QCheckBox::toggled, this,
+          &MeshWidget::updateMeshRenderStyle);
+  connect(this->ui->checkBox_face, &QCheckBox::toggled, this,
+          &MeshWidget::updateMeshRenderStyle);
+  connect(this->ui->radioButton_normal, &QRadioButton::toggled, this,
+          &MeshWidget::geometryChange);
+  connect(this->ui->pushButton_test, &QPushButton::clicked, this,
+          &MeshWidget::test);
+  connect(this->ui->pushButton_readStressFile, &QPushButton::clicked, this,
+          &MeshWidget::readStressField);
 
+  /* draw stress field */
+  connect(this->ui->checkBox_render_stress, &QCheckBox::toggled, this,
+          &MeshWidget::drawStressField);
+  connect(this->ui->checkBox_major, &QCheckBox::toggled, this,
+          &MeshWidget::drawStressField);
+  connect(this->ui->checkBox_mid, &QCheckBox::toggled, this,
+          &MeshWidget::drawStressField);
+  connect(this->ui->checkBox_minor, &QCheckBox::toggled, this,
+          &MeshWidget::drawStressField);
 
-	/* draw stress field */
-	connect(this->ui->checkBox_render_stress,&QCheckBox::toggled,this,
-		&MeshWidget::drawStressField);
-	connect(this->ui->checkBox_major,&QCheckBox::toggled,this,
-		&MeshWidget::drawStressField);
-	connect(this->ui->checkBox_mid,&QCheckBox::toggled,this,
-		&MeshWidget::drawStressField);
-	connect(this->ui->checkBox_minor,&QCheckBox::toggled,this,
-		&MeshWidget::drawStressField);
-	/*connect(this->ui->doubleSpinBox_opacity,&QDoubleSpinBox::valueChanged(double),this,
-		&MeshWidget::updateMeshOpacity);*/
+  /* sigularity */
+  connect(this->ui->checkBox_stressSingularity, &QCheckBox::toggled, this,
+          &MeshWidget::drawStressSingularity);
+  connect(this->ui->pushButton_singularityRefresh, &QPushButton::clicked, this,
+          &MeshWidget::drawStressSingularity);
 }
 
 void MeshWidget::updateMeshInfo() {
@@ -64,7 +65,8 @@ int MeshWidget::getRenderStyle() {
   return nRenderStyle;
 }
 
-std::string MeshWidget::filenameFromDialog(const char* dialog_name, const char *filter) {
+std::string MeshWidget::filenameFromDialog(const char *dialog_name,
+                                           const char *filter) {
   QString qfname =
       QFileDialog::getOpenFileName(0, dialog_name, _directory_path, filter);
 
@@ -72,22 +74,23 @@ std::string MeshWidget::filenameFromDialog(const char* dialog_name, const char *
     return "";
   }
 
-	/********** save last opened path *************/
+  /********** save last opened path *************/
 
   int i = qfname.lastIndexOf('/');
   _directory_path = qfname.left(i);
 
-	return qfname.toStdString();
+  return qfname.toStdString();
 }
 
 void MeshWidget::readStressField() {
-	std::string filename = filenameFromDialog("Open Stress File", "csv files(*.csv)");
+  std::string filename =
+      filenameFromDialog("Open Stress File", "csv files(*.csv)");
 
-	ui->pushButton_readStressFile->setDisabled(true);
+  ui->pushButton_readStressFile->setDisabled(true);
 
-	_shell->readStressField(filename);
+  _shell->readStressField(filename);
 
-	std::cout<<"read Stress Field down"<<std::endl;
+  std::cout << "read Stress Field down" << std::endl;
 }
 
 void MeshWidget::drawStressField() {
@@ -96,8 +99,14 @@ void MeshWidget::drawStressField() {
     mjr = ui->checkBox_major->isChecked();
     mdd = ui->checkBox_mid->isChecked();
     mnr = ui->checkBox_minor->isChecked();
+    ui->checkBox_major->setDisabled(false);
+    ui->checkBox_mid->setDisabled(false);
+    ui->checkBox_minor->setDisabled(false);
   } else {
     mjr = mdd = mnr = false;
+    ui->checkBox_major->setDisabled(true);
+    ui->checkBox_mid->setDisabled(true);
+    ui->checkBox_minor->setDisabled(true);
   }
   _shell->drawStressField(mjr, mdd, mnr);
 }
@@ -106,46 +115,60 @@ void MeshWidget::updateMeshRenderStyle() {
   _shell->updateMeshRenderStyle(getRenderStyle());
 }
 void MeshWidget::updateMeshOpacity() {
-	if (_shell->mesh_loaded == false)
-		return;
-	double opacity = ui->doubleSpinBox_opacity->value();
-	int geometry;
-	if (ui->radioButton_shrink->isChecked()){
-		geometry = 2;
-	}else{
-		geometry = 1;
-	}
-	_shell->updateFaceOpacity(opacity,geometry);
+  if (_shell->mesh_loaded == false)
+    return;
+  double opacity = ui->doubleSpinBox_opacity->value();
+  int geometry;
+  if (ui->radioButton_shrink->isChecked()) {
+    geometry = 2;
+  } else {
+    geometry = 1;
+  }
+  _shell->updateFaceOpacity(opacity, geometry);
 }
-void MeshWidget::geometryChange()
-{
-	if (!_shell->mesh_loaded)
-		return;
-	if(ui->radioButton_normal->isChecked()){
-		_shell->drawMesh();
-	}
-	else if(ui->radioButton_shrink->isChecked()){
-		_shell->drawShrink();
-	}
+void MeshWidget::geometryChange() {
+  if (!_shell->mesh_loaded)
+    return;
+  if (ui->radioButton_normal->isChecked()) {
+    _shell->drawMesh();
+  } else if (ui->radioButton_shrink->isChecked()) {
+    _shell->drawShrink();
+  }
 }
-void MeshWidget::stressSingularity() {
-	double tolerance = ui->doubleSpinBox_stressSingularityTolerance->value();
-	_shell->stressSingularity(tolerance);
-	//std::cout<<"singularities calculation down"<<std::endl;
+void MeshWidget::drawStressSingularity() {
+  double tolerance = ui->doubleSpinBox_stressSingularityTolerance->value();
+  double pointSize = ui->doubleSpinBox_pointSize->value();
+  if (ui->checkBox_stressSingularity->isChecked()) {
+    // if has not rendered, do first render
+    _shell->setVisibility("Singularity", true);
+    _shell->stressSingularity(tolerance, pointSize);
+    ui->doubleSpinBox_pointSize->setDisabled(false);
+    ui->doubleSpinBox_stressSingularityTolerance->setDisabled(false);
+  } else {
+    _shell->setVisibility("Singularity", false);
+    ui->doubleSpinBox_pointSize->setDisabled(true);
+    ui->doubleSpinBox_stressSingularityTolerance->setDisabled(true);
+  }
+  // std::cout<<"singularities calculation down"<<std::endl;
 }
-void MeshWidget::test()
-{
-	std::vector<double> s;
-	s.push_back(1);
-	s.push_back(2);
-	s.push_back(3);
-	s.push_back(4);
-	_shell->setVertexScalars(s, 0, 4);
+void MeshWidget::updateStressSingularity() {
+  double pointSize = ui->doubleSpinBox_pointSize->value();
+  _shell->singularitySizeChange(pointSize);
+}
+
+void MeshWidget::test() {
+  std::vector<double> s;
+  s.push_back(1);
+  s.push_back(2);
+  s.push_back(3);
+  s.push_back(4);
+  _shell->setVertexScalars(s, 0, 4);
 }
 void MeshWidget::readMesh() {
-	std::string filename = filenameFromDialog("Open Mesh File", "OVM files(*.ovm);;Abaqus inp files(*.inp)"); 
+  std::string filename = filenameFromDialog(
+      "Open Mesh File", "OVM files(*.ovm);;Abaqus inp files(*.inp)");
 
-	ui->pushButton_read->setDisabled(true);
+  ui->pushButton_read->setDisabled(true);
 
   /********** Mesh *************/
 

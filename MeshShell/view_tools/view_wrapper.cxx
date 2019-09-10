@@ -52,7 +52,9 @@ void ActorControler::setColor(Color color) {
   _actor->GetProperty()->SetColor(color.data());
 }
 
-void ActorControler::setSize(double size) {}
+void ActorControler::setSize(double size) {
+	_actor->GetProperty()->SetLineWidth(size);
+}
 
 vtkSmartPointer<vtkActor> ActorControler::get_actor() { return _actor; }
 
@@ -107,7 +109,7 @@ PointsActorControler::PointsActorControler(std::string name,
                                vtkSmartPointer<vtkActor> actor)
     : ActorControler(name,actor) {}
 
-void PointsActorControler::setSize(float size) {
+void PointsActorControler::setSize(double size) {
   render_status.point_size = size;
   _actor->GetProperty()->SetPointSize(size);
 }
@@ -148,6 +150,7 @@ std::map<std::string, ActorControler *>::iterator ActorTable::end() {
 }
 
 /************************* ActorTable  end  *************************/
+
 VtkWrapper::VtkWrapper(QVTKOpenGLWidget *Qwidget) {
   // Create the usual rendering stuff
 
@@ -185,6 +188,8 @@ VtkWrapper::VtkWrapper(QVTKOpenGLWidget *Qwidget) {
   _markerWidget->InteractiveOn();
 }
 
+VtkWrapper::~VtkWrapper() {}
+
 int VtkWrapper::renderActor(vtkActor *actor) {
   // Add Actor to renderer
   _renderer->AddActor(actor);
@@ -212,7 +217,7 @@ void VtkWrapper::resetCamera() {
 
 vtkSmartPointer<vtkActor>
 VtkWrapper::processHedgehog(const std::vector<Eigen::Vector3d> &points,
-                            const std::vector<Eigen::Vector3d> &vectors, Color color,
+                            const std::vector<Eigen::Vector3d> &vectors,
                             double scale_factor, double line_width) {
   size_t n = points.size();
   vtkNew<vtkPoints> locs;
@@ -251,52 +256,9 @@ VtkWrapper::processHedgehog(const std::vector<Eigen::Vector3d> &points,
   actor->SetMapper(mapper);
   actor->GetProperty()->SetLineWidth(line_width);
 
-  actor->GetProperty()->SetColor(color.data());
+  //actor->GetProperty()->SetColor(color.data());
 
   return actor;
-}
-
-vtkSmartPointer<vtkActor>
-VtkWrapper::processMesh(const std::vector<Eigen::Vector3d> &points,
-                        const std::vector<Triangle> &faces) {
-  ///* insert vertices */
-  // vtkNew<vtkPoints> nodes;
-  // size_t n_vertices = points.size();
-  // nodes->GetData()->Allocate(n_vertices);
-  // for (int i = 0; i < n_vertices; ++i) {
-  //  nodes->InsertPoint(i, points[i].data());
-  //}
-
-  ///* insert faces */
-  // vtkNew<vtkCellArray> triangles;
-  // size_t n_faces = faces.size();
-  ////每个单元有4个数据 1个表示点的数量，3个表示顶点的标号
-  // triangles->GetData()->Allocate((1 + 3) * n_faces);
-  // for (auto i = 0; i < n_faces; ++i) {
-  //  triangles->InsertNextCell(3, faces[i].data());
-  //}
-
-  ///* form mesh data */
-
-  // vtkNew<vtkPolyData> mesh_data;
-  // mesh_data->SetPoints(nodes);
-  // mesh_data->SetPolys(triangles);
-
-  /// use processPolyData ///
-
-  auto mesh_data = processPolyData<3>(points, faces);
-
-  /***** mapper *****/
-
-  vtkNew<vtkPolyDataMapper> mapper;
-  mapper->SetInputData(mesh_data);
-
-  /********** actors *************/
-
-  vtkNew<vtkActor> face_actor;
-  face_actor->SetMapper(mapper);
-
-  return face_actor;
 }
 
 void VtkWrapper::setVertexScalars(std::vector<double> &scalars,
@@ -321,10 +283,11 @@ void VtkWrapper::setVertexScalars(std::vector<double> &scalars,
 
 vtkSmartPointer<vtkActor>
 VtkWrapper::processPoints(std::vector<Eigen::Vector3d> &points) {
-  std::vector<vtkFacetTuple<1>> polys;
+  //std::vector<vtkFacetTuple<1>> polys;
+	std::vector<VertexList<1>> polys;
   polys.resize(points.size());
   for (int i = 0; i < points.size(); ++i) {
-    polys[i] = {i};
+    polys[i] = VertexList<1>(i);
   }
   auto data = processPolyData<1>(points, polys);
 

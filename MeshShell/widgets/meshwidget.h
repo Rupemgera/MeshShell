@@ -60,7 +60,13 @@ private slots:
 
 	void geometryChange();
 
-	void stressSingularity();
+	/* stress singularity related */
+
+	void drawStressSingularity();
+
+	void updateStressSingularity();
+
+	//void pointSizeChanged();
 
 	void test();
 };
