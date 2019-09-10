@@ -17,9 +17,6 @@
 namespace meshtools{
 bool PrincipalStressField::readInStress(std::string filename, VMeshPtr mesh,
                                         bool save) {
-  int n;
-  double sigma[6];
-
   std::string tmp;
   std::ifstream stress_fin(filename);
 
@@ -30,62 +27,12 @@ bool PrincipalStressField::readInStress(std::string filename, VMeshPtr mesh,
   } else if (tmp.find("Element") != tmp.npos) {
     element_type = STRESS_ELEMENT_TYPE::Cell;
   } else {
-    // unrecognized element type!
+    // no mesh, only stress
+		readStressWithNoMesh(stress_fin);
     return false;
   }
 
-  //读入数据
-  if (mesh != nullptr) {
-
-    //预分配vector的大小
-    if (element_type == STRESS_ELEMENT_TYPE::Node) {
-      resize(mesh->n_vertices());
-    } else if (element_type == STRESS_ELEMENT_TYPE::Cell) {
-      resize(mesh->n_cells());
-    }
-
-    while (std::getline(stress_fin, tmp)) {
-      if (tmp == "")
-        continue;
-        /*
-                                        读取stress的六个独立分量
-                                */
-#ifdef __linux
-      sscanf(tmp.c_str(), "%d , %lf %lf %lf %lf %lf %lf", &n, sigma, sigma + 1,
-             sigma + 2, sigma + 3, sigma + 4, sigma + 5);
-#endif // __linux
-#ifdef _WIN64
-      sscanf_s(tmp.c_str(), "%d , %lf %lf %lf %lf %lf %lf", &n, sigma,
-               sigma + 1, sigma + 2, sigma + 3, sigma + 4, sigma + 5);
-#endif // _WIN64
-
-      tensors[n - 1].reset(sigma);
-    }
-  } else {
-
-    while (std::getline(stress_fin, tmp)) {
-      if (tmp == "")
-        continue;
-        /*
-                                        读取stress的六个独立分量
-                                */
-#ifdef __linux
-      sscanf(tmp.c_str(), "%d , %lf %lf %lf %lf %lf %lf", &n, sigma, sigma + 1,
-             sigma + 2, sigma + 3, sigma + 4, sigma + 5);
-#endif // __linux
-#ifdef _WIN64
-      sscanf_s(tmp.c_str(), "%d , %lf %lf %lf %lf %lf %lf", &n, sigma,
-               sigma + 1, sigma + 2, sigma + 3, sigma + 4, sigma + 5);
-#endif // _WIN64
-
-      tensors.push_back(StressTensor(sigma));
-    }
-  }
-
-  _n = tensors.size();
-
-  // calculate tets center poisition
-  setCellCenter(mesh);
+	readStressWithMesh(stress_fin,mesh);
 
   if (save == true) {
     // save to another form
@@ -137,7 +84,7 @@ bool PrincipalStressField::setCellCenter(VMeshPtr mesh) {
       MeshPoint p = mesh->vertex(*viter);
       c += p;
     }
-    location[citer->idx()] = c / 4;
+    location[citer->idx()] = Eigen::Vector3d((c / 4).data());
   }
   return true;
 }
@@ -356,6 +303,85 @@ void PrincipalStressField::get_principal_dirs(std::vector<Eigen::Vector3d> &ret,
 //	}
 //}
 
+void PrincipalStressField::readStressWithMesh(std::ifstream &stress_fin,
+                                              VMeshPtr mesh) {
+  //读入数据
+  int n;
+  std::string tmp;
+  double sigma[6];
+
+  // lambda function for read
+  auto read_sigma = [&sigma](std::string &line, int &n) {
+#ifdef __linux
+    sscanf(line.c_str(), "%d , %lf %lf %lf %lf %lf %lf", &n, sigma, sigma + 1,
+           sigma + 2, sigma + 3, sigma + 4, sigma + 5);
+#endif // __linux
+#ifdef _WIN64
+    sscanf_s(line.c_str(), "%d , %lf %lf %lf %lf %lf %lf", &n, sigma, sigma + 1,
+             sigma + 2, sigma + 3, sigma + 4, sigma + 5);
+#endif // _WIN64
+  };
+
+  //预分配vector的大小
+  if (element_type == STRESS_ELEMENT_TYPE::Node) {
+    resize(mesh->n_vertices());
+  } else if (element_type == STRESS_ELEMENT_TYPE::Cell) {
+    resize(mesh->n_cells());
+  }
+
+  while (std::getline(stress_fin, tmp)) {
+    if (tmp == "")
+      continue;
+    /**
+       读取stress的六个独立分量
+    */
+    read_sigma(tmp, n);
+
+		// hypermesh way, default, order = 1
+    tensors[n - 1].reset(sigma);
+  }
+
+  _n = tensors.size();
+
+  // calculate tets center poisition
+  setCellCenter(mesh);
+}
+
+void PrincipalStressField::readStressWithNoMesh(std::ifstream &stress_fin) {
+	double sigma[6];
+	double coo[3];
+	std::string tmp;
+
+	// initialization
+
+	location.clear();
+
+	// lambda function for read
+  auto read_sigma = [&sigma,&coo](std::string &line) {
+#ifdef __linux
+    sscanf(line.c_str(), "%lf , %lf , %lf , %lf , %lf , %lf , %lf , %lf , %lf", coo, coo+1, coo+2, sigma, sigma + 1,
+           sigma + 2, sigma + 3, sigma + 4, sigma + 5);
+#endif // __linux
+#ifdef _WIN64
+    sscanf_s(line.c_str(), "%lf , %lf , %lf , %lf , %lf , %lf , %lf , %lf , %lf", coo, coo+1, coo+2, sigma, sigma + 1,
+             sigma + 2, sigma + 3, sigma + 4, sigma + 5);
+#endif // _WIN64
+  };
+
+	while (std::getline(stress_fin, tmp)) {
+    if (tmp == "")
+      continue;
+    /**
+       读取stress的六个独立分量
+    */
+    read_sigma(tmp);
+
+		// abaqus way, order set to 1
+    tensors.push_back(StressTensor(sigma,1));
+		location.push_back(Eigen::Vector3d(coo));
+  }
+}
+
 bool PrincipalStressField::resize(size_t elements_number) {
   _n = elements_number;
   /*_stress.resize(elements_number);
@@ -364,15 +390,22 @@ bool PrincipalStressField::resize(size_t elements_number) {
   return true;
 }
 
-void StressTensor::init(double *tensor_component) {
-  _tensor << tensor_component[0], tensor_component[3], tensor_component[5],
+void StressTensor::init(double *tensor_component, int order) {
+	if (order == 0){
+		_tensor << tensor_component[0], tensor_component[3], tensor_component[5],
       tensor_component[3], tensor_component[1], tensor_component[4],
       tensor_component[5], tensor_component[4], tensor_component[2];
+	}else{
+		_tensor << tensor_component[0], tensor_component[3], tensor_component[4],
+      tensor_component[3], tensor_component[1], tensor_component[5],
+      tensor_component[4], tensor_component[5], tensor_component[2];
+	}
+  
 
   Eigen::SelfAdjointEigenSolver<Matrix_3> solver(_tensor);
   auto real_values = solver.eigenvalues();
   double values[] = {real_values(0), real_values(1), real_values(2)};
-  int order[] = {0, 1, 2};
+  int rank[] = {0, 1, 2};
   Matrix_3 vectors = solver.eigenvectors();
 
   // sort eigen values decreasingly
@@ -380,7 +413,7 @@ void StressTensor::init(double *tensor_component) {
     for (int j = i + 1; j < 3; j++) {
       if (values[i] < values[j]) {
         std::swap(values[i], values[j]);
-        std::swap(order[i], order[j]);
+        std::swap(rank[i], rank[j]);
       }
     }
   }
@@ -388,7 +421,7 @@ void StressTensor::init(double *tensor_component) {
   // save eigen value
   for (int i = 0; i < 3; i++) {
     eig_values[i] = values[i];
-    eig_vectors.col(i) = vectors.col(order[i]);
+    eig_vectors.col(i) = vectors.col(rank[i]);
   }
 }
 
@@ -397,7 +430,7 @@ StressTensor::StressTensor() {
   init(zeros);
 }
 
-StressTensor::StressTensor(double *tensor_component) { init(tensor_component); }
+StressTensor::StressTensor(double *tensor_component, int order) { init(tensor_component, order); }
 
-void StressTensor::reset(double *tensor_component) { init(tensor_component); }
+void StressTensor::reset(double *tensor_component, int order) { init(tensor_component, order); }
 } // namespace meshtools

@@ -35,7 +35,7 @@ void MeshShell::drawMesh(int nRenderStyle) {
       vtk_faces.push_back(j.data());
     }
 
-    _main_actor = new ActorControler(
+    _main_actor = new MeshActorControler(
         "main_actor", _viewer->processMesh(points, vtk_faces));
     mesh_name = ovm_mesh->get_mesh_name();
     /*auto map_item = _actors_table.find(mesh_name);
@@ -44,7 +44,11 @@ void MeshShell::drawMesh(int nRenderStyle) {
     } else {
             _actors_table.insert(ActorMap::value_type(mesh_name, actor));
             }*/
+
+
     _viewer->renderActor(_main_actor->get_actor());
+		// first render, reset camera
+		_viewer->resetCamera();
   }
 
   if (_shrink_actor != nullptr)
@@ -52,7 +56,7 @@ void MeshShell::drawMesh(int nRenderStyle) {
 
   // 1 : render edge 2 : render face 3 = 2 + 1
   _main_actor->setRenderSyle(nRenderStyle);
-  _main_actor->setColor();
+  //_main_actor->setColor();
   shrinked = false;
 
   _viewer->refresh();
@@ -107,7 +111,7 @@ void MeshShell::drawShrink(int nRenderStyle) {
       vtk_faces.push_back(j.data());
     }
 
-    _shrink_actor = new ActorControler(
+    _shrink_actor = new MeshActorControler(
         "strink_actor", _viewer->processMesh(points, vtk_faces));
 
     _viewer->renderActor(_shrink_actor->get_actor());
@@ -118,7 +122,7 @@ void MeshShell::drawShrink(int nRenderStyle) {
 
   // 1 : render edge 2 : render face 3 = 2 + 1
   _shrink_actor->setRenderSyle(nRenderStyle);
-  _shrink_actor->setColor();
+  //_shrink_actor->setColor();
   shrinked = true;
 
   _viewer->refresh();
@@ -188,12 +192,27 @@ void MeshShell::drawStressField(bool major, bool middle, bool minor) {
 }
 
 void MeshShell::stressSingularity(double tolerance) {
+	ActorControler *si_view;
   std::vector<Eigen::Vector3d> singularites;
   ovm_mesh->singularityLoaction(singularites, tolerance);
   size_t n = singularites.size();
-  auto si_view =
-      new ActorControler("singularity", _viewer->processPoints(singularites));
-  si_view->setPointSize(14.0);
+	std::cout<<"tolerance : "<<tolerance<<" singularities : "<<n<<std::endl;
+
+	// singularity render already exists
+	// then delete it
+	auto target = _actors_table.find("singularity");
+	if (target != _actors_table.end()) {
+		si_view = target->second;
+		_viewer->removeActor(si_view->get_actor());
+		// pointer to ActorControl deleted in remove()
+		_actors_table.remove(target);
+	}
+
+	// render new one
+	
+  si_view =
+      new PointsActorControler("singularity", _viewer->processPoints(singularites));
+  si_view->setSize(15.0);
   si_view->setColor(viewtools::Color(1, 0, 0));
   _actors_table.insert(si_view);
   _viewer->renderActor(si_view->get_actor());

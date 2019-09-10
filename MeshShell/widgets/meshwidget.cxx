@@ -6,12 +6,14 @@ MeshWidget::MeshWidget(QWidget *parent)
 
   _viewer = new VtkWrapper(ui->viewerWidget);
 
+	_shell = std::shared_ptr<MeshShell>(new MeshShell(_viewer));
+
   addSlot();
 }
 
 MeshWidget::~MeshWidget() {
+	delete _viewer;
   delete ui;
-  delete _viewer;
 }
 
 void MeshWidget::addSlot() {
@@ -29,7 +31,16 @@ void MeshWidget::addSlot() {
 		&MeshWidget::readStressField);
 	connect(this->ui->checkBox_stressSingularity,&QCheckBox::toggled,this,
 		&MeshWidget::stressSingularity);
+
+
+	/* draw stress field */
 	connect(this->ui->checkBox_render_stress,&QCheckBox::toggled,this,
+		&MeshWidget::drawStressField);
+	connect(this->ui->checkBox_major,&QCheckBox::toggled,this,
+		&MeshWidget::drawStressField);
+	connect(this->ui->checkBox_mid,&QCheckBox::toggled,this,
+		&MeshWidget::drawStressField);
+	connect(this->ui->checkBox_minor,&QCheckBox::toggled,this,
 		&MeshWidget::drawStressField);
 	/*connect(this->ui->doubleSpinBox_opacity,&QDoubleSpinBox::valueChanged(double),this,
 		&MeshWidget::updateMeshOpacity);*/
@@ -95,6 +106,8 @@ void MeshWidget::updateMeshRenderStyle() {
   _shell->updateMeshRenderStyle(getRenderStyle());
 }
 void MeshWidget::updateMeshOpacity() {
+	if (_shell->mesh_loaded == false)
+		return;
 	double opacity = ui->doubleSpinBox_opacity->value();
 	int geometry;
 	if (ui->radioButton_shrink->isChecked()){
@@ -106,6 +119,8 @@ void MeshWidget::updateMeshOpacity() {
 }
 void MeshWidget::geometryChange()
 {
+	if (!_shell->mesh_loaded)
+		return;
 	if(ui->radioButton_normal->isChecked()){
 		_shell->drawMesh();
 	}
@@ -116,7 +131,7 @@ void MeshWidget::geometryChange()
 void MeshWidget::stressSingularity() {
 	double tolerance = ui->doubleSpinBox_stressSingularityTolerance->value();
 	_shell->stressSingularity(tolerance);
-	std::cout<<"singularities calculation down"<<std::endl;
+	//std::cout<<"singularities calculation down"<<std::endl;
 }
 void MeshWidget::test()
 {
@@ -134,7 +149,6 @@ void MeshWidget::readMesh() {
 
   /********** Mesh *************/
 
-  _shell = std::shared_ptr<MeshShell>(new MeshShell(_viewer));
   _shell->readMesh(filename);
   _shell->drawMesh(getRenderStyle());
   updateMeshInfo();

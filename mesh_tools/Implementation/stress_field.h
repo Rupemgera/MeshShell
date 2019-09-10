@@ -37,7 +37,7 @@ enum STRESS_ELEMENT_TYPE { Node, Cell, NotDefined };
 */
 class StressTensor {
 private:
-  void init(double *tensor_component);
+  void init(double *tensor_component, int order = 0);
 
 public:
   /*
@@ -52,8 +52,12 @@ public:
   data end
   */
   StressTensor();
-  StressTensor(double *tensor_component);
-  void reset(double *tensor_component);
+	/**
+		order = 0 : hypermesh way XX YY ZZ XY YZ ZX
+		order = 1 : abaqus way S-S11,S-S22,S-S33,S-S12,S-S13,S-S23
+	*/
+  StressTensor(double *tensor_component, int order = 0);
+  void reset(double *tensor_component, int order = 0);
 };
 
 /**
@@ -69,7 +73,7 @@ public:
 
   std::vector<StressTensor> tensors;
 
-	std::vector<MeshPoint> location;
+	std::vector<Eigen::Vector3d> location;
 
   /*
   data end
@@ -149,6 +153,10 @@ private:
   */
 
   /*成员函数*/
+
+	void readStressWithMesh(std::ifstream &stress_fin, VMeshPtr mesh = nullptr);
+
+	void readStressWithNoMesh(std::ifstream &stress_fin);
 
   bool resize(size_t element_number);
 };

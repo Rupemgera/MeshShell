@@ -12,62 +12,90 @@ protected:
   vtkSmartPointer<vtkActor> _actor;
 
 public:
-  struct {
-    // whether edges are rendered
-    bool edge_on = false;
-
-    Color edge_color = Color(0.0, 0.0, 1.0);
-
-    // whether faces are rendered
-    bool face_on = false;
-
-    Color face_color = Color(1.0, 1.0, 1.0);
-
-    // whether to render stress field
-    bool field_on = false;
-
-    ////// properties of points //////////////
-
-    float point_size = 1.0;
-  } render_status;
-
   ActorControler(std::string name, vtkSmartPointer<vtkActor> actor);
+	virtual ~ActorControler();
 
   void setVisibility(bool visibility);
 
-  void setRenderSyle(int nRenderStyle);
+  virtual void setRenderSyle(int nRenderStyle);
 
-	void setOpacity(double opacity);
+  void setOpacity(double opacity);
 
-  void setColor(Color edge_color = Color(0.0, 0.0, 1.0),
-                Color face_color = Color(1.0, 1.0, 1.0));
+  virtual void setColor(Color color);
 
-  ////////////// function about points render //////////////////
-
-  void setPointSize(float size);
+	virtual void setSize(double size);
 
   vtkSmartPointer<vtkActor> get_actor();
 
   std::string name;
 };
 
+class MeshActorControler : public ActorControler {
+public:
+  struct {
+    // whether edges are rendered
+    bool edge_on = false;
+
+    Color edge_color = Color(0.0, 0.545, 0.0);
+
+    // whether faces are rendered
+    bool face_on = false;
+
+    Color face_color = Color(1.0, 1.0, 1.0);
+  } render_status;
+
+	MeshActorControler(std::string name, vtkSmartPointer<vtkActor> actor);
+
+	void setRenderSyle(int nRenderStyle);
+
+};
+
+class PointsActorControler : public ActorControler {
+public:
+  struct {
+    ////// properties of points //////////////
+
+    float point_size = 1.0;
+
+    Color point_color = Color(1.0, 0, 0);
+  } render_status;
+
+  PointsActorControler(std::string name, vtkSmartPointer<vtkActor> actor);
+
+  ////////////// function about points render //////////////////
+
+	/**
+		set size of points
+	*/
+  void setSize(float size);
+};
+
 /**
-	maintain all active actors.
+        maintain all active actors.
 
 */
-class ActorTable{
+class ActorTable {
 protected:
-	std::map<std::string, ActorControler *> _table;
+  std::map<std::string, ActorControler *> _table;
 
 public:
-	void insert(ActorControler *u);
+  void insert(ActorControler *u);
 
-	std::map<std::string, ActorControler *>::iterator find(std::string key);
+  /**
+          ActorControl * will be deleted
+  */
+  void remove(const std::string key);
 
-	std::map<std::string, ActorControler *>::iterator begin();
+  /**
+          ActorControl * will be deleted
+  */
+  void remove(std::map<std::string, ActorControler *>::iterator &id);
 
-	std::map<std::string, ActorControler *>::iterator end();
+  std::map<std::string, ActorControler *>::iterator find(std::string key);
 
+  std::map<std::string, ActorControler *>::iterator begin();
+
+  std::map<std::string, ActorControler *>::iterator end();
 };
 
 class VtkWrapper {
@@ -86,6 +114,10 @@ public:
 
   int refresh();
 
+	/* reset camera */
+
+	void resetCamera();
+
   /********** process data begin **********/
 
   /** transform data to vtk render data
@@ -97,16 +129,17 @@ public:
                   const std::vector<vtkFacetTuple<cell_n>> &polys);
 
   /* vector field */
-  vtkSmartPointer<vtkActor> processHedgehog(const std::vector<Eigen::Vector3d> &points,
-                                            const std::vector<Eigen::Vector3d> &vectors,
-                                            Color color = Color(1, 0, 0),
-                                            double scale_factor = 0.8,
-                                            double line_width = 1.0);
+  vtkSmartPointer<vtkActor>
+  processHedgehog(const std::vector<Eigen::Vector3d> &points,
+                  const std::vector<Eigen::Vector3d> &vectors,
+                  Color color = Color(1, 0, 0), double scale_factor = 0.8,
+                  double line_width = 1.0);
 
   /* mesh */
 
-  vtkSmartPointer<vtkActor> processMesh(const std::vector<Eigen::Vector3d> &points,
-                                        const std::vector<Triangle> &faces);
+  vtkSmartPointer<vtkActor>
+  processMesh(const std::vector<Eigen::Vector3d> &points,
+              const std::vector<Triangle> &faces);
 
   /* Vertex Scalar */
   void setVertexScalars(std::vector<double> &scalars, double lower_bound,

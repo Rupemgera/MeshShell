@@ -285,6 +285,9 @@
          <layout class="QGridLayout" name="gridLayout_7">
           <item row="0" column="2">
            <widget class="QDoubleSpinBox" name="doubleSpinBox_stressSingularityTolerance">
+            <property name="singleStep">
+             <double>0.000100000000000</double>
+            </property>
             <property name="value">
              <double>0.100000000000000</double>
             </property>
@@ -356,11 +359,28 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>doubleSpinBox_stressSingularityTolerance</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>MeshWidget</receiver>
+   <slot>stressSingularity()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>403</x>
+     <y>802</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1</x>
+     <y>596</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>updateMesh()</slot>
   <slot>openStressFile()</slot>
   <slot>renderField()</slot>
   <slot>updateMeshOpacity()</slot>
+  <slot>stressSingularity()</slot>
  </slots>
 </ui>

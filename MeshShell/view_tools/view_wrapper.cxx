@@ -35,11 +35,40 @@ ActorControler::ActorControler(std::string name,
                                vtkSmartPointer<vtkActor> actor)
     : name(name), _actor(actor) {}
 
+ActorControler::~ActorControler() {}
+
 void ActorControler::setVisibility(bool visibility) {
   _actor->SetVisibility(visibility);
 }
 
+/** 
+	surface type : points(0), wireframe(1) or surface(2)
+*/
 void ActorControler::setRenderSyle(int nRenderStyle) {
+		_actor->GetProperty()->SetRepresentation(nRenderStyle);
+}
+
+void ActorControler::setColor(Color color) {
+  _actor->GetProperty()->SetColor(color.data());
+}
+
+void ActorControler::setSize(double size) {}
+
+vtkSmartPointer<vtkActor> ActorControler::get_actor() { return _actor; }
+
+void ActorControler::setOpacity(double opacity) {
+	_actor->GetProperty()->SetOpacity(opacity);
+}
+
+
+/************************* ActorControler  end  *************************/
+
+/************************* MeshActorControler  begein  *************************/
+
+MeshActorControler::MeshActorControler(std::string name,
+                                       vtkSmartPointer<vtkActor> actor): ActorControler(name,actor) {}
+
+void MeshActorControler::setRenderSyle(int nRenderStyle) {
   if (nRenderStyle & 2) {
     _actor->VisibilityOn();
     // surface type : points(0), wireframe(1) or surface(2)
@@ -70,26 +99,40 @@ void ActorControler::setRenderSyle(int nRenderStyle) {
   }
 }
 
-void ActorControler::setOpacity(double opacity) {
-	_actor->GetProperty()->SetOpacity(opacity);
-}
+/************************* MeshActorControler   end  *************************/
 
-void ActorControler::setColor(Color edge_color, Color face_color) {
-  render_status.face_color = face_color.data();
-  render_status.edge_color = edge_color.data();
-}
-void ActorControler::setPointSize(float size) {
+/************************* MeshActorControler  begein  *************************/
+
+PointsActorControler::PointsActorControler(std::string name,
+                               vtkSmartPointer<vtkActor> actor)
+    : ActorControler(name,actor) {}
+
+void PointsActorControler::setSize(float size) {
   render_status.point_size = size;
   _actor->GetProperty()->SetPointSize(size);
 }
-vtkSmartPointer<vtkActor> ActorControler::get_actor() { return _actor; }
 
-/************************* ActorControler  end  *************************/
+/************************* MeshActorControler   end  *************************/
+
 
 /************************* ActorTable  end  *************************/
 
 void ActorTable::insert(ActorControler *u) {
 	_table.insert(std::make_pair(u->name,u));
+}
+
+void ActorTable::remove(const std::string key) {
+	auto u = _table.find(key);
+	if (u != _table.end()) {
+		if (u->second != nullptr)
+			delete u->second;
+    _table.erase(u);
+	}
+}
+
+void ActorTable::remove(std::map<std::string, ActorControler *>::iterator &id) {
+	delete id->second;
+	_table.erase(id);
 }
 
 std::map<std::string, ActorControler *>::iterator ActorTable::find(std::string key) {
@@ -145,7 +188,7 @@ VtkWrapper::VtkWrapper(QVTKOpenGLWidget *Qwidget) {
 int VtkWrapper::renderActor(vtkActor *actor) {
   // Add Actor to renderer
   _renderer->AddActor(actor);
-  _renderer->ResetCamera();
+  //_renderer->ResetCamera();
   _renderWindow->Render();
   //_vtkWidget->show();
 
@@ -161,6 +204,10 @@ int VtkWrapper::removeActor(vtkActor *actor) {
 int VtkWrapper::refresh() {
   _renderWindow->Render();
   return 0;
+}
+
+void VtkWrapper::resetCamera() {
+	_renderer->ResetCamera();
 }
 
 vtkSmartPointer<vtkActor>
@@ -298,4 +345,5 @@ bool VtkWrapper::readJsonSettings() {
 }
 
 void VtkWrapper::testRenderFunction() {}
+
 } // namespace viewtools
