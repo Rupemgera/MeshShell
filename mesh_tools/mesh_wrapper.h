@@ -51,8 +51,9 @@ public:
   std::vector<std::string> separateFilename(std::string filename);
 
   void getFaceData(std::vector<Eigen::Vector3d> &points,
-                   std::vector<FaceList<3>> &inner_faces,
-                   std::vector<FaceList<3>> &boundary_face);
+                   std::vector<FaceList<3>> &faces);
+
+	void getBoundaryFaceIds(std::vector<int> &faceids_list);
 
   void getShrinkMesh(std::vector<Eigen::Vector3d> &points,
                      std::vector<Eigen::Matrix<long long, 3, 1>> &faces);

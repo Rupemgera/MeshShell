@@ -1,5 +1,19 @@
 ﻿#include "mesh_shell.h"
 
+TetMeshData::TetMeshData() {
+  points.clear();
+  faces.clear();
+  boundary_faces.clear();
+}
+
+void TetMeshData::getFaceData(std::vector<int> &face_ids,
+                              std::vector<meshtools::FaceList<3>> &ext) {
+  ext.clear();
+  for (auto id : face_ids) {
+    ext.push_back(faces[id]);
+  }
+}
+
 MeshShell::MeshShell(VtkWrapper *viewer) : _viewer(viewer) {
   ovm_mesh = new MeshWrapper();
 }
@@ -19,11 +33,11 @@ MeshShell::~MeshShell() {
 
 void MeshShell::drawMesh(int nRenderStyle) {
   if (_main_actor == nullptr) {
-    std::vector<Eigen::Vector3d> points;
-    std::vector<meshtools::FaceList<3>> inner_faces;
-    std::vector<meshtools::FaceList<3>> boundary_faces;
+    std::vector<int> boundary_face_id_list;
 
-    ovm_mesh->getFaceData(points, inner_faces, boundary_faces);
+    ovm_mesh->getFaceData(mesh_data.points, mesh_data.faces);
+    ovm_mesh->getBoundaryFaceIds(boundary_face_id_list);
+    mesh_data.getFaceData(boundary_face_id_list, mesh_data.boundary_faces);
 
     // std::vector<viewtools::Point3d> vtk_points;
     // vtk_points.reserve(points.size());
@@ -37,7 +51,7 @@ void MeshShell::drawMesh(int nRenderStyle) {
     }*/
 
     _main_actor = new MeshActorControler(
-        "main_actor", _viewer->processMesh<3>(points, boundary_faces));
+        "main_actor", _viewer->processMesh<3>(mesh_data.points, mesh_data.boundary_faces));
     mesh_name = ovm_mesh->get_mesh_name();
     /*auto map_item = _actors_table.find(mesh_name);
     if (map_item != _actors_table.end()) {
@@ -144,9 +158,9 @@ bool MeshShell::setVisibility(std::string actor_name, bool visi) {
   if (target != _actors_table.end()) {
     auto ac = target->second;
     ac->setVisibility(visi);
-		return true;
+    return true;
   }
-	return false;
+  return false;
 }
 
 void MeshShell::readStressField(std::string filename) {

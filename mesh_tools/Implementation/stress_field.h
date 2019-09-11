@@ -58,6 +58,11 @@ public:
 	*/
   StressTensor(double *tensor_component, int order = 0);
   void reset(double *tensor_component, int order = 0);
+
+	/**
+		compare difference of 2 stress frames
+	*/
+	double diff(StressTensor &b);
 };
 
 /**
@@ -77,15 +82,6 @@ public:
 
   /*
   data end
-  */
-  /*deprecated
-
-  //读入mesh
-  bool readInMesh(std::ifstream &mesh_fin, std::string filename_extension);
-
-  PrincipalStressField(VMeshPtr mesh);
-
-  PrincipalStressField(std::string mesh_filename, std::string stress_filename);
   */
 
   PrincipalStressField();
@@ -121,8 +117,13 @@ public:
   //设定mesh
   const bool set_mesh(VMeshPtr mesh);
   void get_locations(std::vector<Eigen::Vector3d> &ret);
+
+	/**
+		@para P = 0,1,2 corresponds to major,middle,minor principal vector
+	*/
   void get_principal_dirs(std::vector<Eigen::Vector3d> &ret, int P = 0);
-  // const std::vector<Matrix_3> &get_dirs();
+  
+
 
   /*****************
   not completed yet

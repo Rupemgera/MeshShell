@@ -122,18 +122,16 @@ std::vector<std::string> MeshImpl::separateFilename(std::string filename) {
   return ret;
 }
 
-void MeshImpl::getFaceData(
-    std::vector<Eigen::Vector3d> &points,
-    std::vector<Eigen::Matrix<long long, 3, 1>> &inner_faces,
-    std::vector<Eigen::Matrix<long long, 3, 1>> &boundary_face) {
+void MeshImpl::getFaceData(std::vector<Eigen::Vector3d> &points,
+                           std::vector<Eigen::Matrix<long long, 3, 1>> &faces) {
   if (mesh_loaded == false) {
     std::cout << "mesh not loaded" << std::endl;
     return;
   }
   size_t nv = ovm_mesh->n_vertices();
   points.resize(nv);
-  // size_t nf = ovm_mesh->n_faces();
-  // inner_faces.resize(nf);
+  size_t nf = ovm_mesh->n_faces();
+  faces.resize(nf);
 
   // get points data
   for (auto viter : ovm_mesh->vertices()) {
@@ -149,10 +147,15 @@ void MeshImpl::getFaceData(
       v[k] = j->idx();
       k++;
     }
+    faces[fiter.idx()] = v;
+  }
+}
+
+void MeshImpl::getBoundaryFaceIds(std::vector<int> &faceids_list) {
+  faceids_list.clear();
+  for (auto fiter : ovm_mesh->faces()) {
     if (ovm_mesh->is_boundary(fiter)) {
-      boundary_face.push_back(v);
-    } else {
-      inner_faces.push_back(v);
+      faceids_list.push_back(fiter.idx());
     }
   }
 }
@@ -213,6 +216,12 @@ double MeshImpl::cellSize() {
     }
   }
   return (maxr + minr) / 2;
+}
+
+void MeshImpl::assignCellStress(std::vector<StressTensor> &tensors) {
+	assert(tensors.size() == ovm_mesh->n_cells());
+
+
 }
 
 bool MeshImpl::isSameHalfface(const std::vector<int> &f1,

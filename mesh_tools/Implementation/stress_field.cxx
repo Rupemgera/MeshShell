@@ -15,6 +15,87 @@
  | ZX ZY ZZ |
 */
 namespace meshtools {
+
+void StressTensor::init(double *tensor_component, int order) {
+  if (order == 0) {
+    _tensor << tensor_component[0], tensor_component[3], tensor_component[5],
+        tensor_component[3], tensor_component[1], tensor_component[4],
+        tensor_component[5], tensor_component[4], tensor_component[2];
+  } else {
+    _tensor << tensor_component[0], tensor_component[3], tensor_component[4],
+        tensor_component[3], tensor_component[1], tensor_component[5],
+        tensor_component[4], tensor_component[5], tensor_component[2];
+  }
+
+  Eigen::SelfAdjointEigenSolver<Matrix_3> solver(_tensor);
+  auto real_values = solver.eigenvalues();
+  double values[] = {real_values(0), real_values(1), real_values(2)};
+  int rank[] = {0, 1, 2};
+  Matrix_3 vectors = solver.eigenvectors();
+
+  // sort eigen values decreasingly
+  for (int i = 0; i < 2; i++) {
+    for (int j = i + 1; j < 3; j++) {
+      if (values[i] < values[j]) {
+        std::swap(values[i], values[j]);
+        std::swap(rank[i], rank[j]);
+      }
+    }
+  }
+
+  // save eigen value
+  for (int i = 0; i < 3; i++) {
+    eig_values[i] = values[i];
+    eig_vectors.col(i) = vectors.col(rank[i]);
+  }
+
+  // check for right hand
+  Eigen::Vector3d c = eig_vectors.col(0).cross(eig_vectors.col(1));
+
+  // if not right-handed
+  if (c.dot(eig_vectors.col(2)) < 0) {
+    eig_vectors.col(2) = c;
+  }
+}
+
+StressTensor::StressTensor() {
+  double zeros[] = {0, 0, 0, 0, 0, 0};
+  init(zeros);
+}
+
+StressTensor::StressTensor(double *tensor_component, int order) {
+  init(tensor_component, order);
+}
+
+void StressTensor::reset(double *tensor_component, int order) {
+  init(tensor_component, order);
+}
+
+double StressTensor::diff(StressTensor &b) {
+  using T = decltype(eig_vectors.col(0));
+  auto sin = [](T &u, T &v) -> double {
+    Eigen::Vector3d w = u.cross(v);
+    return w.norm();
+  };
+
+  double dff = 0;
+  /* compare major principal vectors */
+
+  dff += sin(this->eig_vectors.col(0), b.eig_vectors.col(0));
+
+  /* compare mid pricipal vectors */
+
+  dff += sin(this->eig_vectors.col(1), b.eig_vectors.col(1));
+
+	/* compare minor pricipal vectors */
+
+  dff += sin(this->eig_vectors.col(2), b.eig_vectors.col(2));
+
+  return dff;
+}
+
+/************************ StressTensor end ***********************************/
+/************************ PrincipalStressField begin *************************/
 bool PrincipalStressField::readInStress(std::string filename, VMeshPtr mesh,
                                         bool save) {
   std::string tmp;
@@ -404,58 +485,4 @@ bool PrincipalStressField::reserve(size_t elements_number) {
   return true;
 }
 
-void StressTensor::init(double *tensor_component, int order) {
-  if (order == 0) {
-    _tensor << tensor_component[0], tensor_component[3], tensor_component[5],
-        tensor_component[3], tensor_component[1], tensor_component[4],
-        tensor_component[5], tensor_component[4], tensor_component[2];
-  } else {
-    _tensor << tensor_component[0], tensor_component[3], tensor_component[4],
-        tensor_component[3], tensor_component[1], tensor_component[5],
-        tensor_component[4], tensor_component[5], tensor_component[2];
-  }
-
-  Eigen::SelfAdjointEigenSolver<Matrix_3> solver(_tensor);
-  auto real_values = solver.eigenvalues();
-  double values[] = {real_values(0), real_values(1), real_values(2)};
-  int rank[] = {0, 1, 2};
-  Matrix_3 vectors = solver.eigenvectors();
-
-  // sort eigen values decreasingly
-  for (int i = 0; i < 2; i++) {
-    for (int j = i + 1; j < 3; j++) {
-      if (values[i] < values[j]) {
-        std::swap(values[i], values[j]);
-        std::swap(rank[i], rank[j]);
-      }
-    }
-  }
-
-  // save eigen value
-  for (int i = 0; i < 3; i++) {
-    eig_values[i] = values[i];
-    eig_vectors.col(i) = vectors.col(rank[i]);
-  }
-
-  // check for right hand
-  Eigen::Vector3d c = eig_vectors.col(0).cross(eig_vectors.col(1));
-
-  // if not right-handed
-  if (c.dot(eig_vectors.col(2)) < 0) {
-    eig_vectors.col(2) = c;
-  }
-}
-
-StressTensor::StressTensor() {
-  double zeros[] = {0, 0, 0, 0, 0, 0};
-  init(zeros);
-}
-
-StressTensor::StressTensor(double *tensor_component, int order) {
-  init(tensor_component, order);
-}
-
-void StressTensor::reset(double *tensor_component, int order) {
-  init(tensor_component, order);
-}
 } // namespace meshtools

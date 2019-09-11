@@ -47,9 +47,12 @@ std::vector<std::string> MeshWrapper::separateFilename(std::string filename) {
 }
 
 void MeshWrapper::getFaceData(std::vector<Eigen::Vector3d> &points,
-                   std::vector<FaceList<3>> &inner_faces,
-                   std::vector<FaceList<3>> &boundary_face) {
-  impl->getFaceData(points, inner_faces, boundary_face);
+                              std::vector<FaceList<3>> &faces) {
+  impl->getFaceData(points, faces);
+}
+
+void MeshWrapper::getBoundaryFaceIds(std::vector<int> &faceids_list) {
+  impl->getBoundaryFaceIds(faceids_list);
 }
 
 void MeshWrapper::getShrinkMesh(
