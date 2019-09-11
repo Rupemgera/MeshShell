@@ -6,7 +6,7 @@
 ////////////////////////////////////
 
 #include "meshDefs.h"
-//#include "stress_field.h"
+#include "stress_field.h"
 #include <vector>
 
 namespace meshtools {
@@ -100,8 +100,9 @@ public:
   std::vector<std::string> separateFilename(std::string filename);
 
   void getFaceData(std::vector<Eigen::Vector3d> &points,
-                   std::vector<Eigen::Matrix<long long, 3, 1>> &inner_faces,
-                   std::vector<Eigen::Matrix<long long, 3, 1>> &boundary_face);
+                   std::vector<Eigen::Matrix<long long, 3, 1>> &ifaces);
+
+	void getBoundaryFaceIds(std::vector<int> &faceids_list);
 
   void getShrinkMesh(std::vector<Eigen::Vector3d> &points,
                      std::vector<Eigen::Matrix<long long, 3, 1>> &faces);
@@ -112,6 +113,12 @@ public:
   double cellSize();
 
   /*********** Functions end **************/
+
+	/*********** stress related begin **************/
+
+	void assignCellStress(std::vector<StressTensor> &tensors);
+
+	/*********** stress related end ****************/
 
   /*********** Properties begin **************/
 
