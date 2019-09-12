@@ -28,10 +28,10 @@
       "name": "x64-Debug-2019",
       "generator": "Visual Studio 16 2019 Win64",
       "configurationType": "Debug",
-      "buildRoot": "${projectDir}\\build\\${name}",
+      "buildRoot": "${projectDir}\\bin",
       "installRoot": "${projectDir}\\out\\install\\${name}",
       "cmakeCommandArgs": "",
-      "buildCommandArgs": "-m -v:sminimal",
+      "buildCommandArgs": "-m -v:minimal",
       "ctestCommandArgs": "",
       "inheritEnvironments": [ "msvc_x64_x64" ],
       "variables": []
