@@ -83,10 +83,10 @@ private:
 public:
   // new ovm_mesh
   MeshImpl();
-  // ovm_mesh is a shared_ptr, which does not need delete
+  // ovm_mesh is a shared_ptr
   ~MeshImpl();
 
-  /*********** Functions begin **************/
+  /*********** IO related **************/
 
   void readMesh(std::string filename);
 
@@ -99,26 +99,47 @@ public:
   // 3:filename without extension
   std::vector<std::string> separateFilename(std::string filename);
 
-  void getFaceData(std::vector<Eigen::Vector3d> &points,
-                   std::vector<Eigen::Matrix<long long, 3, 1>> &ifaces);
+  /********************** geometry ****************************/
 
-	void getBoundaryFaceIds(std::vector<int> &faceids_list);
+  void getFaceData(std::vector<Eigen::Vector3d> &points,
+                   std::vector<Eigen::Matrix<long long, 3, 1>> &faces);
+
+  void getBoundaryFaceIds(std::vector<int> &faceids_list);
 
   void getShrinkMesh(std::vector<Eigen::Vector3d> &points,
                      std::vector<Eigen::Matrix<long long, 3, 1>> &faces);
 
   /**
-          reture average size of cells, for frame render
-  */
+   *@reture average size(radius) of cells, for frame render
+   */
   double cellSize();
 
   /*********** Functions end **************/
 
-	/*********** stress related begin **************/
+  /******************* mesh related *************************/
 
-	void assignCellStress(std::vector<StressTensor> &tensors);
+  OvmFaH commonFace(OvmCeH ch1, OvmCeH ch2);
 
-	/*********** stress related end ****************/
+  /*********** stress related begin **************/
+
+  /**
+   *create property "stress_tensor" for each cell.
+   *Not recommended!
+   *property can be got as below:
+   *	auto properties =
+   *ovm_mesh->request_cell_property<property_type>("property_name");
+   *	property_type p = properties[CellHandle];
+   */
+  void assignCellStress(std::vector<StressTensor> &tensors);
+
+  /**
+   *@brief divide cell according to their major principal
+   *@param split_face_ids retrive ids of the faces that its two cells have
+   *bigger diff than tolerance
+   */
+  void divideCells(std::vector<StressTensor> &tensors,
+                   std::vector<int> &split_face_ids, double tolerance);
+  /*********** stress related end ****************/
 
   /*********** Properties begin **************/
 

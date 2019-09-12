@@ -120,7 +120,13 @@ void PointsActorControler::setSize(double size) {
 /************************* ActorTable  end  *************************/
 
 void ActorTable::insert(ActorControler *u) {
-	_table.insert(std::make_pair(u->name,u));
+  auto t = _table.find(u->name);
+  // if u's name exits, then replace the pointer
+  if(t != _table.end()) {
+    delete t->second;
+    t->second = u;
+  } else
+	  _table.insert(std::make_pair(u->name,u));
 }
 
 void ActorTable::remove(const std::string key) {

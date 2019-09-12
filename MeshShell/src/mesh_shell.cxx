@@ -51,7 +51,8 @@ void MeshShell::drawMesh(int nRenderStyle) {
     }*/
 
     _main_actor = new MeshActorControler(
-        "main_actor", _viewer->processMesh<3>(mesh_data.points, mesh_data.boundary_faces));
+        "main_actor",
+        _viewer->processMesh<3>(mesh_data.points, mesh_data.boundary_faces));
     mesh_name = ovm_mesh->get_mesh_name();
     /*auto map_item = _actors_table.find(mesh_name);
     if (map_item != _actors_table.end()) {
@@ -257,4 +258,31 @@ void MeshShell::singularitySizeChange(int pointSize) {
     auto si_view = target->second;
     si_view->setSize(pointSize);
   }
+}
+
+void MeshShell::divideCells(double tolerance) {
+  std::vector<int> split_face_ids;
+  std::vector<meshtools::FaceList<3>> split_faces;
+  ovm_mesh->divideCells(split_face_ids, tolerance);
+  mesh_data.getFaceData(split_face_ids, split_faces);
+
+  ActorControler *split_actor;
+
+  // singularity render already exists
+  // then delete it
+  auto target = _actors_table.find("split_faces");
+  if (target != _actors_table.end()) {
+    split_actor = target->second;
+    _viewer->removeActor(split_actor->get_actor());
+    // pointer to ActorControl deleted in remove()
+    _actors_table.remove(target);
+  }
+
+  // render new split_faces
+  split_actor = new MeshActorControler(
+      "split_faces", _viewer->processMesh<3>(mesh_data.points, split_faces));
+  split_actor->setColor(viewtools::Color(0.3,0.2,0.7));
+  _actors_table.insert(split_actor);
+  _viewer->renderActor(split_actor->get_actor());
+  _viewer->refresh();
 }

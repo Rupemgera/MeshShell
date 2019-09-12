@@ -196,6 +196,7 @@ void MeshImpl::getShrinkMesh(
 
 double MeshImpl::cellSize() {
   double minr = 1e20, maxr = 0;
+  // size is defined as  body center to vertex distance
   for (auto citer = ovm_mesh->cells_begin(); citer != ovm_mesh->cells_end();
        ++citer) {
     MeshPoint c(0, 0, 0);
@@ -218,10 +219,50 @@ double MeshImpl::cellSize() {
   return (maxr + minr) / 2;
 }
 
+OvmFaH MeshImpl::commonFace(OvmCeH ch1, OvmCeH ch2) {
+  OvmFaH com_fh = ovm_mesh->InvalidFaceHandle;
+  auto hfhs_vec1 = ovm_mesh->cell(ch1).halffaces(),
+       hfhs_vec2 = ovm_mesh->cell(ch2).halffaces();
+
+  std::set<OvmFaH> fhs_set1, fhs_set2;
+  std::for_each(hfhs_vec1.begin(), hfhs_vec1.end(), [&](OvmHaFaH hfh) {
+    fhs_set1.insert(ovm_mesh->face_handle(hfh));
+  });
+  std::for_each(hfhs_vec2.begin(), hfhs_vec2.end(), [&](OvmHaFaH hfh) {
+    fhs_set2.insert(ovm_mesh->face_handle(hfh));
+  });
+
+  std::vector<OvmFaH> com_fhs;
+  std::set_intersection(fhs_set1.begin(), fhs_set1.end(), fhs_set2.begin(),
+                        fhs_set2.end(), std::back_inserter(com_fhs));
+  if (com_fhs.size() == 1)
+    com_fh = com_fhs.front();
+  return com_fh;
+}
+
 void MeshImpl::assignCellStress(std::vector<StressTensor> &tensors) {
-	assert(tensors.size() == ovm_mesh->n_cells());
+  assert(tensors.size() == ovm_mesh->n_cells());
+  size_t n = ovm_mesh->n_cells();
+  auto cell_stress =
+      ovm_mesh->request_cell_property<StressTensor>("stress_tensor");
+  // otherwise cell_stress will be released
+  for (int i = 0; i < n; i++) {
+    cell_stress[static_cast<OvmCeH>(i)] = tensors[i];
+  }
+  ovm_mesh->set_persistent(cell_stress);
+}
 
-
+void MeshImpl::divideCells(std::vector<StressTensor> &tensors,
+                           std::vector<int> &split_face_ids, double tolerance) {
+  split_face_ids.clear();
+  for (auto ceh : ovm_mesh->cells()) {
+    for (auto cci = ovm_mesh->cc_iter(ceh); cci.valid(); ++cci) {
+      double dff = tensors[ceh.idx()].major_diff(tensors[cci->idx()]);
+      if (dff > tolerance) {
+        split_face_ids.push_back(commonFace(ceh, *cci).idx());
+      }
+    }
+  }
 }
 
 bool MeshImpl::isSameHalfface(const std::vector<int> &f1,

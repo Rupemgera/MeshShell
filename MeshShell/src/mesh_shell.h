@@ -35,9 +35,9 @@ public:
   void updateMeshRenderStyle(int nRenderStyle);
 
   /**
-          geometry = 1 : normal mesh
-          geometry = 2 : shrinked mesh
-  */
+   *geometry = 1 : normal mesh
+   *geometry = 2 : shrinked mesh
+   */
   void updateFaceOpacity(double opacity, int geometryStyle);
 
   void drawShrink(int nRenderStyle = 3);
@@ -50,8 +50,8 @@ public:
   /************************* actor related begin *************************/
 
   /**
-          @return		return true if actor exits, false if not
-  */
+   *@return		return true if actor exits, false if not
+   */
   bool setVisibility(std::string actor_name, bool visi);
 
   /************************* actor related end *************************/
@@ -59,11 +59,11 @@ public:
   /************************* stress begin *************************/
 
   /**
-input two groups of data, separated by ','
-first group contains 1 integer, that is the id of the cell
-second group contains 6 decimal, that the 6 tensor stress component,
-ordered by XX YY ZZ XY YZ ZX
-*/
+   *input two groups of data, separated by ','
+   *first group contains 1 integer, that is the id of the cell
+   *second group contains 6 decimal, that the 6 tensor stress component,ordered
+   *by XX YY ZZ XY YZ ZX
+   */
   void readStressField(std::string filename);
 
   void drawStressField(bool major = true, bool middle = false,
@@ -72,6 +72,8 @@ ordered by XX YY ZZ XY YZ ZX
   void stressSingularity(double tolerance, double point_size = 10.0);
 
   void singularitySizeChange(int point_size);
+
+  void divideCells(double tolerance);
 
   /************************* stress  end  *************************/
 
@@ -83,7 +85,7 @@ ordered by XX YY ZZ XY YZ ZX
 
   MeshWrapper *ovm_mesh;
 
-	TetMeshData mesh_data;
+  TetMeshData mesh_data;
 
 protected:
   VtkWrapper *_viewer;

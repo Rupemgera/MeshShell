@@ -45,6 +45,8 @@ void MeshWidget::addSlot() {
           &MeshWidget::drawStressSingularity);
   connect(this->ui->pushButton_singularityRefresh, &QPushButton::clicked, this,
           &MeshWidget::drawStressSingularity);
+  connect(this->ui->pushButton_split_refresh, &QPushButton::clicked, this,
+          &MeshWidget::divideCells);
 }
 
 void MeshWidget::updateMeshInfo() {
@@ -80,6 +82,19 @@ std::string MeshWidget::filenameFromDialog(const char *dialog_name,
   _directory_path = qfname.left(i);
 
   return qfname.toStdString();
+}
+
+void MeshWidget::readMesh() {
+  std::string filename = filenameFromDialog(
+      "Open Mesh File", "OVM files(*.ovm);;Abaqus inp files(*.inp)");
+
+  ui->pushButton_read->setDisabled(true);
+
+  /********** Mesh *************/
+
+  _shell->readMesh(filename);
+  _shell->drawMesh(getRenderStyle());
+  updateMeshInfo();
 }
 
 void MeshWidget::readStressField() {
@@ -156,6 +171,15 @@ void MeshWidget::updateStressSingularity() {
   _shell->singularitySizeChange(pointSize);
 }
 
+void MeshWidget::divideCells() {
+  double tolerance = ui->doubleSpinBox_split_tolerance->value();
+  /*if (ui->checkBox_render_split_faces->isChecked()) {
+    _shell->divideCells(tolerance);
+  } else{
+  _shell->setVisibility("split_faces",false);}*/
+  _shell->divideCells(tolerance);
+}
+
 void MeshWidget::test() {
   std::vector<double> s;
   s.push_back(1);
@@ -163,16 +187,4 @@ void MeshWidget::test() {
   s.push_back(3);
   s.push_back(4);
   _shell->setVertexScalars(s, 0, 4);
-}
-void MeshWidget::readMesh() {
-  std::string filename = filenameFromDialog(
-      "Open Mesh File", "OVM files(*.ovm);;Abaqus inp files(*.inp)");
-
-  ui->pushButton_read->setDisabled(true);
-
-  /********** Mesh *************/
-
-  _shell->readMesh(filename);
-  _shell->drawMesh(getRenderStyle());
-  updateMeshInfo();
 }

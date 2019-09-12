@@ -66,7 +66,7 @@ private slots:
 
 	void updateStressSingularity();
 
-	//void pointSizeChanged();
+  void divideCells();
 
 	void test();
 };

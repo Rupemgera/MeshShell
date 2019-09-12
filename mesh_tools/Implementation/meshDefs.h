@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <memory>
 
@@ -24,6 +24,7 @@ using OvmVec3d = OpenVolumeMesh::Geometry::Vec3d;
 
 using _Matrix_3 = double[3][3];
 using Matrix_3 = Eigen::Matrix<double, 3, 3>;
+using Triangle = Eigen::Matrix<long long, 3, 1>;
 
 class OvmHandleHasher
 {
