@@ -6,14 +6,16 @@ cmake_minimum_required (VERSION 3.8)
 PROJECT(MeshShell)
 
 ## boost
-find_package(Boost)
-### test if boost is found
+if (POLICY CMP0074)
+	cmake_policy(SET CMP0074 NEW)
+endif()
 if (Boost_FOUND)
-	message ("boost found " ${Boost_VERSION})
+	# message ("boost found " ${Boost_VERSION})
 	include_directories(${boost_INCLUDE_DIRS})
 else()
+	find_package(Boost)
+	include_directories(${boost_INCLUDE_DIRS})
 	#message (FATAL_ERROR "can not found Boost")
-	message ("can not found Boost")
 endif()
 
 ## QT5
@@ -45,6 +47,7 @@ import_eigen()
 	mesh_tools
  )
 
+ # group source files in Visual Studio in folder way
  if(MSVC)
 	foreach(srcf ${source_list})
 		file(RELATIVE_PATH source "${PROJECT_SOURCE_DIR}" "${srcf}")
