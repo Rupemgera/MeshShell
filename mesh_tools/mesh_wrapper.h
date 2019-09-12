@@ -11,17 +11,17 @@
 
 namespace meshtools {
 
-/*
-前置声明
-*/
+/// 前置声明
+
 class MeshImpl;
 
 class PrincipalStressField;
 
+// class StressTensor;
+
 /// defines
 
-template <int n>
-using FaceList = Eigen::Matrix<long long, n, 1>;
+template <int n> using FaceList = Eigen::Matrix<long long, n, 1>;
 
 ///
 
@@ -29,7 +29,7 @@ using FaceList = Eigen::Matrix<long long, n, 1>;
 class define
 */
 
-//template <typename T> struct Triple { T x, y, z; };
+// template <typename T> struct Triple { T x, y, z; };
 
 class MeshWrapper {
 public:
@@ -53,14 +53,14 @@ public:
   void getFaceData(std::vector<Eigen::Vector3d> &points,
                    std::vector<FaceList<3>> &faces);
 
-	void getBoundaryFaceIds(std::vector<int> &faceids_list);
+  void getBoundaryFaceIds(std::vector<int> &faceids_list);
 
   void getShrinkMesh(std::vector<Eigen::Vector3d> &points,
                      std::vector<Eigen::Matrix<long long, 3, 1>> &faces);
 
   std::string get_mesh_name();
 
-	double cellSize();
+  double cellSize();
 
   size_t n_vertices();
   size_t n_edges();
@@ -90,6 +90,11 @@ public:
      loc
   */
   void singularityLoaction(std::vector<Eigen::Vector3d> &loc, double tolerance);
+
+  /**
+   *@brief
+   */
+  void divideCells(std::vector<int> &split_face_ids, double tolerance);
 
   /********** stress related functions  end  **********/
 

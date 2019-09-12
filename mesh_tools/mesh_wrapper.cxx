@@ -40,6 +40,11 @@ void MeshWrapper::singularityLoaction(std::vector<Eigen::Vector3d> &loc,
   field->singularityLoaction(loc, tolerance);
 }
 
+void MeshWrapper::divideCells(std::vector<int> &split_face_ids,
+                              double tolerance) {
+  impl->divideCells(field->tensors, split_face_ids, tolerance);
+}
+
 void MeshWrapper::saveToOVM(std::string filename) { impl->saveToOVM(filename); }
 
 std::vector<std::string> MeshWrapper::separateFilename(std::string filename) {

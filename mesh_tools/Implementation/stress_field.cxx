@@ -72,11 +72,19 @@ void StressTensor::reset(double *tensor_component, int order) {
 }
 
 double StressTensor::diff(StressTensor &b) {
+  // if compiler support C++14
+#ifdef __cplusplus > 201300L
+  auto sin = [](auto &u, auto &v) {
+    Eigen::Vector3d w = u.cross(v);
+    return w.norm();
+  };
+#else
   using T = decltype(eig_vectors.col(0));
   auto sin = [](T &u, T &v) -> double {
     Eigen::Vector3d w = u.cross(v);
     return w.norm();
   };
+#endif // __cplusplus > 201300L
 
   double dff = 0;
   /* compare major principal vectors */
@@ -87,11 +95,17 @@ double StressTensor::diff(StressTensor &b) {
 
   dff += sin(this->eig_vectors.col(1), b.eig_vectors.col(1));
 
-	/* compare minor pricipal vectors */
+  /* compare minor pricipal vectors */
 
   dff += sin(this->eig_vectors.col(2), b.eig_vectors.col(2));
 
   return dff;
+}
+
+double StressTensor::major_diff(StressTensor &b) {
+  /* get major principal vectors */
+  auto u = this->eig_vectors.col(0).cross(b.eig_vectors.col(0));
+  return u.norm();
 }
 
 /************************ StressTensor end ***********************************/
