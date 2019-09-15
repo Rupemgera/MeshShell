@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "meshDefs.h"
+#include <array>
 
 namespace meshtools {
 class Frame {
@@ -56,4 +57,42 @@ static int matching_Matrix(Frame &f1, Frame &f2);
 static void set_SOM3();
 
 static int find_closet_Matrix_index(_Matrix_3 M);
+
+class Permutation_3 {
+public:
+  Permutation_3(int a, int b, int c);
+  std::array<int, 3> data_;
+
+  int &operator[](int index) { return data_[index]; }
+
+  /**
+   *@brief lv->rv
+   */
+  Permutation_3 operator*(const Permutation_3 &rv);
+
+  static Permutation_3 permutations[6];
+};
+
+/**
+ *@brief 6-order permutation group
+ */
+class S6 {
+private:
+  void constructor(int a, int b, int c);
+
+public:
+  S6(int index);
+  S6(int a, int b, int c);
+
+  static S6 TRANS_MATRICES[6];
+
+  Eigen::Matrix<int, 3, 3> trans_matrix_;
+
+  Eigen::Matrix<int, 3, 1> operator*(Eigen::Matrix<int, 3, 1> &rv);
+
+  /**
+   *@brief get index z produced by u->v, that M(z) = M(v)*M(u)
+   */
+  static int index_transform(int u, int v);
+};
 } // namespace meshtools

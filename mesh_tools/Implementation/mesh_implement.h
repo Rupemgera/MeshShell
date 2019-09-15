@@ -1,10 +1,13 @@
-﻿////////////////////////////////////
+﻿#pragma once
+
+////////////////////////////////////
 /// @file mesh_implement.h
 /// @brief class mesh
 /// @author  lyz
 /// @date 2019-09-08
 ////////////////////////////////////
 
+#include "graphs.h"
 #include "meshDefs.h"
 #include "stress_field.h"
 #include <vector>
@@ -69,6 +72,9 @@ private:
   */
   void addCell(std::vector<OvmVeH> &v, std::map<TF, OvmFaH> &faces);
 
+  /**
+   *@brief given 4 vertices of a tet, push all 4 faces to the vector
+   */
   void tetFaces(std::vector<Eigen::Matrix<long long, 3, 1>> &faces,
                 long long v[4]);
 
@@ -77,6 +83,8 @@ private:
   /*********** Functions end **************/
 
   /*********** Properties begin **************/
+
+  bool cell_center_exits = false;
 
   /*********** Properties end **************/
 
@@ -114,11 +122,22 @@ public:
    */
   double cellSize();
 
+  /**
+   *@brief retrieve coordinates of cell centers
+   */
+  OpenVolumeMesh::CellPropertyT<Eigen::Vector3d> request_cell_centers();
+
   /*********** Functions end **************/
 
   /******************* mesh related *************************/
 
   OvmFaH commonFace(OvmCeH ch1, OvmCeH ch2);
+
+  /**
+   *@brief construct a direct graph, stored in this->matching_graph.
+   * edge u->v's value is matching index of u->v 
+   */
+  void construct_matching_graph(std::vector<StressTensor> &stresses);
 
   /*********** stress related begin **************/
 
@@ -144,6 +163,11 @@ public:
   /*********** Properties begin **************/
 
   VMeshPtr ovm_mesh = nullptr;
+
+  /**
+   *@brief value of edge u->v is the matching index of the trans matrix u->v
+   */
+  DirectGraph<int> *matching_graph;
 
   bool mesh_loaded = false;
 

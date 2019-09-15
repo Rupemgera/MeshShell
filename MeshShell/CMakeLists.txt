@@ -5,19 +5,6 @@ cmake_minimum_required (VERSION 3.8)
 
 PROJECT(MeshShell)
 
-## boost
-if (POLICY CMP0074)
-	cmake_policy(SET CMP0074 NEW)
-endif()
-if (Boost_FOUND)
-	# message ("boost found " ${Boost_VERSION})
-	include_directories(${boost_INCLUDE_DIRS})
-else()
-	find_package(Boost)
-	include_directories(${boost_INCLUDE_DIRS})
-	#message (FATAL_ERROR "can not found Boost")
-endif()
-
 ## QT5
 include(qt)
 import_qt5()
@@ -28,7 +15,7 @@ import_vtk()
 
 ## eigen3
 include(eigen3)
-import_eigen()
+import_eigen3()
 
 ## source files
  # aux_source_directory(./src src_files)

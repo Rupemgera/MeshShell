@@ -40,20 +40,21 @@ void ActorControler::setOpacity(double opacity) {
 /************************* MeshActorControler  begein *************************/
 
 MeshActorControler::MeshActorControler(std::string name, ActorPtr actor)
-    : ActorControler(name, actor) {}
+    : ActorControler(name, actor) {
+  _actor->GetProperty()->SetColor(render_status.face_color.data());
+  _actor->GetProperty()->SetEdgeColor(render_status.edge_color.data());
+}
 
 void MeshActorControler::setRenderSyle(int nRenderStyle) {
   if (nRenderStyle & 2) {
     _actor->VisibilityOn();
     // surface type : points(0), wireframe(1) or surface(2)
     _actor->GetProperty()->SetRepresentation(2);
-    _actor->GetProperty()->SetColor(render_status.face_color.data());
     render_status.face_on = true;
 
     // also render edges
     if (nRenderStyle & 1) {
       _actor->GetProperty()->SetEdgeVisibility(true);
-      _actor->GetProperty()->SetEdgeColor(render_status.edge_color.data());
       render_status.edge_on = true;
     } else {
       _actor->GetProperty()->SetEdgeVisibility(false);
@@ -63,7 +64,6 @@ void MeshActorControler::setRenderSyle(int nRenderStyle) {
   {
     _actor->VisibilityOn();
     _actor->GetProperty()->SetRepresentationToWireframe();
-    _actor->GetProperty()->SetColor(render_status.edge_color.data());
     render_status.face_on = false;
     render_status.edge_on = true;
   } else {
@@ -78,7 +78,9 @@ void MeshActorControler::setRenderSyle(int nRenderStyle) {
 /************************* MeshActorControler  begein *************************/
 
 PointsActorControler::PointsActorControler(std::string name, ActorPtr actor)
-    : ActorControler(name, actor) {}
+    : ActorControler(name, actor) {
+  _actor->GetProperty()->SetColor(render_status.point_color.data());
+}
 
 void PointsActorControler::setSize(double size) {
   render_status.point_size = size;

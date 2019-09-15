@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.8)
+﻿cmake_minimum_required (VERSION 3.8)
 
 project(mesh_tools)
 
@@ -10,8 +10,21 @@ endif()
 ## define INCLUDE_TEMPLATES to enable OVM templates functions, like FileManager
 add_definitions(-DINCLUDE_TEMPLATES)
 
+## boost
+if (POLICY CMP0074)
+	cmake_policy(SET CMP0074 NEW)
+endif()
+if (Boost_FOUND)
+	# message ("boost found " ${Boost_VERSION})
+	include_directories(${Boost_INCLUDE_DIRS})
+else()
+	find_package(Boost)
+	include_directories(${Boost_INCLUDE_DIRS})
+	#message (FATAL_ERROR "can not found Boost")
+endif()
+
 include(eigen3)
-import_eigen()
+import_eigen3()
 
 ## OpenVolumeMesh
 #include(OpenVolumeMesh)
@@ -64,6 +77,8 @@ ${impl_sources}
 
 
 add_library(mesh_tools STATIC ${source_list})
+
+target_link_libraries(mesh_tools ${Boost_LIBRARIES})
 
 if(MSVC)
 	foreach(srcf ${source_list})

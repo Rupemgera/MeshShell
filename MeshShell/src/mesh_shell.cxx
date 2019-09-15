@@ -46,7 +46,7 @@ void MeshShell::drawMesh(int nRenderStyle) {
     _viewer->setVisibility(NORMAL_NAME, true);
   }
 
-  _viewer->setRenderStyle(NORMAL_NAME,nRenderStyle);
+  _viewer->setRenderStyle(NORMAL_NAME, nRenderStyle);
 
   //_main_actor->setColor();
   _viewer->setVisibility(SHRINKED_NAME, false);
@@ -137,6 +137,10 @@ void MeshShell::drawStressField(bool major, bool middle, bool minor) {
   std::vector<Eigen::Vector3d> major_v;
   std::vector<Eigen::Vector3d> middle_v;
   std::vector<Eigen::Vector3d> minor_v;
+  double major_c[]={1.0,0.0,0.0};
+  double middle_c[]={0.0,1.0,0.0};
+  double minor_c[]={0.0,0.0,1.0};
+
 
   // get cell size
   double cell_size = ovm_mesh->cellSize();
@@ -145,12 +149,15 @@ void MeshShell::drawStressField(bool major, bool middle, bool minor) {
 
   // major principal vector
   _viewer->drawVector("major", loc, major_v, cell_size);
+  _viewer->setColor("major",major_c);
 
   // middle principal vector
   _viewer->drawVector("middle", loc, major_v, cell_size);
+  _viewer->setColor("major",middle_c);
 
   // minor principal vector
   _viewer->drawVector("minor", loc, major_v, cell_size);
+  _viewer->setColor("major",minor_c);
 
   // decide visibility
   _viewer->setVisibility("major", major);
@@ -181,6 +188,8 @@ void MeshShell::divideCells(double tolerance) {
   mesh_data.getFaceData(split_face_ids, split_faces);
 
   _viewer->drawTetMesh("splited_faces", mesh_data.points, split_faces);
+  double color[]= {0.5450980392156862, 0.4588235294117647, 0.0};
+  _viewer->setColor("splited_faces",color);
 
   _viewer->refresh();
 }

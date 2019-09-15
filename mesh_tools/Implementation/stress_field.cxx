@@ -108,6 +108,50 @@ double StressTensor::major_diff(StressTensor &b) {
   return u.norm();
 }
 
+double StressTensor::permute_diff(StressTensor &b, Permutation_3 permute) {
+  // if compiler support C++14
+#if __cplusplus > 201300L
+  auto sin = [](auto &u, auto &v) {
+    Eigen::Vector3d w = u.cross(v);
+    return w.norm();
+  };
+#else
+  using T = decltype(eig_vectors.col(0));
+  auto sin = [](T &u, T &v) -> double {
+    Eigen::Vector3d w = u.cross(v);
+    return w.norm();
+  };
+#endif // __cplusplus > 201300L
+  double dff = 0;
+  /* compare major principal vectors */
+
+  dff += sin(this->eig_vectors.col(0), b.eig_vectors.col(permute[0]));
+
+  /* compare mid pricipal vectors */
+
+  dff += sin(this->eig_vectors.col(1), b.eig_vectors.col(permute[1]));
+
+  /* compare minor pricipal vectors */
+
+  dff += sin(this->eig_vectors.col(2), b.eig_vectors.col(permute[2]));
+
+  return dff;
+}
+
+int StressTensor::get_matching_index(StressTensor &v) {
+  double min_diff = 1e20;
+  double tmp;
+  int index = -1;
+  for (int i = 0; i < 6; ++i) {
+    tmp = permute_diff(v, Permutation_3::permutations[i]);
+    if (tmp < min_diff) {
+      min_diff = tmp;
+      index = i;
+    }
+  }
+  return index;
+}
+
 /************************ StressTensor end ***********************************/
 /************************ PrincipalStressField begin *************************/
 bool PrincipalStressField::readInStress(std::string filename, VMeshPtr mesh,
@@ -174,9 +218,13 @@ void PrincipalStressField::singularityLoaction(
   }
 }
 
-// calculate the position of center point of tets
+/**
+ *@brief calculate the position of center point of tets, store results in loc
+ */
 bool PrincipalStressField::setCellCenter(VMeshPtr mesh) {
-  location.resize(mesh->n_cells());
+
+  /// old way
+  /*location.resize(mesh->n_cells());
   for (auto citer = mesh->cells_begin(); citer != mesh->cells_end(); ++citer) {
     MeshPoint c(0, 0, 0);
     for (auto viter = mesh->cv_iter(*citer); viter.valid(); ++viter) {
@@ -184,7 +232,8 @@ bool PrincipalStressField::setCellCenter(VMeshPtr mesh) {
       c += p;
     }
     location[citer->idx()] = Eigen::Vector3d((c / 4).data());
-  }
+  }*/
+
   return true;
 }
 

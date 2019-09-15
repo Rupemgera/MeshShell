@@ -23,6 +23,9 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
 
 # Include sub-projects.
 
+Include(eigen3)
+import_eigen3()
+
 add_subdirectory("mesh_tools")
 include_directories("mesh_tools")
 

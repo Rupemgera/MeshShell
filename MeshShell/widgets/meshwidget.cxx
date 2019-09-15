@@ -95,6 +95,7 @@ void MeshWidget::readMesh() {
 
   _shell->readMesh(filename);
   _shell->drawMesh(getRenderStyle());
+  updateMeshOpacity();
   updateMeshInfo();
 }
 
@@ -149,6 +150,7 @@ void MeshWidget::geometryChange() {
     _shell->drawMesh();
   } else if (ui->radioButton_shrink->isChecked()) {
     _shell->drawShrink();
+    updateMeshOpacity();
   }
 }
 void MeshWidget::drawStressSingularity() {

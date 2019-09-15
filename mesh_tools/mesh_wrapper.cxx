@@ -45,6 +45,15 @@ void MeshWrapper::divideCells(std::vector<int> &split_face_ids,
   impl->divideCells(field->tensors, split_face_ids, tolerance);
 }
 
+void MeshWrapper::request_cell_centers(
+    std::vector<Eigen::Vector3d> &retrieve_val) {
+  auto p = impl->request_cell_centers();
+  retrieve_val.resize(impl->ovm_mesh->n_cells());
+  for (auto ch : impl->ovm_mesh->cells()) {
+    retrieve_val[ch.idx()] = p[ch];
+  }
+}
+
 void MeshWrapper::saveToOVM(std::string filename) { impl->saveToOVM(filename); }
 
 std::vector<std::string> MeshWrapper::separateFilename(std::string filename) {
