@@ -26,7 +26,7 @@ private:
 
   /*VTK */
 
-  VtkWrapper *_viewer;
+  ViewManager *_viewer;
   std::shared_ptr<MeshShell> _shell;
 
   bool _mesh_loaded = false;

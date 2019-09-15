@@ -73,7 +73,7 @@ void StressTensor::reset(double *tensor_component, int order) {
 
 double StressTensor::diff(StressTensor &b) {
   // if compiler support C++14
-#ifdef __cplusplus > 201300L
+#if __cplusplus > 201300L
   auto sin = [](auto &u, auto &v) {
     Eigen::Vector3d w = u.cross(v);
     return w.norm();

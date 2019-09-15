@@ -1,4 +1,8 @@
 ﻿#include "mesh_shell.h"
+#include <iostream>
+
+#define NORMAL_NAME "normal"
+#define SHRINKED_NAME "shrinked"
 
 TetMeshData::TetMeshData() {
   points.clear();
@@ -14,64 +18,38 @@ void TetMeshData::getFaceData(std::vector<int> &face_ids,
   }
 }
 
-MeshShell::MeshShell(VtkWrapper *viewer) : _viewer(viewer) {
+MeshShell::MeshShell(ViewManager *viewer) : _viewer(viewer) {
   ovm_mesh = new MeshWrapper();
 }
 
-MeshShell::~MeshShell() {
-  delete ovm_mesh;
-  if (_main_actor != nullptr) {
-    delete _main_actor;
-  }
-  if (_shrink_actor != nullptr) {
-    delete _shrink_actor;
-  }
-  for (auto u : _actors_table) {
-    delete u.second;
-  }
-}
+/**
+ *viewer should be released by caller
+ */
+MeshShell::~MeshShell() { delete ovm_mesh; }
 
 void MeshShell::drawMesh(int nRenderStyle) {
-  if (_main_actor == nullptr) {
+  if (!_viewer->exit(NORMAL_NAME)) {
     std::vector<int> boundary_face_id_list;
 
     ovm_mesh->getFaceData(mesh_data.points, mesh_data.faces);
     ovm_mesh->getBoundaryFaceIds(boundary_face_id_list);
     mesh_data.getFaceData(boundary_face_id_list, mesh_data.boundary_faces);
 
-    // std::vector<viewtools::Point3d> vtk_points;
-    // vtk_points.reserve(points.size());
-    // for (auto i : points) {
-    //  vtk_points.push_back(i.data());
-    //}
-    /*std::vector<viewtools::VertexList<3>> vtk_faces;
-    vtk_faces.reserve(boundary_faces.size());
-    for (auto j : boundary_faces) {
-      vtk_faces.push_back(j.data());
-    }*/
-
-    _main_actor = new MeshActorControler(
-        "main_actor",
-        _viewer->processMesh<3>(mesh_data.points, mesh_data.boundary_faces));
     mesh_name = ovm_mesh->get_mesh_name();
-    /*auto map_item = _actors_table.find(mesh_name);
-    if (map_item != _actors_table.end()) {
-            map_item->second = actor;
-    } else {
-            _actors_table.insert(ActorMap::value_type(mesh_name, actor));
-            }*/
 
-    _viewer->renderActor(_main_actor->get_actor());
+    _viewer->drawTetMesh(NORMAL_NAME, mesh_data.points,
+                         mesh_data.boundary_faces);
+
     // first render, reset camera
     _viewer->resetCamera();
+  } else {
+    _viewer->setVisibility(NORMAL_NAME, true);
   }
 
-  if (_shrink_actor != nullptr)
-    _shrink_actor->setVisibility(false);
+  _viewer->setRenderStyle(NORMAL_NAME,nRenderStyle);
 
-  // 1 : render edge 2 : render face 3 = 2 + 1
-  _main_actor->setRenderSyle(nRenderStyle);
   //_main_actor->setColor();
+  _viewer->setVisibility(SHRINKED_NAME, false);
   shrinked = false;
 
   _viewer->refresh();
@@ -92,9 +70,9 @@ void MeshShell::updateMeshRenderStyle(int nRenderStyle) {
     _main_actor->setRenderSyle(nRenderStyle);
   }*/
   if (shrinked) {
-    _shrink_actor->setRenderSyle(nRenderStyle);
+    _viewer->setRenderStyle(SHRINKED_NAME, nRenderStyle);
   } else {
-    _main_actor->setRenderSyle(nRenderStyle);
+    _viewer->setRenderStyle(NORMAL_NAME, nRenderStyle);
   }
 
   _viewer->refresh();
@@ -102,66 +80,51 @@ void MeshShell::updateMeshRenderStyle(int nRenderStyle) {
 
 void MeshShell::updateFaceOpacity(double opacity, int geometryStyle) {
   if (geometryStyle == 1) {
-    _main_actor->setOpacity(opacity);
+    _viewer->setOpacity(NORMAL_NAME, opacity);
   } else if (geometryStyle == 2) {
-    _shrink_actor->setOpacity(opacity);
+    _viewer->setOpacity(SHRINKED_NAME, opacity);
   }
 }
 
 void MeshShell::drawShrink(int nRenderStyle) {
-  if (_shrink_actor == nullptr) {
+  if (!_viewer->exit(SHRINKED_NAME)) {
     std::vector<Eigen::Vector3d> points;
-    std::vector<viewtools::VertexList<3>> faces;
+    std::vector<Eigen::Matrix<long long, 3, 1>> faces;
 
     ovm_mesh->getShrinkMesh(points, faces);
 
-    /*std::vector<viewtools::Point3d> vtk_points;
-    vtk_points.reserve(points.size());
-    for (auto i : points) {
-      vtk_points.push_back(i.data());
-    }*/
-    /*std::vector<viewtools::VertexList<3>> vtk_faces;
-    vtk_faces.reserve(faces.size());
-    for (auto j : faces) {
-      vtk_faces.push_back(j.data());
-    }*/
-
-    _shrink_actor = new MeshActorControler(
-        "strink_actor", _viewer->processMesh<3>(points, faces));
-
-    _viewer->renderActor(_shrink_actor->get_actor());
+    _viewer->drawTetMesh(SHRINKED_NAME, points, faces);
+  } else {
+    _viewer->setVisibility(SHRINKED_NAME, true);
   }
 
-  if (_main_actor != nullptr)
-    _main_actor->setVisibility(false);
-
+  _viewer->setVisibility(NORMAL_NAME, false);
   // 1 : render edge 2 : render face 3 = 2 + 1
-  _shrink_actor->setRenderSyle(nRenderStyle);
+  _viewer->setRenderStyle(SHRINKED_NAME, nRenderStyle);
   //_shrink_actor->setColor();
   shrinked = true;
 
   _viewer->refresh();
 }
 
-void MeshShell::setVertexScalars(std::vector<double> &scalars,
+// void MeshShell::setVertexScalars(std::vector<double> &scalars,
+//                                 double lower_bound, double upper_bound) {
+//  _viewer->setVertexScalars(scalars, lower_bound, upper_bound,
+//                            _main_actor->get_actor());
+//}
+
+// void MeshShell::renderScalars(vtkSmartPointer<vtkActor> actor, bool flag) {
+//  auto mapper = actor->GetMapper();
+//  mapper->SetScalarVisibility(flag);
+//}
+
+void MeshShell::setVisibility(std::string name, bool visi) {
+  _viewer->setVisibility(name, visi);
+}
+
+void MeshShell::setVertexScalars(std::string name, std::vector<double> &scalars,
                                  double lower_bound, double upper_bound) {
-  _viewer->setVertexScalars(scalars, lower_bound, upper_bound,
-                            _main_actor->get_actor());
-}
-
-void MeshShell::renderScalars(vtkSmartPointer<vtkActor> actor, bool flag) {
-  auto mapper = actor->GetMapper();
-  mapper->SetScalarVisibility(flag);
-}
-
-bool MeshShell::setVisibility(std::string actor_name, bool visi) {
-  auto target = _actors_table.find(actor_name);
-  if (target != _actors_table.end()) {
-    auto ac = target->second;
-    ac->setVisibility(visi);
-    return true;
-  }
-  return false;
+  _viewer->setVertexScalars(name, scalars, upper_bound, lower_bound);
 }
 
 void MeshShell::readStressField(std::string filename) {
@@ -169,96 +132,47 @@ void MeshShell::readStressField(std::string filename) {
 }
 
 void MeshShell::drawStressField(bool major, bool middle, bool minor) {
+  // we get the data
+  std::vector<Eigen::Vector3d> loc;
+  std::vector<Eigen::Vector3d> major_v;
+  std::vector<Eigen::Vector3d> middle_v;
+  std::vector<Eigen::Vector3d> minor_v;
 
-  ActorControler *major_ptr;
-  ActorControler *middle_ptr;
-  ActorControler *minor_ptr;
+  // get cell size
+  double cell_size = ovm_mesh->cellSize();
 
-  // if we have got data
-  if (_actors_table.find("major_principals") != _actors_table.end()) {
-    major_ptr = _actors_table.find("major_principals")->second;
-    middle_ptr = _actors_table.find("middle_principals")->second;
-    minor_ptr = _actors_table.find("minor_principals")->second;
-  } else {
-    // we get the data
-    std::vector<Eigen::Vector3d> loc;
-    std::vector<Eigen::Vector3d> major_v;
-    std::vector<Eigen::Vector3d> middle_v;
-    std::vector<Eigen::Vector3d> minor_v;
+  ovm_mesh->get_principal_vectors(loc, major_v, middle_v, minor_v);
 
-    // get cell size
-    double cell_size = ovm_mesh->cellSize();
+  // major principal vector
+  _viewer->drawVector("major", loc, major_v, cell_size);
 
-    // major principal vector
-    ovm_mesh->get_principal_vectors(loc, major_v, middle_v, minor_v);
-    major_ptr = new ActorControler(
-        "major_principals", _viewer->processHedgehog(loc, major_v, cell_size));
-    major_ptr->setColor(viewtools::Color(1.0, 0.0, 0.0));
-    _actors_table.insert(major_ptr);
+  // middle principal vector
+  _viewer->drawVector("middle", loc, major_v, cell_size);
 
-    // middle principal vector
-    middle_ptr =
-        new ActorControler("middle_principals",
-                           _viewer->processHedgehog(loc, middle_v, cell_size));
-    _actors_table.insert(middle_ptr);
-    middle_ptr->setColor(viewtools::Color(0.0, 1.0, 0.0));
-
-    // minor principal vector
-    minor_ptr = new ActorControler(
-        "minor_principals", _viewer->processHedgehog(loc, minor_v, cell_size));
-    _actors_table.insert(minor_ptr);
-    minor_ptr->setColor(viewtools::Color(0.0, 0.0, 1.0));
-
-    // register actor
-    _viewer->renderActor(major_ptr->get_actor());
-    _viewer->renderActor(middle_ptr->get_actor());
-    _viewer->renderActor(minor_ptr->get_actor());
-  }
+  // minor principal vector
+  _viewer->drawVector("minor", loc, major_v, cell_size);
 
   // decide visibility
-  major_ptr->setVisibility(major);
-  middle_ptr->setVisibility(middle);
-  minor_ptr->setVisibility(minor);
+  _viewer->setVisibility("major", major);
+  _viewer->setVisibility("middle", middle);
+  _viewer->setVisibility("minor", minor);
 
   _viewer->refresh();
 }
 
 void MeshShell::stressSingularity(double tolerance, double point_size) {
-  ActorControler *si_view;
   std::vector<Eigen::Vector3d> singularites;
   ovm_mesh->singularityLoaction(singularites, tolerance);
   size_t n = singularites.size();
   std::cout << "tolerance : " << tolerance << " singularities : " << n
             << std::endl;
 
-  // singularity render already exists
-  // then delete it
-  auto target = _actors_table.find("singularity");
-  if (target != _actors_table.end()) {
-    si_view = target->second;
-    _viewer->removeActor(si_view->get_actor());
-    // pointer to ActorControl deleted in remove()
-    _actors_table.remove(target);
-  }
+  _viewer->drawPoints("Singularity", singularites, point_size);
 
-  // render new one
-
-  si_view = new PointsActorControler("singularity",
-                                     _viewer->processPoints(singularites));
-  si_view->setSize(point_size);
-  si_view->setColor(viewtools::Color(0, 0.75, 1.0));
-  _actors_table.insert(si_view);
-  _viewer->renderActor(si_view->get_actor());
   _viewer->refresh();
 }
 
-void MeshShell::singularitySizeChange(int pointSize) {
-  auto target = _actors_table.find("singularity");
-  if (target != _actors_table.end()) {
-    auto si_view = target->second;
-    si_view->setSize(pointSize);
-  }
-}
+void MeshShell::singularitySizeChange(int pointSize) {}
 
 void MeshShell::divideCells(double tolerance) {
   std::vector<int> split_face_ids;
@@ -266,23 +180,7 @@ void MeshShell::divideCells(double tolerance) {
   ovm_mesh->divideCells(split_face_ids, tolerance);
   mesh_data.getFaceData(split_face_ids, split_faces);
 
-  ActorControler *split_actor;
+  _viewer->drawTetMesh("splited_faces", mesh_data.points, split_faces);
 
-  // singularity render already exists
-  // then delete it
-  auto target = _actors_table.find("split_faces");
-  if (target != _actors_table.end()) {
-    split_actor = target->second;
-    _viewer->removeActor(split_actor->get_actor());
-    // pointer to ActorControl deleted in remove()
-    _actors_table.remove(target);
-  }
-
-  // render new split_faces
-  split_actor = new MeshActorControler(
-      "split_faces", _viewer->processMesh<3>(mesh_data.points, split_faces));
-  split_actor->setColor(viewtools::Color(0.3,0.2,0.7));
-  _actors_table.insert(split_actor);
-  _viewer->renderActor(split_actor->get_actor());
   _viewer->refresh();
 }
