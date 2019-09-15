@@ -68,6 +68,16 @@ public:
    *@brief major vector difference of 2 stress
    */
   double major_diff(StressTensor &b);
+
+  /**
+   *@brief calculate the diffirence after *this do permutation
+   */
+  double permute_diff(StressTensor &b, Permutation_3 permute);
+
+  /**
+   *@brief calculate the matching index of *this->v
+   */
+  int get_matching_index(StressTensor &v);
 };
 
 /**

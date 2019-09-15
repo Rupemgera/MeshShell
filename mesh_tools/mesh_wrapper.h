@@ -96,6 +96,11 @@ public:
    */
   void divideCells(std::vector<int> &split_face_ids, double tolerance);
 
+  /**
+   *@brief returen coordinates of cell centers
+   */
+  void request_cell_centers(std::vector<Eigen::Vector3d> &retrieve_val);
+
   /********** stress related functions  end  **********/
 
 protected:

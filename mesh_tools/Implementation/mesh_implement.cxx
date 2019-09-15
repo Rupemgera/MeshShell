@@ -252,6 +252,26 @@ void MeshImpl::assignCellStress(std::vector<StressTensor> &tensors) {
   ovm_mesh->set_persistent(cell_stress);
 }
 
+OpenVolumeMesh::CellPropertyT<Eigen::Vector3d>
+MeshImpl::request_cell_centers() {
+  // if property is not calculated
+  if (!cell_center_exits) {
+    auto p = ovm_mesh->request_cell_property<Eigen::Vector3d>("cell_center");
+    for (auto citer : ovm_mesh->cells()) {
+      MeshPoint c(0, 0, 0);
+      for (auto viter = ovm_mesh->cv_iter(citer); viter.valid(); ++viter) {
+        MeshPoint p = ovm_mesh->vertex(*viter);
+        c += p;
+      }
+      p[citer] = Eigen::Vector3d((c / 4).data());
+    }
+    ovm_mesh->set_persistent(p);
+    cell_center_exits = true;
+    return p;
+  }
+  return ovm_mesh->request_cell_property<Eigen::Vector3d>("cell_center");
+}
+
 void MeshImpl::divideCells(std::vector<StressTensor> &tensors,
                            std::vector<int> &split_face_ids, double tolerance) {
   split_face_ids.clear();

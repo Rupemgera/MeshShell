@@ -61,7 +61,7 @@ public:
 
     float point_size = 1.0;
 
-    Color point_color = Color(1.0, 0, 0);
+    Color point_color = Color(0.4157, 0.3529, 0.8039);
   } render_status;
 
   PointsActorControler(std::string name, ActorPtr actor);
