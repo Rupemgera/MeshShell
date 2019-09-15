@@ -1,10 +1,11 @@
 ﻿#include "meshwidget.h"
 #include "ui_meshwidget.h"
+#include "view_tools/vtk_wrapper.h"
 MeshWidget::MeshWidget(QWidget *parent)
     : QWidget(parent), ui(new Ui::MeshWidget) {
   ui->setupUi(this);
 
-  _viewer = new VtkWrapper(ui->viewerWidget);
+  _viewer = new viewtools::VtkWrapper(ui->viewerWidget);
 
   _shell = std::shared_ptr<MeshShell>(new MeshShell(_viewer));
 
@@ -186,5 +187,5 @@ void MeshWidget::test() {
   s.push_back(2);
   s.push_back(3);
   s.push_back(4);
-  _shell->setVertexScalars(s, 0, 4);
+  _shell->setVertexScalars("test",s, 0, 4);
 }

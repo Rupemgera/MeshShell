@@ -1,13 +1,9 @@
 ﻿#include "mesh_wrapper.h"
-#include "view_tools/view_wrapper.h"
+#include "view_manager_fwd.h"
 
 /*********** defines begin **************/
 
 using MeshWrapper = meshtools::MeshWrapper;
-using VtkWrapper = viewtools::VtkWrapper;
-using ActorControler = viewtools::ActorControler;
-using MeshActorControler = viewtools::MeshActorControler;
-using PointsActorControler = viewtools::PointsActorControler;
 
 /*********** defines end **************/
 
@@ -25,7 +21,7 @@ public:
 
 class MeshShell {
 public:
-  MeshShell(VtkWrapper *viewer);
+  MeshShell(ViewManager *viewer);
   ~MeshShell();
 
   void drawMesh(int nRenderStyle = 3);
@@ -42,17 +38,20 @@ public:
 
   void drawShrink(int nRenderStyle = 3);
 
-  void setVertexScalars(std::vector<double> &scalars, double lower_bound,
-                        double upper_bound);
+  /*void setVertexScalars(std::vector<double> &scalars, double lower_bound,
+                        double upper_bound);*/
 
-  void renderScalars(vtkSmartPointer<vtkActor> actor, bool flag);
+  /*void renderScalars(vtkSmartPointer<vtkActor> actor, bool flag);*/
 
   /************************* actor related begin *************************/
 
   /**
-   *@return		return true if actor exits, false if not
+   *@brief set visibility status of actors
    */
-  bool setVisibility(std::string actor_name, bool visi);
+  void setVisibility(std::string name, bool visi);
+
+  void setVertexScalars(std::string name, std::vector<double> &scalars,
+                        double lower_bound, double upper_bound);
 
   /************************* actor related end *************************/
 
@@ -88,14 +87,5 @@ public:
   TetMeshData mesh_data;
 
 protected:
-  VtkWrapper *_viewer;
-
-  ActorControler *_main_actor = nullptr;
-
-  ActorControler *_shrink_actor = nullptr;
-
-  /**
-          store all active actors
-  */
-  viewtools::ActorTable _actors_table;
+  ViewManager *_viewer;
 };
