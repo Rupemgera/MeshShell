@@ -76,13 +76,18 @@ public:
 
   /************************* stress  end  *************************/
 
+  /***************************** test ***********************************/
+
+  void test();
+
+
   bool mesh_loaded = false;
 
   bool shrinked = false;
 
   std::string mesh_name;
 
-  MeshWrapper *ovm_mesh;
+  MeshWrapper *mesh_wrapper;
 
   TetMeshData mesh_data;
 

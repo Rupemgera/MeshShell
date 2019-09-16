@@ -19,23 +19,23 @@ void TetMeshData::getFaceData(std::vector<int> &face_ids,
 }
 
 MeshShell::MeshShell(ViewManager *viewer) : _viewer(viewer) {
-  ovm_mesh = new MeshWrapper();
+  mesh_wrapper = new MeshWrapper();
 }
 
 /**
  *viewer should be released by caller
  */
-MeshShell::~MeshShell() { delete ovm_mesh; }
+MeshShell::~MeshShell() { delete mesh_wrapper; }
 
 void MeshShell::drawMesh(int nRenderStyle) {
   if (!_viewer->exit(NORMAL_NAME)) {
     std::vector<int> boundary_face_id_list;
 
-    ovm_mesh->getFaceData(mesh_data.points, mesh_data.faces);
-    ovm_mesh->getBoundaryFaceIds(boundary_face_id_list);
+    mesh_wrapper->getFaceData(mesh_data.points, mesh_data.faces);
+    mesh_wrapper->getBoundaryFaceIds(boundary_face_id_list);
     mesh_data.getFaceData(boundary_face_id_list, mesh_data.boundary_faces);
 
-    mesh_name = ovm_mesh->get_mesh_name();
+    mesh_name = mesh_wrapper->get_mesh_name();
 
     _viewer->drawTetMesh(NORMAL_NAME, mesh_data.points,
                          mesh_data.boundary_faces);
@@ -56,7 +56,7 @@ void MeshShell::drawMesh(int nRenderStyle) {
 }
 
 void MeshShell::readMesh(std::string filename) {
-  ovm_mesh->readMesh(filename);
+  mesh_wrapper->readMesh(filename);
   mesh_loaded = true;
 }
 
@@ -91,7 +91,7 @@ void MeshShell::drawShrink(int nRenderStyle) {
     std::vector<Eigen::Vector3d> points;
     std::vector<Eigen::Matrix<long long, 3, 1>> faces;
 
-    ovm_mesh->getShrinkMesh(points, faces);
+    mesh_wrapper->getShrinkMesh(points, faces);
 
     _viewer->drawTetMesh(SHRINKED_NAME, points, faces);
   } else {
@@ -128,7 +128,7 @@ void MeshShell::setVertexScalars(std::string name, std::vector<double> &scalars,
 }
 
 void MeshShell::readStressField(std::string filename) {
-  ovm_mesh->readStressField(filename);
+  mesh_wrapper->readStressField(filename);
 }
 
 void MeshShell::drawStressField(bool major, bool middle, bool minor) {
@@ -143,21 +143,21 @@ void MeshShell::drawStressField(bool major, bool middle, bool minor) {
 
 
   // get cell size
-  double cell_size = ovm_mesh->cellSize();
+  double cell_size = mesh_wrapper->cellSize();
 
-  ovm_mesh->get_principal_vectors(loc, major_v, middle_v, minor_v);
+  mesh_wrapper->get_principal_vectors(loc, major_v, middle_v, minor_v);
 
   // major principal vector
   _viewer->drawVector("major", loc, major_v, cell_size);
   _viewer->setColor("major",major_c);
 
   // middle principal vector
-  _viewer->drawVector("middle", loc, major_v, cell_size);
-  _viewer->setColor("major",middle_c);
+  _viewer->drawVector("middle", loc, middle_v, cell_size);
+  _viewer->setColor("middle",middle_c);
 
   // minor principal vector
-  _viewer->drawVector("minor", loc, major_v, cell_size);
-  _viewer->setColor("major",minor_c);
+  _viewer->drawVector("minor", loc, minor_v, cell_size);
+  _viewer->setColor("minor",minor_c);
 
   // decide visibility
   _viewer->setVisibility("major", major);
@@ -169,7 +169,7 @@ void MeshShell::drawStressField(bool major, bool middle, bool minor) {
 
 void MeshShell::stressSingularity(double tolerance, double point_size) {
   std::vector<Eigen::Vector3d> singularites;
-  ovm_mesh->singularityLoaction(singularites, tolerance);
+  mesh_wrapper->singularityLoaction(singularites, tolerance);
   size_t n = singularites.size();
   std::cout << "tolerance : " << tolerance << " singularities : " << n
             << std::endl;
@@ -184,7 +184,7 @@ void MeshShell::singularitySizeChange(int pointSize) {}
 void MeshShell::divideCells(double tolerance) {
   std::vector<int> split_face_ids;
   std::vector<meshtools::FaceList<3>> split_faces;
-  ovm_mesh->divideCells(split_face_ids, tolerance);
+  mesh_wrapper->divideCells(split_face_ids, tolerance);
   mesh_data.getFaceData(split_face_ids, split_faces);
 
   _viewer->drawTetMesh("splited_faces", mesh_data.points, split_faces);
@@ -192,4 +192,8 @@ void MeshShell::divideCells(double tolerance) {
   _viewer->setColor("splited_faces",color);
 
   _viewer->refresh();
+}
+
+void MeshShell::test() {
+  mesh_wrapper->test();
 }

@@ -11,7 +11,13 @@ namespace meshtools {
 MeshWrapper::MeshWrapper()
     : impl(new MeshImpl), field(new PrincipalStressField) {}
 
-MeshWrapper::~MeshWrapper() { delete impl; }
+/**
+ *@delete impl,field
+ */
+MeshWrapper::~MeshWrapper() {
+  delete impl;
+  delete field;
+}
 
 void MeshWrapper::readMesh(std::string filename) { impl->readMesh(filename); }
 
@@ -47,11 +53,16 @@ void MeshWrapper::divideCells(std::vector<int> &split_face_ids,
 
 void MeshWrapper::request_cell_centers(
     std::vector<Eigen::Vector3d> &retrieve_val) {
-  auto p = impl->request_cell_centers();
-  retrieve_val.resize(impl->ovm_mesh->n_cells());
-  for (auto ch : impl->ovm_mesh->cells()) {
-    retrieve_val[ch.idx()] = p[ch];
-  }
+  
+}
+
+void MeshWrapper::test() {
+  // test matching graph
+
+  impl->construct_matching_graph(field->tensors);
+
+  std::vector<int> loop;
+  //impl->find_cell_loop(0,loop);
 }
 
 void MeshWrapper::saveToOVM(std::string filename) { impl->saveToOVM(filename); }
@@ -78,6 +89,11 @@ void MeshWrapper::getShrinkMesh(
 std::string MeshWrapper::get_mesh_name() { return impl->mesh_name; }
 
 double MeshWrapper::cellSize() { return impl->cellSize(); }
+
+int MeshWrapper::match_index(int edge_idx) { 
+  
+  return 0; 
+}
 
 size_t MeshWrapper::n_vertices() { return impl->ovm_mesh->n_vertices(); }
 

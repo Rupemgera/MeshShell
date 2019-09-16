@@ -143,7 +143,8 @@ void S6::constructor(int a, int b, int c) {
 S6 S6::TRANS_MATRICES[6] = {S6(0), S6(1), S6(2), S6(3), S6(4), S6(5)};
 
 S6::S6(int index) {
-  constructor(Permutation_3::permutations[index][0], Permutation_3::permutations[index][1],
+  constructor(Permutation_3::permutations[index][0],
+              Permutation_3::permutations[index][1],
               Permutation_3::permutations[index][2]);
 }
 S6::S6(int a, int b, int c) { constructor(a, b, c); }
@@ -188,5 +189,19 @@ Permutation_3 Permutation_3::operator*(const Permutation_3 &rv) {
     res[i] = rv.data_[data_[i]];
   }
   return Permutation_3(res[0], res[1], res[2]);
+}
+bool Permutation_3::operator==(const Permutation_3 &rv) {
+  return data_ == rv.data_;
+}
+int Permutation_3::transform(int lv, int rv) {
+  Permutation_3 lp = permutations[lv];
+  Permutation_3 rp = permutations[rv];
+  Permutation_3 ans = lp * rp;
+  for (int i = 0; i < 6; ++i) {
+    if (permutations[i] == ans) {
+      return i;
+    }
+  }
+  return -1;
 }
 } // namespace meshtools

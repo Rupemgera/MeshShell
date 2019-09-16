@@ -37,7 +37,7 @@ public:
 
   ~MeshWrapper();
 
-  /*********** Functions begin **************/
+  /*********** geometry begin **************/
 
   void readMesh(std::string filename);
 
@@ -62,12 +62,19 @@ public:
 
   double cellSize();
 
+  /*********** geometry end **************/
+
+  /********************* mesh related *****************************/
+
+  /**
+   *@brief matching index of cell loop around an edge
+   */
+  int match_index(int edge_idx);
+
   size_t n_vertices();
   size_t n_edges();
   size_t n_faces();
   size_t n_cells();
-
-  /*********** Functions end **************/
 
   /********** stress related functions begin **********/
 
@@ -102,6 +109,8 @@ public:
   void request_cell_centers(std::vector<Eigen::Vector3d> &retrieve_val);
 
   /********** stress related functions  end  **********/
+
+  void test();
 
 protected:
 private:

@@ -258,6 +258,49 @@ void VtkWrapper::setVertexScalars(std::string name,
   refresh();
 }
 
+bool VtkWrapper::drwaLines(
+    std::string name, const std::vector<Eigen::Vector3d> &points,
+    const std::vector<std::vector<long long>> &segments) {
+  /* insert vertices */
+  vtkNew<vtkPoints> nodes;
+  size_t n_vertices = points.size();
+  nodes->GetData()->Allocate(n_vertices);
+  for (int i = 0; i < n_vertices; ++i) {
+    nodes->InsertPoint(i, points[i].data());
+  }
+
+  /* insert polys */
+  vtkNew<vtkCellArray> cells;
+  // number of all vertex pair, or in another word, line segments
+  size_t n_segs = 0;
+  for (auto s : segments) {
+    n_segs += s.size() - 1;
+  }
+  //每个单元有1+2个数据 1个存储顶点个数cell_n，cell_n个存储面片顶点的标号
+  cells->GetData()->Allocate((1 + 2) * n_segs);
+  long long pairs[2];
+  for (auto seg : segments) {
+    for (int i = 1; i < seg.size(); ++i) {
+      pairs[0] = seg[i - 1];
+      pairs[1] = seg[i];
+      cells->InsertNextCell(2, pairs);
+    }
+  }
+  /* form poly data */
+
+  vtkNew<vtkPolyData> data;
+  data->SetPoints(nodes);
+  data->SetLines(cells);
+  vtkNew<vtkPolyDataMapper> mapper;
+  mapper->SetInputData(data);
+  vtkNew<vtkActor> actor;
+  actor->SetMapper(mapper);
+
+  auto ac = new MeshActorControler(name, actor);
+  insert(name,ac);
+  return true;
+}
+
 bool VtkWrapper::drawPoints(std::string name,
                             const std::vector<Eigen::Vector3d> &points,
                             double point_size) {
