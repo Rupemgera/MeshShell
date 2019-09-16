@@ -147,6 +147,12 @@ public:
   void setVertexScalars(std::string name, std::vector<double> &scalars,
                         double lower_bound, double upper_bound);
 
+  /**
+   *@brief draw segment lines
+   */
+  bool drwaLines(std::string name, const std::vector<Eigen::Vector3d> &points,
+                 const std::vector<std::vector<long long>> &segments);
+
   bool drawPoints(std::string name, const std::vector<Eigen::Vector3d> &points,
                   double point_size);
 

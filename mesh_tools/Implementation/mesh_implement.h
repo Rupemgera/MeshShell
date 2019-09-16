@@ -125,7 +125,7 @@ public:
   /**
    *@brief retrieve coordinates of cell centers
    */
-  OpenVolumeMesh::CellPropertyT<Eigen::Vector3d> request_cell_centers();
+  bool request_cell_centers();
 
   /*********** Functions end **************/
 
@@ -134,10 +134,16 @@ public:
   OvmFaH commonFace(OvmCeH ch1, OvmCeH ch2);
 
   /**
-   *@brief construct a direct graph, stored in this->matching_graph.
+   *@brief construct a directed graph, stored in this->matching_graph.
    * edge u->v's value is matching index of u->v 
    */
   void construct_matching_graph(std::vector<StressTensor> &stresses);
+
+  /**
+   *@brief find cells around an edge, ordered clockwise or anticlockwise
+   *@warning make sure construct_matching_graph being run, and matching_graph exits
+   */
+  int find_cell_loop(OvmHaEgH halfedge, std::vector<size_t> &cell_loop);
 
   /*********** stress related begin **************/
 
@@ -164,10 +170,12 @@ public:
 
   VMeshPtr ovm_mesh = nullptr;
 
+  std::vector<Eigen::Vector3d> cell_centers;
+
   /**
    *@brief value of edge u->v is the matching index of the trans matrix u->v
    */
-  DirectGraph<int> *matching_graph;
+  MatchingGraph *matching_graph = nullptr  ;
 
   bool mesh_loaded = false;
 

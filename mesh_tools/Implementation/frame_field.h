@@ -70,7 +70,10 @@ public:
    */
   Permutation_3 operator*(const Permutation_3 &rv);
 
+  bool operator==(const Permutation_3 &rv);
+
   static Permutation_3 permutations[6];
+  static int transform(int lv, int rv);
 };
 
 /**

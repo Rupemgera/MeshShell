@@ -73,16 +73,14 @@ void StressTensor::reset(double *tensor_component, int order) {
 
 double StressTensor::diff(StressTensor &b) {
   // if compiler support C++14
-#if __cplusplus > 201300L
+#if __cplusplus >= 201300L
   auto sin = [](auto &u, auto &v) {
-    Eigen::Vector3d w = u.cross(v);
-    return w.norm();
+    return (u.cross(v)).norm();
   };
 #else
   using T = decltype(eig_vectors.col(0));
   auto sin = [](T &u, T &v) -> double {
-    Eigen::Vector3d w = u.cross(v);
-    return w.norm();
+    return (u.cross(v)).norm();
   };
 #endif // __cplusplus > 201300L
 
@@ -110,18 +108,17 @@ double StressTensor::major_diff(StressTensor &b) {
 
 double StressTensor::permute_diff(StressTensor &b, Permutation_3 permute) {
   // if compiler support C++14
-#if __cplusplus > 201300L
+#if __cplusplus >= 201300L
   auto sin = [](auto &u, auto &v) {
-    Eigen::Vector3d w = u.cross(v);
-    return w.norm();
+    return (u.cross(v)).norm();
   };
 #else
   using T = decltype(eig_vectors.col(0));
   auto sin = [](T &u, T &v) -> double {
-    Eigen::Vector3d w = u.cross(v);
-    return w.norm();
+    return (u.cross(v)).norm();
   };
 #endif // __cplusplus > 201300L
+
   double dff = 0;
   /* compare major principal vectors */
 
@@ -222,9 +219,7 @@ void PrincipalStressField::singularityLoaction(
  *@brief calculate the position of center point of tets, store results in loc
  */
 bool PrincipalStressField::setCellCenter(VMeshPtr mesh) {
-
-  /// old way
-  /*location.resize(mesh->n_cells());
+  location.resize(mesh->n_cells());
   for (auto citer = mesh->cells_begin(); citer != mesh->cells_end(); ++citer) {
     MeshPoint c(0, 0, 0);
     for (auto viter = mesh->cv_iter(*citer); viter.valid(); ++viter) {
@@ -232,7 +227,7 @@ bool PrincipalStressField::setCellCenter(VMeshPtr mesh) {
       c += p;
     }
     location[citer->idx()] = Eigen::Vector3d((c / 4).data());
-  }*/
+  }
 
   return true;
 }

@@ -1,9 +1,9 @@
-#pragma once
+﻿#pragma once
 
 #include <Eigen/Dense>
 #include <string>
-#include <vector>
 #include <tuple>
+#include <vector>
 
 class ViewManager {
 public:
@@ -28,15 +28,16 @@ public:
   /**
    *@param name name is the key for seaching
    */
-  virtual bool drawTetMesh(std::string name,
-                           const std::vector<Eigen::Vector3d> &points,
-                           const std::vector<Eigen::Matrix<long long,3,1>> &faces) = 0;
+  virtual bool
+  drawTetMesh(std::string name, const std::vector<Eigen::Vector3d> &points,
+              const std::vector<Eigen::Matrix<long long, 3, 1>> &faces) = 0;
 
   /**
    *@brief draw vector field
    *@param scale_factor the scale rate of vector length
    */
-  virtual bool drawVector(std::string name,const std::vector<Eigen::Vector3d> &points,
+  virtual bool drawVector(std::string name,
+                          const std::vector<Eigen::Vector3d> &points,
                           const std::vector<Eigen::Vector3d> &vectors,
                           double scale_factor = 0.8,
                           double line_width = 1.0) = 0;
@@ -45,19 +46,26 @@ public:
    *@brief set Vertex Scalar for every vertex
    */
   virtual void setVertexScalars(std::string name, std::vector<double> &scalars,
-                        double lower_bound, double upper_bound) = 0;
+                                double lower_bound, double upper_bound) = 0;
+  /**
+   *@brief draw segment lines
+   */
+  virtual bool drwaLines(std::string name,
+                         const std::vector<Eigen::Vector3d> &points,
+                         const std::vector<std::vector<long long>> &segments) = 0;
 
-  virtual bool drawPoints(std::string name,const std::vector<Eigen::Vector3d> &points,
+  virtual bool drawPoints(std::string name,
+                          const std::vector<Eigen::Vector3d> &points,
                           double point_size) = 0;
 
   /**
-  *@param render_style 1: only edges 2: only faces 3:edges and faces
-  */
+   *@param render_style 1: only edges 2: only faces 3:edges and faces
+   */
   virtual void setRenderStyle(std::string name, int render_style) = 0;
 
   /**
-  *@param opacity from 0.0 to 1.0
-  */
+   *@param opacity from 0.0 to 1.0
+   */
   virtual void setOpacity(std::string name, double opacity) = 0;
 
   virtual void setVisibility(std::string name, bool flag) = 0;
@@ -67,8 +75,8 @@ public:
   virtual void setSize(std::string name, double size) = 0;
 
   /**
-  *@brief whether name is in actor table
-  */
+   *@brief whether name is in actor table
+   */
   virtual bool exit(std::string name) = 0;
 
   /********** process data  end  **********/

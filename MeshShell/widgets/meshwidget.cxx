@@ -51,10 +51,10 @@ void MeshWidget::addSlot() {
 }
 
 void MeshWidget::updateMeshInfo() {
-  ui->label_vertices_count->setNum((int)_shell->ovm_mesh->n_vertices());
-  ui->label_edges_count->setNum((int)_shell->ovm_mesh->n_edges());
-  ui->label_faces_count->setNum((int)_shell->ovm_mesh->n_faces());
-  ui->label_cells_count->setNum((int)_shell->ovm_mesh->n_cells());
+  ui->label_vertices_count->setNum((int)_shell->mesh_wrapper->n_vertices());
+  ui->label_edges_count->setNum((int)_shell->mesh_wrapper->n_edges());
+  ui->label_faces_count->setNum((int)_shell->mesh_wrapper->n_faces());
+  ui->label_cells_count->setNum((int)_shell->mesh_wrapper->n_cells());
 }
 
 int MeshWidget::getRenderStyle() {
@@ -184,10 +184,5 @@ void MeshWidget::divideCells() {
 }
 
 void MeshWidget::test() {
-  std::vector<double> s;
-  s.push_back(1);
-  s.push_back(2);
-  s.push_back(3);
-  s.push_back(4);
-  _shell->setVertexScalars("test",s, 0, 4);
+  _shell->test();
 }

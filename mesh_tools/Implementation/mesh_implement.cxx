@@ -1,16 +1,13 @@
 ﻿#include "mesh_implement.h"
 #include <assert.h>
 #include <regex>
+#include <set>
 
 namespace meshtools {
 void MeshImpl::readFromInp(std::ifstream &fin) {
   /* 读入.inp文件 */
 
   std::string line_str;
-
-  /*  new a VMesh */
-
-  VMeshPtr mesh_ptr(new VMesh);
 
   /* 正则表达式  */
 
@@ -62,7 +59,7 @@ void MeshImpl::readFromInp(std::ifstream &fin) {
         sscanf_s(line_str.c_str(), "%d, %lf , %lf , %lf", &id, &x, &y, &z);
 #endif // _WIN64 \
 	//插入网格点
-        mesh_ptr->add_vertex(MeshPoint(x, y, z));
+        ovm_mesh->add_vertex(MeshPoint(x, y, z));
       } else if (element_section) {
         int id;
         int v[4];
@@ -195,7 +192,7 @@ void MeshImpl::getShrinkMesh(
 }
 
 double MeshImpl::cellSize() {
-  double minr = 1e20, maxr = 0;
+  double maxr = 0, minr = 1e20;
   // size is defined as  body center to vertex distance
   for (auto citer = ovm_mesh->cells_begin(); citer != ovm_mesh->cells_end();
        ++citer) {
@@ -208,13 +205,16 @@ double MeshImpl::cellSize() {
       k++;
     }
     c = c / 4;
+    double cr = 1e20;
     for (size_t i = 0; i < 4; i++) {
       double tmp = (p[i] - c).norm();
-      if (tmp < minr)
-        minr = tmp;
-      if (tmp > maxr)
-        maxr = tmp;
+      if (tmp < cr)
+        cr = tmp;
     }
+    if (cr < minr)
+      minr = cr;
+    if (cr > maxr)
+      maxr = cr;
   }
   return (maxr + minr) / 2;
 }
@@ -240,6 +240,75 @@ OvmFaH MeshImpl::commonFace(OvmCeH ch1, OvmCeH ch2) {
   return com_fh;
 }
 
+void MeshImpl::construct_matching_graph(std::vector<StressTensor> &stresses) {
+  if (matching_graph != nullptr) {
+    delete matching_graph;
+  }
+  size_t n = ovm_mesh->n_cells();
+  matching_graph = new MatchingGraph(n);
+
+  MatchingEdge me;
+  // add edge
+  for (auto ci : ovm_mesh->cells()) {
+    for (auto cci = ovm_mesh->cc_iter(ci); cci.valid(); ++cci) {
+      auto &c_stress = stresses[ci.idx()];
+      auto &cc_stress = stresses[cci->idx()];
+      me.diff = c_stress.diff(cc_stress);
+      me.matching_index = c_stress.get_matching_index(cc_stress);
+      boost::add_edge(ci.idx(), cci->idx(), me, *matching_graph);
+    }
+  }
+}
+
+int MeshImpl::find_cell_loop(OvmHaEgH halfedge,
+                              std::vector<size_t> &cell_loop) {
+  if (matching_graph != nullptr) {
+    cell_loop.clear();
+    // start cell
+    auto citer = ovm_mesh->hec_iter(halfedge);
+    OvmCeH ch = *(citer);
+    VertexIter u, v, last_u, start_u;
+    EdgeIter jump_edge;
+    u = boost::vertex(ch.idx(), *matching_graph);
+    last_u = u;
+    start_u = u;
+    // store all cells adjacent to halfedge
+    std::set<int> adjacent_cells;
+    for (; citer.valid(); ++citer) {
+      adjacent_cells.insert(citer->idx());
+    }
+    // get edge property
+    // boost::property_map<MatchingGraph,boost::edge_weight_t>::type edge_map =
+    // boost::get(boost::edge_weight,*matching_graph);
+    auto edge_map = boost::get(boost::edge_weight, *matching_graph);
+    //
+    Permutation_3 edge_permute = Permutation_3::permutations[0];
+    int edge_index = 0;
+    // find the loop
+    do {
+      auto ei = boost::out_edges(u, *matching_graph);
+      for (auto next = ei.first; next != ei.second; ++next) {
+        v = boost::target(*next, *matching_graph);
+        // if v is a cell adjacent to halfedge and is not visited
+        if (v != last_u && adjacent_cells.find(v) != adjacent_cells.end()) {
+          // do match transform
+          auto trans_match = edge_map[*next];
+          edge_index =
+              Permutation_3::transform(edge_index, trans_match.matching_index);
+          break;
+        }
+      }
+
+      // jump to next
+      cell_loop.push_back(u);
+      last_u = u;
+      u = v;
+    } while (v != start_u);
+    return edge_index;
+  }
+  return -1;
+}
+
 void MeshImpl::assignCellStress(std::vector<StressTensor> &tensors) {
   assert(tensors.size() == ovm_mesh->n_cells());
   size_t n = ovm_mesh->n_cells();
@@ -252,24 +321,20 @@ void MeshImpl::assignCellStress(std::vector<StressTensor> &tensors) {
   ovm_mesh->set_persistent(cell_stress);
 }
 
-OpenVolumeMesh::CellPropertyT<Eigen::Vector3d>
-MeshImpl::request_cell_centers() {
+bool MeshImpl::request_cell_centers() {
   // if property is not calculated
   if (!cell_center_exits) {
-    auto p = ovm_mesh->request_cell_property<Eigen::Vector3d>("cell_center");
+    cell_centers.resize(ovm_mesh->n_cells());
     for (auto citer : ovm_mesh->cells()) {
       MeshPoint c(0, 0, 0);
       for (auto viter = ovm_mesh->cv_iter(citer); viter.valid(); ++viter) {
-        MeshPoint p = ovm_mesh->vertex(*viter);
-        c += p;
+        c += ovm_mesh->vertex(*viter);
       }
-      p[citer] = Eigen::Vector3d((c / 4).data());
+      cell_centers[citer.idx()] = Eigen::Vector3d((c / 4).data());
     }
-    ovm_mesh->set_persistent(p);
     cell_center_exits = true;
-    return p;
   }
-  return ovm_mesh->request_cell_property<Eigen::Vector3d>("cell_center");
+  return true;
 }
 
 void MeshImpl::divideCells(std::vector<StressTensor> &tensors,
@@ -293,11 +358,10 @@ bool MeshImpl::isSameHalfface(const std::vector<int> &f1,
   return false;
 }
 
+/**
+ *添加面时顶点顺序为右手法则法向朝外
+ */
 void MeshImpl::addCell(std::vector<OvmVeH> &v, std::map<TF, OvmFaH> &faces) {
-  /*
-          变量定义
-          */
-
   OvmFaH f0, f1, f2, f3;
   std::vector<OvmHaFaH> hf;
   std::vector<OvmVeH> fv;
@@ -386,7 +450,14 @@ MeshImpl::MeshImpl() {
   // field = new PrincipalStressField();
 }
 
-MeshImpl::~MeshImpl() {} // delete field; }
+/**
+ *delete matching_graph
+ */
+MeshImpl::~MeshImpl() {
+  if (matching_graph != nullptr) {
+    delete matching_graph;
+  }
+} // delete field; }
 
 void MeshImpl::readMesh(std::string filename) {
   std::ifstream fin(filename);
@@ -400,6 +471,8 @@ void MeshImpl::readMesh(std::string filename) {
   mesh_name = names[3];
   if (names[2] == "inp") {
     readFromInp(fin);
+    std::string ovm_file_name = names[3] + ".ovm";
+    saveToOVM(ovm_file_name);
   } else if (names[2] == "ovm") {
     readFromOvm(fin);
   }
