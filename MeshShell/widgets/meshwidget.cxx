@@ -38,7 +38,7 @@ connect(this->ui->pushButton_readCombination, &QPushButton::clicked, this,
   connect(this->ui->checkBox_major, &QCheckBox::toggled, this,
           &MeshWidget::drawStressField);
   connect(this->ui->checkBox_mid, &QCheckBox::toggled, this,
-          &MeshWidget::drawStressField);
+          &MeshWidget::drawStressField);  
   connect(this->ui->checkBox_minor, &QCheckBox::toggled, this,
           &MeshWidget::drawStressField);
 
@@ -133,6 +133,8 @@ void MeshWidget::readCombination() {
   _shell->readStressField(common_name+".csv");
 
   std::cout << "read Stress Field down" << std::endl;
+
+  ui->pushButton_readCombination->setDisabled(true);
 }
 
 void MeshWidget::drawStressField() {

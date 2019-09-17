@@ -285,8 +285,10 @@ int MeshImpl::find_cell_loop(OvmHaEgH halfedge, std::vector<int> &cell_loop) {
     //
     Permutation_3 edge_permute = Permutation_3::permutations[0];
     int edge_index = 0;
+    bool loop_not_found;
     // find the loop
     do {
+      loop_not_found = true;
       auto ei = boost::out_edges(u, *matching_graph);
       for (auto next = ei.first; next != ei.second; ++next) {
         v = boost::target(*next, *matching_graph);
@@ -296,10 +298,18 @@ int MeshImpl::find_cell_loop(OvmHaEgH halfedge, std::vector<int> &cell_loop) {
           auto trans_match = edge_map[*next];
           edge_index =
               Permutation_3::transform(edge_index, trans_match.matching_index);
+          
+          // for test
+          //std::cout<<trans_match.matching_index<<" --> "<<edge_index<<std::endl;
+          
+          loop_not_found = false;
           break;
         }
       }
-
+      // loop is not exits
+      if (loop_not_found){
+        return -1;
+      }
       // jump to next
       cell_loop.push_back(u);
       last_u = u;
