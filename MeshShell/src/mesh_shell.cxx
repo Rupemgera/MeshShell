@@ -137,10 +137,9 @@ void MeshShell::drawStressField(bool major, bool middle, bool minor) {
   std::vector<Eigen::Vector3d> major_v;
   std::vector<Eigen::Vector3d> middle_v;
   std::vector<Eigen::Vector3d> minor_v;
-  double major_c[]={1.0,0.0,0.0};
-  double middle_c[]={0.0,1.0,0.0};
-  double minor_c[]={0.0,0.0,1.0};
-
+  double major_c[] = {1.0, 0.0, 0.0};
+  double middle_c[] = {0.0, 1.0, 0.0};
+  double minor_c[] = {0.0, 0.0, 1.0};
 
   // get cell size
   double cell_size = mesh_wrapper->cellSize();
@@ -149,15 +148,15 @@ void MeshShell::drawStressField(bool major, bool middle, bool minor) {
 
   // major principal vector
   _viewer->drawVector("major", loc, major_v, cell_size);
-  _viewer->setColor("major",major_c);
+  _viewer->setColor("major", major_c);
 
   // middle principal vector
   _viewer->drawVector("middle", loc, middle_v, cell_size);
-  _viewer->setColor("middle",middle_c);
+  _viewer->setColor("middle", middle_c);
 
   // minor principal vector
   _viewer->drawVector("minor", loc, minor_v, cell_size);
-  _viewer->setColor("minor",minor_c);
+  _viewer->setColor("minor", minor_c);
 
   // decide visibility
   _viewer->setVisibility("major", major);
@@ -188,12 +187,17 @@ void MeshShell::divideCells(double tolerance) {
   mesh_data.getFaceData(split_face_ids, split_faces);
 
   _viewer->drawTetMesh("splited_faces", mesh_data.points, split_faces);
-  double color[]= {0.5450980392156862, 0.4588235294117647, 0.0};
-  _viewer->setColor("splited_faces",color);
+  double color[] = {0.5450980392156862, 0.4588235294117647, 0.0};
+  _viewer->setColor("splited_faces", color);
 
   _viewer->refresh();
 }
 
 void MeshShell::test() {
-  mesh_wrapper->test();
+  std::vector<int> loop;
+  int index = mesh_wrapper->find_cell_loop(0, 6, loop);
+  std::cout << "test : matching index " << index << std::endl;
+  std::vector<std::vector<Eigen::Vector3d>> segs;
+  segs.push_back(mesh_wrapper->getSegmentData(loop));
+  _viewer->drawLines("loop", segs, true);
 }

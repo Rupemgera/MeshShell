@@ -52,6 +52,8 @@ private slots:
 
 	void readStressField();
 
+  void readCombination();
+
 	void drawStressField();
 
 	void updateMeshRenderStyle();
@@ -67,6 +69,7 @@ private slots:
 	void updateStressSingularity();
 
   void divideCells();
+
 
 	void test();
 };

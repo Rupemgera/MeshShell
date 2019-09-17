@@ -30,7 +30,8 @@ void MeshWidget::addSlot() {
           &MeshWidget::test);
   connect(this->ui->pushButton_readStressFile, &QPushButton::clicked, this,
           &MeshWidget::readStressField);
-
+connect(this->ui->pushButton_readCombination, &QPushButton::clicked, this,
+          &MeshWidget::readCombination);
   /* draw stress field */
   connect(this->ui->checkBox_render_stress, &QCheckBox::toggled, this,
           &MeshWidget::drawStressField);
@@ -110,6 +111,30 @@ void MeshWidget::readStressField() {
   std::cout << "read Stress Field down" << std::endl;
 }
 
+void MeshWidget::readCombination() {
+  std::string filename = filenameFromDialog(
+      "Open Mesh File", "OVM files(*.ovm);;Abaqus inp files(*.inp)");
+
+  size_t dot_position = filename.find_last_of('.');
+  /********** filename without extension *************/
+  std::string common_name = filename.substr(0, dot_position);
+  
+  ui->pushButton_read->setDisabled(true);
+
+  /********** Mesh *************/
+
+  _shell->readMesh(filename);
+  _shell->drawMesh(getRenderStyle());
+  updateMeshOpacity();
+  updateMeshInfo();
+
+  ui->pushButton_readStressFile->setDisabled(true);
+
+  _shell->readStressField(common_name+".csv");
+
+  std::cout << "read Stress Field down" << std::endl;
+}
+
 void MeshWidget::drawStressField() {
   bool mjr, mdd, mnr;
   if (ui->checkBox_render_stress->isChecked()) {
@@ -183,6 +208,4 @@ void MeshWidget::divideCells() {
   _shell->divideCells(tolerance);
 }
 
-void MeshWidget::test() {
-  _shell->test();
-}
+void MeshWidget::test() { _shell->test(); }
