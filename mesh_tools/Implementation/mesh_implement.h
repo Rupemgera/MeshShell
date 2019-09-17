@@ -143,7 +143,7 @@ public:
    *@brief find cells around an edge, ordered clockwise or anticlockwise
    *@warning make sure construct_matching_graph being run, and matching_graph exits
    */
-  int find_cell_loop(OvmHaEgH halfedge, std::vector<size_t> &cell_loop);
+  int find_cell_loop(OvmHaEgH halfedge, std::vector<int> &cell_loop);
 
   /*********** stress related begin **************/
 

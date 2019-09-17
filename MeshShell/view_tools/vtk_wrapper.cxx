@@ -51,10 +51,11 @@ void MeshActorControler::setRenderSyle(int nRenderStyle) {
     // surface type : points(0), wireframe(1) or surface(2)
     _actor->GetProperty()->SetRepresentation(2);
     render_status.face_on = true;
-
+    _actor->GetProperty()->SetColor(render_status.face_color.data());
     // also render edges
     if (nRenderStyle & 1) {
       _actor->GetProperty()->SetEdgeVisibility(true);
+      _actor->GetProperty()->SetEdgeColor(render_status.edge_color.data());
       render_status.edge_on = true;
     } else {
       _actor->GetProperty()->SetEdgeVisibility(false);
@@ -64,6 +65,7 @@ void MeshActorControler::setRenderSyle(int nRenderStyle) {
   {
     _actor->VisibilityOn();
     _actor->GetProperty()->SetRepresentationToWireframe();
+    _actor->GetProperty()->SetColor(render_status.edge_color.data());
     render_status.face_on = false;
     render_status.edge_on = true;
   } else {
@@ -258,33 +260,50 @@ void VtkWrapper::setVertexScalars(std::string name,
   refresh();
 }
 
-bool VtkWrapper::drwaLines(
-    std::string name, const std::vector<Eigen::Vector3d> &points,
-    const std::vector<std::vector<long long>> &segments) {
+bool VtkWrapper::drawLines(
+    std::string name, const std::vector<std::vector<Eigen::Vector3d>> &points,
+    bool is_loop) {
   /* insert vertices */
+  // number of all points
+  size_t n_points = 0;
+  // number of all segments
+  size_t n_segs = 0;
+  for (auto s : points) {
+    n_points += s.size();
+    n_segs += s.size() - 1;
+  }
   vtkNew<vtkPoints> nodes;
-  size_t n_vertices = points.size();
-  nodes->GetData()->Allocate(n_vertices);
-  for (int i = 0; i < n_vertices; ++i) {
-    nodes->InsertPoint(i, points[i].data());
+  nodes->GetData()->Allocate(n_points);
+
+  int i = 0;
+  for (auto s : points) {
+    for (auto p : s) {
+      nodes->InsertPoint(i, p.data());
+      i++;
+    }
   }
 
   /* insert polys */
   vtkNew<vtkCellArray> cells;
-  // number of all vertex pair, or in another word, line segments
-  size_t n_segs = 0;
-  for (auto s : segments) {
-    n_segs += s.size() - 1;
-  }
+
   //每个单元有1+2个数据 1个存储顶点个数cell_n，cell_n个存储面片顶点的标号
   cells->GetData()->Allocate((1 + 2) * n_segs);
   long long pairs[2];
-  for (auto seg : segments) {
-    for (int i = 1; i < seg.size(); ++i) {
-      pairs[0] = seg[i - 1];
-      pairs[1] = seg[i];
+  int p_id = 0;
+  for (auto s : points) {
+    for (int i = 1; i < s.size(); ++i) {
+      pairs[0] = p_id;
+      pairs[1] = p_id + 1;
+      cells->InsertNextCell(2, pairs);
+      p_id++;
+    }
+    if (is_loop) {
+      pairs[0] = p_id;
+      pairs[1] = p_id - s.size() + 1;
       cells->InsertNextCell(2, pairs);
     }
+    // skip last point of each segment
+    p_id++;
   }
   /* form poly data */
 
@@ -295,9 +314,11 @@ bool VtkWrapper::drwaLines(
   mapper->SetInputData(data);
   vtkNew<vtkActor> actor;
   actor->SetMapper(mapper);
-
+  actor->GetProperty()->SetLineWidth(2);
+  //actor->GetProperty()->SetRepresentationToWireframe();
+  actor->GetProperty()->SetEdgeColor(1.0, 0.4, 0.2);
   auto ac = new MeshActorControler(name, actor);
-  insert(name,ac);
+  insert(name, ac);
   return true;
 }
 

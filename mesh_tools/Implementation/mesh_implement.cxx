@@ -242,7 +242,9 @@ OvmFaH MeshImpl::commonFace(OvmCeH ch1, OvmCeH ch2) {
 
 void MeshImpl::construct_matching_graph(std::vector<StressTensor> &stresses) {
   if (matching_graph != nullptr) {
-    delete matching_graph;
+    // delete matching_graph;
+    // all ready exits
+    return;
   }
   size_t n = ovm_mesh->n_cells();
   matching_graph = new MatchingGraph(n);
@@ -260,8 +262,7 @@ void MeshImpl::construct_matching_graph(std::vector<StressTensor> &stresses) {
   }
 }
 
-int MeshImpl::find_cell_loop(OvmHaEgH halfedge,
-                              std::vector<size_t> &cell_loop) {
+int MeshImpl::find_cell_loop(OvmHaEgH halfedge, std::vector<int> &cell_loop) {
   if (matching_graph != nullptr) {
     cell_loop.clear();
     // start cell
@@ -478,5 +479,8 @@ void MeshImpl::readMesh(std::string filename) {
   }
 
   mesh_loaded = true;
+
+  // get cell centers
+  request_cell_centers();
 }
 } // namespace meshtools

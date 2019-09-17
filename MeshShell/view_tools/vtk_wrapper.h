@@ -150,8 +150,8 @@ public:
   /**
    *@brief draw segment lines
    */
-  bool drwaLines(std::string name, const std::vector<Eigen::Vector3d> &points,
-                 const std::vector<std::vector<long long>> &segments);
+  bool drawLines(std::string name,
+                 const std::vector<std::vector<Eigen::Vector3d>> &points, bool is_loop = false);
 
   bool drawPoints(std::string name, const std::vector<Eigen::Vector3d> &points,
                   double point_size);

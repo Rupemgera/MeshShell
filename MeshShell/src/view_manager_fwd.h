@@ -50,9 +50,9 @@ public:
   /**
    *@brief draw segment lines
    */
-  virtual bool drwaLines(std::string name,
-                         const std::vector<Eigen::Vector3d> &points,
-                         const std::vector<std::vector<long long>> &segments) = 0;
+  virtual bool
+  drawLines(std::string name,
+            const std::vector<std::vector<Eigen::Vector3d>> &points, bool is_loop = false) = 0;
 
   virtual bool drawPoints(std::string name,
                           const std::vector<Eigen::Vector3d> &points,

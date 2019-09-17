@@ -70,7 +70,7 @@
        <string>Mesh</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout">
-       <item row="1" column="3">
+       <item row="1" column="4">
         <widget class="QGroupBox" name="groupBox_color">
          <property name="title">
           <string>Info</string>
@@ -135,33 +135,7 @@
          </layout>
         </widget>
        </item>
-       <item row="1" column="2">
-        <widget class="QGroupBox" name="groupBox_geometry">
-         <property name="title">
-          <string>Geometry</string>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout">
-          <item>
-           <widget class="QRadioButton" name="radioButton_normal">
-            <property name="text">
-             <string>normal</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="radioButton_shrink">
-            <property name="text">
-             <string>shrink</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="1" column="0">
+       <item row="1" column="1">
         <widget class="QGroupBox" name="groupBox_element">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -216,10 +190,43 @@
          </layout>
         </widget>
        </item>
-       <item row="0" column="0">
+       <item row="1" column="3">
+        <widget class="QGroupBox" name="groupBox_geometry">
+         <property name="title">
+          <string>Geometry</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <item>
+           <widget class="QRadioButton" name="radioButton_normal">
+            <property name="text">
+             <string>normal</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="radioButton_shrink">
+            <property name="text">
+             <string>shrink</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="0" column="3">
         <widget class="QPushButton" name="pushButton_read">
          <property name="text">
           <string>read</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QPushButton" name="pushButton_readCombination">
+         <property name="text">
+          <string>Read Combination</string>
          </property>
         </widget>
        </item>

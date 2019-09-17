@@ -22,6 +22,7 @@ class PrincipalStressField;
 /// defines
 
 template <int n> using FaceList = Eigen::Matrix<long long, n, 1>;
+using V3d = Eigen::Vector3d;
 
 ///
 
@@ -50,12 +51,19 @@ public:
   // 3:filename without extension
   std::vector<std::string> separateFilename(std::string filename);
 
-  void getFaceData(std::vector<Eigen::Vector3d> &points,
-                   std::vector<FaceList<3>> &faces);
+  void getFaceData(std::vector<V3d> &points, std::vector<FaceList<3>> &faces);
+
+  /**
+   *@brief given a list of cell's ids, return their coordinates in corresponding
+   *order
+   */
+  void getSegmentData(std::vector<int> &cell_ids, std::vector<V3d> &points);
+
+  std::vector<V3d> getSegmentData(std::vector<int> &cell_ids);
 
   void getBoundaryFaceIds(std::vector<int> &faceids_list);
 
-  void getShrinkMesh(std::vector<Eigen::Vector3d> &points,
+  void getShrinkMesh(std::vector<V3d> &points,
                      std::vector<Eigen::Matrix<long long, 3, 1>> &faces);
 
   std::string get_mesh_name();
@@ -76,7 +84,7 @@ public:
   size_t n_faces();
   size_t n_cells();
 
-  /********** stress related functions begin **********/
+  int find_cell_loop(int from_v_id, int to_v_id, std::vector<int> &cell_loop);
 
   /**
       input two groups of data, separated by ','
@@ -86,17 +94,15 @@ public:
   */
   void readStressField(std::string filename);
 
-  void get_principal_vectors(std::vector<Eigen::Vector3d> &loc,
-                             std::vector<Eigen::Vector3d> &major,
-                             std::vector<Eigen::Vector3d> &middle,
-                             std::vector<Eigen::Vector3d> &minor);
+  void get_principal_vectors(std::vector<V3d> &loc, std::vector<V3d> &major,
+                             std::vector<V3d> &middle, std::vector<V3d> &minor);
 
   /**
       @param loc  coordinates of singularites
       find stresses that two of three eig_value are less than tolerance,save to
      loc
   */
-  void singularityLoaction(std::vector<Eigen::Vector3d> &loc, double tolerance);
+  void singularityLoaction(std::vector<V3d> &loc, double tolerance);
 
   /**
    *@brief
@@ -106,7 +112,9 @@ public:
   /**
    *@brief returen coordinates of cell centers
    */
-  void request_cell_centers(std::vector<Eigen::Vector3d> &retrieve_val);
+  void request_cell_centers(std::vector<V3d> &retrieve_val);
+
+  std::vector<V3d> &request_cell_centers();
 
   /********** stress related functions  end  **********/
 
