@@ -195,7 +195,8 @@ void MeshShell::divideCells(double tolerance) {
 
 void MeshShell::test() {
   std::vector<int> loop;
-  int index = mesh_wrapper->find_cell_loop(0, 6, loop);
+  int u = 5250;
+  int index = mesh_wrapper->find_cell_loop(u, -1, loop);
   std::cout << "test : matching index " << index << std::endl;
   std::vector<std::vector<Eigen::Vector3d>> segs;
   segs.push_back(mesh_wrapper->getSegmentData(loop));

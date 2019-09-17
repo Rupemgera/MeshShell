@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "QVTKOpenGLWidget.h"
 #include "vtkActor.h"
@@ -21,6 +21,7 @@
 #include "vtkPoints.h"
 //#include "vtkPointSet.h" //abstract class
 #include "vtkPolyDataMapper.h"
+#include "vtkPolyLine.h"
 #include "vtkProperty.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"

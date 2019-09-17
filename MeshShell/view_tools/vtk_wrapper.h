@@ -28,6 +28,8 @@ public:
 
   virtual void setColor(Color color);
 
+  virtual void setColor(double r, double g, double b); 
+
   virtual void setSize(double size);
 
   ActorPtr get_actor();
@@ -50,7 +52,9 @@ public:
   } render_status;
 
   MeshActorControler(std::string name, ActorPtr actor);
-
+  /**
+   * 1: edge 2:face 3:both
+   */
   void setRenderSyle(int nRenderStyle);
 };
 

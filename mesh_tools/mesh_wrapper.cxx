@@ -130,7 +130,14 @@ size_t MeshWrapper::n_cells() { return impl->ovm_mesh->n_cells(); }
 
 int MeshWrapper::find_cell_loop(int from_v_id, int to_v_id,
                                 std::vector<int> &cell_loop) {
-  OvmHaEgH he = impl->ovm_mesh->halfedge((OvmVeH)from_v_id, (OvmVeH)to_v_id);
+  OvmVeH to_v_handle;
+  if (to_v_id == -1) {
+    // to_v_id == -1, then we choose one from from_v's adjacent halfedge
+    to_v_handle = *(impl->ovm_mesh->vv_iter((OvmVeH)from_v_id));
+  } else {
+    to_v_handle = (OvmVeH)to_v_id;
+  }
+  OvmHaEgH he = impl->ovm_mesh->halfedge((OvmVeH)from_v_id, to_v_handle);
   return impl->find_cell_loop(he, cell_loop);
 }
 
