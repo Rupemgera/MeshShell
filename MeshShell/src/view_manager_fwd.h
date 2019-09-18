@@ -48,11 +48,16 @@ public:
   virtual void setVertexScalars(std::string name, std::vector<double> &scalars,
                                 double lower_bound, double upper_bound) = 0;
   /**
-   *@brief draw segment lines
+   *@brief draw poly lines
    */
   virtual bool
   drawLines(std::string name,
-            const std::vector<std::vector<Eigen::Vector3d>> &points, bool is_loop = false) = 0;
+            const std::vector<std::vector<Eigen::Vector3d>> &points,
+            bool is_loop = false) = 0;
+
+  virtual bool drawSegments(
+      std::string name, const std::vector<Eigen::Vector3d> &points,
+      const std::vector<Eigen::Matrix<long long, 2, 1>> &vertices_pairs) = 0;
 
   virtual bool drawPoints(std::string name,
                           const std::vector<Eigen::Vector3d> &points,

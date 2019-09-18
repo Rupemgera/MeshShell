@@ -50,12 +50,14 @@ void MeshWidget::addSlot() {
           &MeshWidget::drawStressSingularity);
   connect(this->ui->pushButton_split_refresh, &QPushButton::clicked, this,
           &MeshWidget::divideCells);
-}
+  connect(this->ui->pushButton_singular_edges_refresh, &QPushButton::clicked,
+          this, &MeshWidget::extractSingularLines);
+};
 
 void MeshWidget::updateMeshInfo() {
   std::string info = _shell->mesh_wrapper->meshInfo();
   ui->textBrowser_mesh->append(info.c_str());
-  std::cout<<info<<std::endl;
+  // std::cout << info << std::endl;
 }
 
 int MeshWidget::getRenderStyle() {
@@ -219,6 +221,6 @@ void MeshWidget::divideCells() {
   _shell->divideCells(tolerance);
 }
 
-void MeshWidget::extractSingularLines() {}
+void MeshWidget::extractSingularLines() { _shell->extractSingularLines(); }
 
 void MeshWidget::test() { _shell->test(); }

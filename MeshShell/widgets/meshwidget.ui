@@ -224,6 +224,13 @@
              </widget>
             </item>
             <item>
+             <widget class="QLabel" name="label_2">
+              <property name="text">
+               <string>Point size</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QDoubleSpinBox" name="doubleSpinBox_pointSize">
               <property name="value">
                <double>10.000000000000000</double>
@@ -239,29 +246,89 @@
             </item>
            </layout>
           </item>
+          <item row="0" column="1">
+           <layout class="QVBoxLayout" name="verticalLayout_3">
+            <item>
+             <widget class="QCheckBox" name="checkBox_render_singular_edges">
+              <property name="text">
+               <string>Singular edges</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButton_singular_edges_refresh">
+              <property name="text">
+               <string>Refresh</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
          </layout>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QGroupBox" name="groupBox_2">
+         <property name="title">
+          <string>split face</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_8">
+          <item row="1" column="1">
+           <widget class="QDoubleSpinBox" name="doubleSpinBox_split_tolerance">
+            <property name="singleStep">
+             <double>0.100000000000000</double>
+            </property>
+            <property name="value">
+             <double>0.900000000000000</double>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QPushButton" name="pushButton_split_refresh">
+            <property name="text">
+             <string>Refresh</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>tolerance</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QCheckBox" name="checkBox_render_split_face">
+            <property name="text">
+             <string>Render</string>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QPushButton" name="pushButton_readStressFile">
+         <property name="text">
+          <string>Read Stress</string>
+         </property>
         </widget>
        </item>
        <item row="1" column="1">
         <widget class="QGroupBox" name="groupBox_render_stress">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="title">
           <string>principal stress</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_5">
-          <item row="1" column="2">
-           <widget class="QCheckBox" name="checkBox_mid">
-            <property name="text">
-             <string>mid</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="3">
-           <widget class="QCheckBox" name="checkBox_minor">
-            <property name="text">
-             <string>minor</string>
-            </property>
-           </widget>
-          </item>
           <item row="1" column="1">
            <widget class="QCheckBox" name="checkBox_major">
             <property name="text">
@@ -279,43 +346,17 @@
             </property>
            </widget>
           </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="0" column="0">
-        <widget class="QPushButton" name="pushButton_readStressFile">
-         <property name="text">
-          <string>Read Stress</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="2">
-        <widget class="QGroupBox" name="groupBox_2">
-         <property name="title">
-          <string>GroupBox</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_8">
-          <item row="1" column="0">
-           <widget class="QDoubleSpinBox" name="doubleSpinBox_split_tolerance">
-            <property name="singleStep">
-             <double>0.100000000000000</double>
+          <item row="2" column="1">
+           <widget class="QCheckBox" name="checkBox_mid">
+            <property name="text">
+             <string>mid</string>
             </property>
            </widget>
           </item>
-          <item row="0" column="0">
-           <widget class="QCheckBox" name="checkBox_render_split_face">
+          <item row="3" column="1">
+           <widget class="QCheckBox" name="checkBox_minor">
             <property name="text">
-             <string>Render</string>
-            </property>
-            <property name="checked">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QPushButton" name="pushButton_split_refresh">
-            <property name="text">
-             <string>Refresh</string>
+             <string>minor</string>
             </property>
            </widget>
           </item>

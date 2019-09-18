@@ -11,7 +11,7 @@ TetMeshData::TetMeshData() {
 }
 
 void TetMeshData::getFaceData(std::vector<int> &face_ids,
-                              std::vector<meshtools::FaceList<3>> &ext) {
+                              std::vector<meshtools::FaceVertices<3>> &ext) {
   ext.clear();
   for (auto id : face_ids) {
     ext.push_back(faces[id]);
@@ -166,41 +166,49 @@ void MeshShell::drawStressField(bool major, bool middle, bool minor) {
   _viewer->refresh();
 }
 
-void MeshShell::stressSingularity(double tolerance, double point_size) {
+std::string MeshShell::stressSingularity(double tolerance, double point_size) {
+  std::string name("singularity");
   std::vector<Eigen::Vector3d> singularites;
   mesh_wrapper->singularityLoaction(singularites, tolerance);
   size_t n = singularites.size();
-  std::cout << "tolerance : " << tolerance << " singularities : " << n
-            << std::endl;
+  std::cout << "tolerance : " << tolerance << name + " : " << n << std::endl;
 
-  _viewer->drawPoints("Singularity", singularites, point_size);
+  _viewer->drawPoints(name, singularites, point_size);
 
   _viewer->refresh();
+  return name;
 }
 
 void MeshShell::singularitySizeChange(int pointSize) {}
 
-void MeshShell::divideCells(double tolerance) {
+std::string MeshShell::divideCells(double tolerance) {
+  std::string name("splited_faces");
   std::vector<int> split_face_ids;
-  std::vector<meshtools::FaceList<3>> split_faces;
+  std::vector<meshtools::FaceVertices<3>> split_faces;
   mesh_wrapper->divideCells(split_face_ids, tolerance);
   mesh_data.getFaceData(split_face_ids, split_faces);
 
-  _viewer->drawTetMesh("splited_faces", mesh_data.points, split_faces);
+  _viewer->drawTetMesh(name, mesh_data.points, split_faces);
   double color[] = {0.5450980392156862, 0.4588235294117647, 0.0};
-  _viewer->setColor("splited_faces", color);
+  _viewer->setColor(name, color);
 
   _viewer->refresh();
+
+  return name;
 }
 
-void MeshShell::extractSingularLines() {
-  
+std::string MeshShell::extractSingularLines() {
+  std::string name("singular_edges");
+  std::vector<Eigen::Matrix<long long, 2, 1>> vertices_pairs;
+  mesh_wrapper->get_singular_edges(vertices_pairs);
+  _viewer->drawSegments(name, mesh_data.points, vertices_pairs);
+  return name;
 }
 
 void MeshShell::test() {
   std::vector<int> loop;
   int u = 5250;
-  int index = mesh_wrapper->find_cell_loop(u, -1, loop);
+  int index = mesh_wrapper->get_cell_loop(u, -1, loop);
   std::cout << "test : matching index " << index << std::endl;
   std::vector<std::vector<Eigen::Vector3d>> segs;
   segs.push_back(mesh_wrapper->getCellSegmentData(loop));

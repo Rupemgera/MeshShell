@@ -76,7 +76,7 @@ void MeshWrapper::test() {
 
   std::vector<int> loop;
   OvmHaEgH he = impl->ovm_mesh->halfedge((OvmVeH)0, (OvmVeH)6);
-  impl->find_cell_loop(he, loop);
+  impl->get_cell_loop(he, loop);
 }
 
 void MeshWrapper::saveToOVM(std::string filename) { impl->saveToOVM(filename); }
@@ -86,7 +86,7 @@ std::vector<std::string> MeshWrapper::separateFilename(std::string filename) {
 }
 
 void MeshWrapper::getFaceData(std::vector<V3d> &points,
-                              std::vector<FaceList<3>> &faces) {
+                              std::vector<FaceVertices<3>> &faces) {
   impl->getFaceData(points, faces);
 }
 
@@ -136,6 +136,36 @@ double MeshWrapper::cellSize() { return impl->cellSize(); }
 
 int MeshWrapper::get_matching_index(int edge_idx) { return 0; }
 
+bool MeshWrapper::get_singular_edges(std::vector<V3d> &edge_points) {
+  std::vector<OvmEgH> edge_ids;
+  for (auto eh : impl->ovm_mesh->edges()) {
+    int index =
+        impl->get_edge_matching_index(impl->ovm_mesh->halfedge_handle(eh, 0));
+    if (index != 0) {
+      edge_ids.push_back(eh);
+    }
+  }
+  impl->get_edge_data(edge_ids, edge_points);
+  return true;
+}
+
+bool MeshWrapper::get_singular_edges(std::vector<FaceVertices<2>> &vertex_ids) {
+  vertex_ids.clear();
+  for (auto eh : impl->ovm_mesh->edges()) {
+    // we don't consider boundary edges now
+    if (impl->ovm_mesh->is_boundary(eh))
+      continue;
+    int index =
+        impl->get_edge_matching_index(impl->ovm_mesh->halfedge_handle(eh, 0));
+    if (index != 0) {
+      OvmVeH u = impl->ovm_mesh->edge(eh).to_vertex();
+      OvmVeH v = impl->ovm_mesh->edge(eh).from_vertex();
+      vertex_ids.push_back(FaceVertices<2>(u.idx(), v.idx()));
+    }
+  }
+  return true;
+}
+
 std::string MeshWrapper::meshInfo() {
   std::string info = "";
 
@@ -158,8 +188,8 @@ std::string MeshWrapper::meshInfo() {
   return ss.str();
 }
 
-int MeshWrapper::find_cell_loop(int from_v_id, int to_v_id,
-                                std::vector<int> &cell_loop) {
+int MeshWrapper::get_cell_loop(int from_v_id, int to_v_id,
+                               std::vector<int> &cell_loop) {
   OvmVeH to_v_handle;
   if (to_v_id == -1) {
     // to_v_id == -1, then we choose one from from_v's adjacent halfedge
@@ -168,7 +198,7 @@ int MeshWrapper::find_cell_loop(int from_v_id, int to_v_id,
     to_v_handle = (OvmVeH)to_v_id;
   }
   OvmHaEgH he = impl->ovm_mesh->halfedge((OvmVeH)from_v_id, to_v_handle);
-  return impl->find_cell_loop(he, cell_loop);
+  return impl->get_cell_loop(he, cell_loop);
 }
 
 } // namespace meshtools

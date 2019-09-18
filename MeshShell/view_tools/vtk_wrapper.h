@@ -28,7 +28,7 @@ public:
 
   virtual void setColor(Color color);
 
-  virtual void setColor(double r, double g, double b); 
+  virtual void setColor(double r, double g, double b);
 
   virtual void setSize(double size);
 
@@ -155,7 +155,12 @@ public:
    *@brief draw segment lines
    */
   bool drawLines(std::string name,
-                 const std::vector<std::vector<Eigen::Vector3d>> &points, bool is_loop = false);
+                 const std::vector<std::vector<Eigen::Vector3d>> &points,
+                 bool is_loop = false);
+
+  bool drawSegments(
+      std::string name, const std::vector<Eigen::Vector3d> &points,
+      const std::vector<Eigen::Matrix<long long, 2, 1>> &vertices_pairs);
 
   bool drawPoints(std::string name, const std::vector<Eigen::Vector3d> &points,
                   double point_size);
