@@ -63,7 +63,7 @@ public:
    *second group contains 6 decimal, that the 6 tensor stress component,ordered
    *by XX YY ZZ XY YZ ZX
    */
-  void readStressField(std::string filename);
+  bool readStressField(std::string filename);
 
   void drawStressField(bool major = true, bool middle = false,
                        bool minor = false);
@@ -73,6 +73,8 @@ public:
   void singularitySizeChange(int point_size);
 
   void divideCells(double tolerance);
+
+  void extractSingularLines();
 
   /************************* stress  end  *************************/
 

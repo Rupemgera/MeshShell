@@ -156,6 +156,11 @@ bool PrincipalStressField::readInStress(std::string filename, VMeshPtr mesh,
   std::string tmp;
   std::ifstream stress_fin(filename);
 
+  // determine if file exits
+  if (!stress_fin.good()){
+    return false;
+  }
+
   //读入文件头，判断单元类型
   std::getline(stress_fin, tmp);
   if (tmp.find("Node") != tmp.npos) {

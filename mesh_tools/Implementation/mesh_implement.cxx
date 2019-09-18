@@ -268,7 +268,7 @@ int MeshImpl::find_cell_loop(OvmHaEgH halfedge, std::vector<int> &cell_loop) {
     // start cell
     auto citer = ovm_mesh->hec_iter(halfedge);
     OvmCeH ch = *(citer);
-    VertexIter u, v, last_u, start_u;
+    VertexIter u, last_u, start_u;
     EdgeIter jump_edge;
     u = boost::vertex(ch.idx(), *matching_graph);
     last_u = u;
@@ -286,6 +286,7 @@ int MeshImpl::find_cell_loop(OvmHaEgH halfedge, std::vector<int> &cell_loop) {
     Permutation_3 edge_permute = Permutation_3::permutations[0];
     int edge_index = 0;
     bool loop_not_found;
+    VertexIter v = 0;
     // find the loop
     do {
       loop_not_found = true;

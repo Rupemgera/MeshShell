@@ -70,65 +70,26 @@
        <string>Mesh</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout">
-       <item row="1" column="4">
-        <widget class="QGroupBox" name="groupBox_color">
+       <item row="1" column="3">
+        <widget class="QGroupBox" name="groupBox_geometry">
          <property name="title">
-          <string>Info</string>
+          <string>Geometry</string>
          </property>
-         <layout class="QGridLayout" name="gridLayout_6">
-          <item row="1" column="1">
-           <widget class="QLabel" name="label_edges_count">
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <item>
+           <widget class="QRadioButton" name="radioButton_normal">
             <property name="text">
-             <string/>
+             <string>normal</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label">
+          <item>
+           <widget class="QRadioButton" name="radioButton_shrink">
             <property name="text">
-             <string>edges:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_2">
-            <property name="text">
-             <string>faces</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="label_3">
-            <property name="text">
-             <string>cells</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QLabel" name="label_faces_count">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QLabel" name="label_cells_count">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_4">
-            <property name="text">
-             <string>vertices</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QLabel" name="label_vertices_count">
-            <property name="text">
-             <string/>
+             <string>shrink</string>
             </property>
            </widget>
           </item>
@@ -190,30 +151,11 @@
          </layout>
         </widget>
        </item>
-       <item row="1" column="3">
-        <widget class="QGroupBox" name="groupBox_geometry">
-         <property name="title">
-          <string>Geometry</string>
+       <item row="0" column="1">
+        <widget class="QPushButton" name="pushButton_readCombination">
+         <property name="text">
+          <string>Read Combination</string>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout">
-          <item>
-           <widget class="QRadioButton" name="radioButton_normal">
-            <property name="text">
-             <string>normal</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="radioButton_shrink">
-            <property name="text">
-             <string>shrink</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
         </widget>
        </item>
        <item row="0" column="3">
@@ -223,10 +165,19 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="1">
-        <widget class="QPushButton" name="pushButton_readCombination">
-         <property name="text">
-          <string>Read Combination</string>
+       <item row="1" column="4">
+        <widget class="QTextBrowser" name="textBrowser_mesh">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>160</width>
+           <height>0</height>
+          </size>
          </property>
         </widget>
        </item>

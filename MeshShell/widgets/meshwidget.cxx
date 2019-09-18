@@ -1,6 +1,7 @@
 ﻿#include "meshwidget.h"
 #include "ui_meshwidget.h"
 #include "view_tools/vtk_wrapper.h"
+#include <qmessagebox.h>
 MeshWidget::MeshWidget(QWidget *parent)
     : QWidget(parent), ui(new Ui::MeshWidget) {
   ui->setupUi(this);
@@ -30,7 +31,7 @@ void MeshWidget::addSlot() {
           &MeshWidget::test);
   connect(this->ui->pushButton_readStressFile, &QPushButton::clicked, this,
           &MeshWidget::readStressField);
-connect(this->ui->pushButton_readCombination, &QPushButton::clicked, this,
+  connect(this->ui->pushButton_readCombination, &QPushButton::clicked, this,
           &MeshWidget::readCombination);
   /* draw stress field */
   connect(this->ui->checkBox_render_stress, &QCheckBox::toggled, this,
@@ -38,7 +39,7 @@ connect(this->ui->pushButton_readCombination, &QPushButton::clicked, this,
   connect(this->ui->checkBox_major, &QCheckBox::toggled, this,
           &MeshWidget::drawStressField);
   connect(this->ui->checkBox_mid, &QCheckBox::toggled, this,
-          &MeshWidget::drawStressField);  
+          &MeshWidget::drawStressField);
   connect(this->ui->checkBox_minor, &QCheckBox::toggled, this,
           &MeshWidget::drawStressField);
 
@@ -52,10 +53,9 @@ connect(this->ui->pushButton_readCombination, &QPushButton::clicked, this,
 }
 
 void MeshWidget::updateMeshInfo() {
-  ui->label_vertices_count->setNum((int)_shell->mesh_wrapper->n_vertices());
-  ui->label_edges_count->setNum((int)_shell->mesh_wrapper->n_edges());
-  ui->label_faces_count->setNum((int)_shell->mesh_wrapper->n_faces());
-  ui->label_cells_count->setNum((int)_shell->mesh_wrapper->n_cells());
+  std::string info = _shell->mesh_wrapper->meshInfo();
+  ui->textBrowser_mesh->append(info.c_str());
+  std::cout<<info<<std::endl;
 }
 
 int MeshWidget::getRenderStyle() {
@@ -84,6 +84,10 @@ std::string MeshWidget::filenameFromDialog(const char *dialog_name,
   _directory_path = qfname.left(i);
 
   return qfname.toStdString();
+}
+
+void MeshWidget::messageBox(const char *info) {
+  QMessageBox::information(NULL, "Warning", info);
 }
 
 void MeshWidget::readMesh() {
@@ -118,7 +122,7 @@ void MeshWidget::readCombination() {
   size_t dot_position = filename.find_last_of('.');
   /********** filename without extension *************/
   std::string common_name = filename.substr(0, dot_position);
-  
+
   ui->pushButton_read->setDisabled(true);
 
   /********** Mesh *************/
@@ -130,7 +134,12 @@ void MeshWidget::readCombination() {
 
   ui->pushButton_readStressFile->setDisabled(true);
 
-  _shell->readStressField(common_name+".csv");
+  if (!_shell->readStressField(common_name + ".csv") &&
+      !_shell->readStressField(common_name + "_cell.csv") &&
+      !_shell->readStressField(common_name + "_result.csv")) {
+    messageBox("No stress field found!");
+    return;
+  }
 
   std::cout << "read Stress Field down" << std::endl;
 
@@ -209,5 +218,7 @@ void MeshWidget::divideCells() {
   _shell->setVisibility("split_faces",false);}*/
   _shell->divideCells(tolerance);
 }
+
+void MeshWidget::extractSingularLines() {}
 
 void MeshWidget::test() { _shell->test(); }
