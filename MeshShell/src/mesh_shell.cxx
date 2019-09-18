@@ -127,8 +127,8 @@ void MeshShell::setVertexScalars(std::string name, std::vector<double> &scalars,
   _viewer->setVertexScalars(name, scalars, upper_bound, lower_bound);
 }
 
-void MeshShell::readStressField(std::string filename) {
-  mesh_wrapper->readStressField(filename);
+bool MeshShell::readStressField(std::string filename) {
+  return mesh_wrapper->readStressField(filename);
 }
 
 void MeshShell::drawStressField(bool major, bool middle, bool minor) {
@@ -193,12 +193,16 @@ void MeshShell::divideCells(double tolerance) {
   _viewer->refresh();
 }
 
+void MeshShell::extractSingularLines() {
+  
+}
+
 void MeshShell::test() {
   std::vector<int> loop;
   int u = 5250;
   int index = mesh_wrapper->find_cell_loop(u, -1, loop);
   std::cout << "test : matching index " << index << std::endl;
   std::vector<std::vector<Eigen::Vector3d>> segs;
-  segs.push_back(mesh_wrapper->getSegmentData(loop));
+  segs.push_back(mesh_wrapper->getCellSegmentData(loop));
   _viewer->drawLines("loop", segs, true);
 }

@@ -56,10 +56,18 @@ public:
   /**
    *@brief given a list of cell's ids, return their coordinates in corresponding
    *order
+   *@param points  retrieve coordinates of every cell centor of cells in cell_ids
    */
-  void getSegmentData(std::vector<int> &cell_ids, std::vector<V3d> &points);
+  void getCellSegmentData(std::vector<int> &cell_ids, std::vector<V3d> &points);
 
-  std::vector<V3d> getSegmentData(std::vector<int> &cell_ids);
+  /**
+   *@brief given a list of cell's ids, return their coordinates in corresponding
+   *order
+   *@return a vector stores coordinates of cell centor corresponding to cell_ids
+   */
+  std::vector<V3d> getCellSegmentData(std::vector<int> &cell_ids);
+
+  std::vector<V3d> getEdgeData(std::vector<int> &edge_ids);
 
   void getBoundaryFaceIds(std::vector<int> &faceids_list);
 
@@ -75,24 +83,21 @@ public:
   /********************* mesh related *****************************/
 
   /**
-   *@brief matching index of cell loop around an edge
+   *@return matching index of cell loop around an edge
    */
-  int match_index(int edge_idx);
+  int get_matching_index(int edge_idx);
 
-  size_t n_vertices();
-  size_t n_edges();
-  size_t n_faces();
-  size_t n_cells();
+std::string meshInfo();
 
   int find_cell_loop(int from_v_id, int to_v_id, std::vector<int> &cell_loop);
-
+  /*************************** stress related *********************************/
   /**
       input two groups of data, separated by ','
       first group contains 1 integer, that is the id of the cell
       second group contains 6 decimal, that the 6 tensor stress component,
       ordered by XX YY ZZ XY YZ ZX
   */
-  void readStressField(std::string filename);
+  bool readStressField(std::string filename);
 
   void get_principal_vectors(std::vector<V3d> &loc, std::vector<V3d> &major,
                              std::vector<V3d> &middle, std::vector<V3d> &minor);

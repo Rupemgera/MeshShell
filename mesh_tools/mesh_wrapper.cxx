@@ -21,17 +21,20 @@ MeshWrapper::~MeshWrapper() {
 
 void MeshWrapper::readMesh(std::string filename) { impl->readMesh(filename); }
 
-void MeshWrapper::readStressField(std::string filename) {
+bool MeshWrapper::readStressField(std::string filename) {
   // impl->readStressField(filename);
   if (impl->mesh_loaded) {
-    field->readInStress(filename, impl->ovm_mesh);
+    if (!field->readInStress(filename, impl->ovm_mesh))
+      return false;
   } else {
-    field->readInStress(filename);
+    if (!field->readInStress(filename))
+      return false;
   }
   std::cout << "field : " << field->tensors.size() << std::endl;
 
   // construct matching graph
   impl->construct_matching_graph(field->tensors);
+  return true;
 }
 
 void MeshWrapper::get_principal_vectors(std::vector<V3d> &loc,
@@ -87,21 +90,34 @@ void MeshWrapper::getFaceData(std::vector<V3d> &points,
   impl->getFaceData(points, faces);
 }
 
-void MeshWrapper::getSegmentData(std::vector<int> &cell_ids,
-                                 std::vector<V3d> &points) {
+void MeshWrapper::getCellSegmentData(std::vector<int> &cell_ids,
+                                     std::vector<V3d> &points) {
   points.reserve(cell_ids.size());
   for (auto i : cell_ids) {
     points.push_back(V3d(impl->cell_centers[i]));
   }
 }
 
-std::vector<V3d> MeshWrapper::getSegmentData(std::vector<int> &cell_ids) {
+std::vector<V3d> MeshWrapper::getCellSegmentData(std::vector<int> &cell_ids) {
   std::vector<V3d> points;
   points.reserve(cell_ids.size());
   for (auto i : cell_ids) {
     points.push_back(V3d(impl->cell_centers[i]));
   }
   return points;
+}
+
+std::vector<V3d> MeshWrapper::getEdgeData(std::vector<int> &edge_ids) {
+  std::vector<V3d> pairs;
+  pairs.reserve(edge_ids.size() * 2);
+  for (int i : edge_ids) {
+    OvmEgH eh(i);
+    OvmVeH u = impl->ovm_mesh->edge(eh).to_vertex();
+    OvmVeH v = impl->ovm_mesh->edge(eh).from_vertex();
+    pairs.push_back(V3d(impl->ovm_mesh->vertex(u).data()));
+    pairs.push_back(V3d(impl->ovm_mesh->vertex(v).data()));
+  }
+  return pairs;
 }
 
 void MeshWrapper::getBoundaryFaceIds(std::vector<int> &faceids_list) {
@@ -118,15 +134,29 @@ std::string MeshWrapper::get_mesh_name() { return impl->mesh_name; }
 
 double MeshWrapper::cellSize() { return impl->cellSize(); }
 
-int MeshWrapper::match_index(int edge_idx) { return 0; }
+int MeshWrapper::get_matching_index(int edge_idx) { return 0; }
 
-size_t MeshWrapper::n_vertices() { return impl->ovm_mesh->n_vertices(); }
+std::string MeshWrapper::meshInfo() {
+  std::string info = "";
 
-size_t MeshWrapper::n_edges() { return impl->ovm_mesh->n_edges(); }
+  std::stringstream ss;
 
-size_t MeshWrapper::n_faces() { return impl->ovm_mesh->n_faces(); }
+  ss << "vertices : ";
+  ss << impl->ovm_mesh->n_vertices();
+  ss << '\n';
+  ss << "edges : ";
+  ss << impl->ovm_mesh->n_edges();
+  ss << '\n';
+  ss << "faces : ";
+  ss << impl->ovm_mesh->n_faces();
+  ss << '\n';
+  ss << "cells : ";
+  ss << impl->ovm_mesh->n_cells();
+  ss << '\n';
+  ss >> info;
 
-size_t MeshWrapper::n_cells() { return impl->ovm_mesh->n_cells(); }
+  return ss.str();
+}
 
 int MeshWrapper::find_cell_loop(int from_v_id, int to_v_id,
                                 std::vector<int> &cell_loop) {

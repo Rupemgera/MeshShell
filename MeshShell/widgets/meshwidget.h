@@ -39,6 +39,8 @@ private:
 
 	std::string filenameFromDialog(const char* dialog_name, const char *filter);
 
+  void messageBox(const char* info);
+
   /* properties */
 #ifdef __linux
   QString _directory_path = "~/";
@@ -70,6 +72,7 @@ private slots:
 
   void divideCells();
 
+  void extractSingularLines();
 
 	void test();
 };
