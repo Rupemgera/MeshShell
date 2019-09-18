@@ -25,9 +25,9 @@ void ActorControler::setColor(Color color) {
   _actor->GetProperty()->SetColor(color.data());
 }
 
-void ActorControler::setColor(double r, double g,
-                              double b) {
-_actor->GetProperty()->SetColor(r,g,b);}
+void ActorControler::setColor(double r, double g, double b) {
+  _actor->GetProperty()->SetColor(r, g, b);
+}
 
 void ActorControler::setSize(double size) {
   _actor->GetProperty()->SetLineWidth(size);
@@ -294,7 +294,6 @@ bool VtkWrapper::drawLines(
   vtkNew<vtkPolyData> data;
   //每个单元有1+2个数据 1个存储顶点个数cell_n，cell_n个存储面片顶点的标号
   // cells->GetData()->Allocate((1 + 2) * n_segs);
-  long long pairs[2];
   int p_id = 0;
   int s_id; // if draw loop, we should add the start point at the end
   for (auto s : points) {
@@ -333,10 +332,27 @@ bool VtkWrapper::drawLines(
   // actor->GetProperty()->SetRepresentationToWireframe();
   // actor->GetProperty()->SetEdgeColor(1.0, 0.4, 0.2);
   auto ac = new MeshActorControler(name, actor);
-  //ac->setRenderSyle(1);
+  // ac->setRenderSyle(1);
   double color[] = {1.0, 0.4, 0.2};
   ac->setColor(color);
   insert(name, ac);
+  return true;
+}
+
+bool VtkWrapper::drawSegments(
+    std::string name, const std::vector<Eigen::Vector3d> &points,
+    const std::vector<Eigen::Matrix<long long, 2, 1>> &vertices_pairs) {
+
+  auto data = processPolyData<2>(points, vertices_pairs);
+
+  vtkNew<vtkPolyDataMapper> mapper;
+  mapper->SetInputData(data);
+  vtkNew<vtkActor> actor;
+  actor->SetMapper(mapper);
+  auto ac = new PointsActorControler(name, actor);
+  ac->setColor(0.2, 0.9, 0.0);
+  insert(name, ac);
+
   return true;
 }
 

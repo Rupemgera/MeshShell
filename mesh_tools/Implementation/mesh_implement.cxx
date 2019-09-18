@@ -191,6 +191,17 @@ void MeshImpl::getShrinkMesh(
   assert(points.size() == n * 4);
 }
 
+void MeshImpl::get_edge_data(std::vector<OvmEgH> &edge_ids,
+                             std::vector<Eigen::Vector3d> &edge_points) {
+  edge_points.reserve(edge_ids.size()*2);
+  for (auto eh : edge_ids) {
+    OvmVeH u = ovm_mesh->edge(eh).to_vertex();
+    OvmVeH v = ovm_mesh->edge(eh).from_vertex();
+    edge_points.push_back(Eigen::Vector3d(ovm_mesh->vertex(u).data()));
+    edge_points.push_back(Eigen::Vector3d(ovm_mesh->vertex(v).data()));
+  }
+}
+
 double MeshImpl::cellSize() {
   double maxr = 0, minr = 1e20;
   // size is defined as  body center to vertex distance
@@ -262,7 +273,7 @@ void MeshImpl::construct_matching_graph(std::vector<StressTensor> &stresses) {
   }
 }
 
-int MeshImpl::find_cell_loop(OvmHaEgH halfedge, std::vector<int> &cell_loop) {
+int MeshImpl::get_cell_loop(OvmHaEgH halfedge, std::vector<int> &cell_loop) {
   if (matching_graph != nullptr) {
     cell_loop.clear();
     // start cell
@@ -294,25 +305,75 @@ int MeshImpl::find_cell_loop(OvmHaEgH halfedge, std::vector<int> &cell_loop) {
       for (auto next = ei.first; next != ei.second; ++next) {
         v = boost::target(*next, *matching_graph);
         // if v is a cell adjacent to halfedge and is not visited
-        if (v != last_u && adjacent_cells.find(v) != adjacent_cells.end()) {
+        if (v != last_u && adjacent_cells.find((int)v) != adjacent_cells.end()) {
           // do match transform
           auto trans_match = edge_map[*next];
           edge_index =
               Permutation_3::transform(edge_index, trans_match.matching_index);
-          
+
           // for test
-          //std::cout<<trans_match.matching_index<<" --> "<<edge_index<<std::endl;
-          
+          // std::cout<<trans_match.matching_index<<" -->
+          // "<<edge_index<<std::endl;
+
           loop_not_found = false;
           break;
         }
       }
       // loop is not exits
-      if (loop_not_found){
+      if (loop_not_found) {
         return -1;
       }
       // jump to next
-      cell_loop.push_back(u);
+      cell_loop.push_back((int)u);
+      last_u = u;
+      u = v;
+    } while (v != start_u);
+    return edge_index;
+  }
+  return -1;
+}
+
+int MeshImpl::get_edge_matching_index(OvmHaEgH halfedge_handle) {
+  if (matching_graph != nullptr) {
+    // start cell
+    auto citer = ovm_mesh->hec_iter(halfedge_handle);
+    OvmCeH ch = *(citer);
+    VertexIter u, last_u, start_u;
+    EdgeIter jump_edge;
+    u = boost::vertex(ch.idx(), *matching_graph);
+    last_u = u;
+    start_u = u;
+    // store all cells adjacent to halfedge
+    std::set<int> adjacent_cells;
+    for (; citer.valid(); ++citer) {
+      adjacent_cells.insert(citer->idx());
+    }
+    auto edge_map = boost::get(boost::edge_weight, *matching_graph);
+    //
+    Permutation_3 edge_permute = Permutation_3::permutations[0];
+    int edge_index = 0;
+    bool loop_not_found;
+    VertexIter v = 0;
+    // find the loop
+    do {
+      loop_not_found = true;
+      auto ei = boost::out_edges(u, *matching_graph);
+      for (auto next = ei.first; next != ei.second; ++next) {
+        v = boost::target(*next, *matching_graph);
+        // if v is a cell adjacent to halfedge and is not visited
+        if (adjacent_cells.find((int)v) != adjacent_cells.end() && v != last_u) {
+          // do match transform
+          edge_index = Permutation_3::transform(edge_index,
+                                                edge_map[*next].matching_index);
+          loop_not_found = false;
+          break;
+        }
+      }
+      // loop is not exits
+      if (loop_not_found) {
+        return -1;
+      }
+      // jump to next
       last_u = u;
       u = v;
     } while (v != start_u);

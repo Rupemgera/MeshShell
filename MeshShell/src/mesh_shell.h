@@ -12,11 +12,11 @@ public:
   TetMeshData();
 
   void getFaceData(std::vector<int> &face_ids,
-                   std::vector<meshtools::FaceList<3>> &ext);
+                   std::vector<meshtools::FaceVertices<3>> &ext);
 
   std::vector<Eigen::Vector3d> points;
-  std::vector<meshtools::FaceList<3>> faces;
-  std::vector<meshtools::FaceList<3>> boundary_faces;
+  std::vector<meshtools::FaceVertices<3>> faces;
+  std::vector<meshtools::FaceVertices<3>> boundary_faces;
 };
 
 class MeshShell {
@@ -68,13 +68,13 @@ public:
   void drawStressField(bool major = true, bool middle = false,
                        bool minor = false);
 
-  void stressSingularity(double tolerance, double point_size = 10.0);
+  std::string stressSingularity(double tolerance, double point_size = 10.0);
 
   void singularitySizeChange(int point_size);
 
-  void divideCells(double tolerance);
+  std::string divideCells(double tolerance);
 
-  void extractSingularLines();
+  std::string extractSingularLines();
 
   /************************* stress  end  *************************/
 

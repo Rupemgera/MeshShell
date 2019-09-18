@@ -117,6 +117,7 @@ public:
   void getShrinkMesh(std::vector<Eigen::Vector3d> &points,
                      std::vector<Eigen::Matrix<long long, 3, 1>> &faces);
 
+  void get_edge_data(std::vector<OvmEgH> &edge_ids, std::vector<Eigen::Vector3d> &edge_points);
   /**
    *@reture average size(radius) of cells, for frame render
    */
@@ -143,7 +144,9 @@ public:
    *@brief find cells around an edge, ordered clockwise or anticlockwise
    *@warning make sure construct_matching_graph being run, and matching_graph exits
    */
-  int find_cell_loop(OvmHaEgH halfedge, std::vector<int> &cell_loop);
+  int get_cell_loop(OvmHaEgH halfedge, std::vector<int> &cell_loop);
+
+  int get_edge_matching_index(OvmHaEgH halfedge_handle);
 
   /*********** stress related begin **************/
 

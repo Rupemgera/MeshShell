@@ -21,7 +21,7 @@ class PrincipalStressField;
 
 /// defines
 
-template <int n> using FaceList = Eigen::Matrix<long long, n, 1>;
+template <int n> using FaceVertices = Eigen::Matrix<long long, n, 1>;
 using V3d = Eigen::Vector3d;
 
 ///
@@ -51,12 +51,13 @@ public:
   // 3:filename without extension
   std::vector<std::string> separateFilename(std::string filename);
 
-  void getFaceData(std::vector<V3d> &points, std::vector<FaceList<3>> &faces);
+  void getFaceData(std::vector<V3d> &points, std::vector<FaceVertices<3>> &faces);
 
   /**
    *@brief given a list of cell's ids, return their coordinates in corresponding
    *order
-   *@param points  retrieve coordinates of every cell centor of cells in cell_ids
+   *@param points  retrieve coordinates of every cell centor of cells in
+   *cell_ids
    */
   void getCellSegmentData(std::vector<int> &cell_ids, std::vector<V3d> &points);
 
@@ -87,9 +88,17 @@ public:
    */
   int get_matching_index(int edge_idx);
 
-std::string meshInfo();
+  /**
+   *@brief find all edges that is singular
+   *@return a vector of Vector3d, every two elements represents edges's two points
+   */
+  bool get_singular_edges(std::vector<V3d> &edge_points);
 
-  int find_cell_loop(int from_v_id, int to_v_id, std::vector<int> &cell_loop);
+  bool get_singular_edges(std::vector<FaceVertices<2>> &vertex_ids);
+
+  std::string meshInfo();
+
+  int get_cell_loop(int from_v_id, int to_v_id, std::vector<int> &cell_loop);
   /*************************** stress related *********************************/
   /**
       input two groups of data, separated by ','
