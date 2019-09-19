@@ -78,6 +78,14 @@ public:
   void setSize(double size);
 };
 
+class SegmentActorControler : public ActorControler {
+public:
+  SegmentActorControler(std::string name, ActorPtr actor)
+      : ActorControler(name, actor) {}
+
+  void setSize(double size);
+};
+
 class VectorActorControler : public ActorControler {
 public:
   VectorActorControler(std::string name, ActorPtr actor)
@@ -160,7 +168,8 @@ public:
 
   bool drawSegments(
       std::string name, const std::vector<Eigen::Vector3d> &points,
-      const std::vector<Eigen::Matrix<long long, 2, 1>> &vertices_pairs);
+      const std::vector<Eigen::Matrix<long long, 2, 1>> &vertices_pairs,
+      double line_width = 2.0);
 
   bool drawPoints(std::string name, const std::vector<Eigen::Vector3d> &points,
                   double point_size);

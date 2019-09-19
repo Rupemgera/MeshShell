@@ -57,7 +57,7 @@ public:
 
   virtual bool drawSegments(
       std::string name, const std::vector<Eigen::Vector3d> &points,
-      const std::vector<Eigen::Matrix<long long, 2, 1>> &vertices_pairs) = 0;
+      const std::vector<Eigen::Matrix<long long, 2, 1>> &vertices_pairs,double line_width = 2.0) = 0;
 
   virtual bool drawPoints(std::string name,
                           const std::vector<Eigen::Vector3d> &points,

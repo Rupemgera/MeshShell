@@ -107,25 +107,8 @@ void MeshShell::drawShrink(int nRenderStyle) {
   _viewer->refresh();
 }
 
-// void MeshShell::setVertexScalars(std::vector<double> &scalars,
-//                                 double lower_bound, double upper_bound) {
-//  _viewer->setVertexScalars(scalars, lower_bound, upper_bound,
-//                            _main_actor->get_actor());
-//}
 
-// void MeshShell::renderScalars(vtkSmartPointer<vtkActor> actor, bool flag) {
-//  auto mapper = actor->GetMapper();
-//  mapper->SetScalarVisibility(flag);
-//}
 
-void MeshShell::setVisibility(std::string name, bool visi) {
-  _viewer->setVisibility(name, visi);
-}
-
-void MeshShell::setVertexScalars(std::string name, std::vector<double> &scalars,
-                                 double lower_bound, double upper_bound) {
-  _viewer->setVertexScalars(name, scalars, upper_bound, lower_bound);
-}
 
 bool MeshShell::readStressField(std::string filename) {
   return mesh_wrapper->readStressField(filename);
@@ -181,7 +164,7 @@ std::string MeshShell::stressSingularity(double tolerance, double point_size) {
 
 void MeshShell::singularitySizeChange(int pointSize) {}
 
-std::string MeshShell::divideCells(double tolerance) {
+std::string MeshShell::splitFaces(double tolerance) {
   std::string name("splited_faces");
   std::vector<int> split_face_ids;
   std::vector<meshtools::FaceVertices<3>> split_faces;

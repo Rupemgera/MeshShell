@@ -45,11 +45,11 @@ void MeshWidget::addSlot() {
 
   /* sigularity */
   connect(this->ui->checkBox_stressSingularity, &QCheckBox::toggled, this,
-          &MeshWidget::drawStressSingularity);
+          &MeshWidget::toggleStressSingularity);
   connect(this->ui->pushButton_singularityRefresh, &QPushButton::clicked, this,
-          &MeshWidget::drawStressSingularity);
+          &MeshWidget::updateStressSingularity);
   connect(this->ui->pushButton_split_refresh, &QPushButton::clicked, this,
-          &MeshWidget::divideCells);
+          &MeshWidget::splitFaces);
   connect(this->ui->pushButton_singular_edges_refresh, &QPushButton::clicked,
           this, &MeshWidget::extractSingularLines);
 };
@@ -191,36 +191,58 @@ void MeshWidget::geometryChange() {
     updateMeshOpacity();
   }
 }
-void MeshWidget::drawStressSingularity() {
-  double tolerance = ui->doubleSpinBox_stressSingularityTolerance->value();
-  double pointSize = ui->doubleSpinBox_pointSize->value();
+void MeshWidget::toggleStressSingularity() {
   if (ui->checkBox_stressSingularity->isChecked()) {
     // if has not rendered, do first render
-    _shell->setVisibility("Singularity", true);
-    _shell->stressSingularity(tolerance, pointSize);
+    _viewer->setVisibility("Singularity", true);
     ui->doubleSpinBox_pointSize->setDisabled(false);
     ui->doubleSpinBox_stressSingularityTolerance->setDisabled(false);
   } else {
-    _shell->setVisibility("Singularity", false);
+    _viewer->setVisibility("Singularity", false);
     ui->doubleSpinBox_pointSize->setDisabled(true);
     ui->doubleSpinBox_stressSingularityTolerance->setDisabled(true);
   }
   // std::cout<<"singularities calculation down"<<std::endl;
 }
 void MeshWidget::updateStressSingularity() {
+
+  double tolerance = ui->doubleSpinBox_stressSingularityTolerance->value();
   double pointSize = ui->doubleSpinBox_pointSize->value();
-  _shell->singularitySizeChange(pointSize);
+  _shell->stressSingularity(tolerance, pointSize);
+  toggleStressSingularity();
 }
 
-void MeshWidget::divideCells() {
+void MeshWidget::splitFaces() {
   double tolerance = ui->doubleSpinBox_split_tolerance->value();
   /*if (ui->checkBox_render_split_faces->isChecked()) {
-    _shell->divideCells(tolerance);
+    _shell->splitFaces(tolerance);
   } else{
   _shell->setVisibility("split_faces",false);}*/
-  _shell->divideCells(tolerance);
+  std::string name = _shell->splitFaces(tolerance);
+
+  active_actors["splited_faces"] = name;
 }
 
-void MeshWidget::extractSingularLines() { _shell->extractSingularLines(); }
+void MeshWidget::toggleSplitedFaces() {
+  if (ui->checkBox_render_splited_face->isChecked()) {
+    _viewer->setVisibility(active_actors["splited_faces"], true);
+  } else {
+    _viewer->setVisibility(active_actors["splited_faces"], false);
+  }
+}
+
+void MeshWidget::extractSingularLines() {
+  std::string name = _shell->extractSingularLines();
+
+  active_actors["singular_edges"] = name;
+}
+
+void MeshWidget::toggleSingularLines() {
+  if (ui->checkBox_render_singular_edges->isChecked()) {
+    _viewer->setVisibility(active_actors["singular_edges"], true);
+  } else {
+    _viewer->setVisibility(active_actors["singular_edges"], false);
+  }
+}
 
 void MeshWidget::test() { _shell->test(); }

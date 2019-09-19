@@ -6,7 +6,10 @@
 #include <QFileDialog>
 #include <QWidget>
 
+#include <map>
 #include <memory>
+
+using ActorMap = std::map<std::string ,std::string>;
 
 namespace Ui {
 class MeshWidget;
@@ -24,22 +27,22 @@ private:
 
   void addSlot();
 
-  /*VTK */
 
   ViewManager *_viewer;
   std::shared_ptr<MeshShell> _shell;
+  ActorMap active_actors;
 
   bool _mesh_loaded = false;
 
   /* functions */
 
-	void updateMeshInfo();
+  void updateMeshInfo();
 
-	int getRenderStyle();
+  int getRenderStyle();
 
-	std::string filenameFromDialog(const char* dialog_name, const char *filter);
+  std::string filenameFromDialog(const char *dialog_name, const char *filter);
 
-  void messageBox(const char* info);
+  void messageBox(const char *info);
 
   /* properties */
 #ifdef __linux
@@ -52,27 +55,31 @@ private:
 private slots:
   void readMesh();
 
-	void readStressField();
+  void readStressField();
 
   void readCombination();
 
-	void drawStressField();
+  void drawStressField();
 
-	void updateMeshRenderStyle();
+  void updateMeshRenderStyle();
 
-	void updateMeshOpacity();
+  void updateMeshOpacity();
 
-	void geometryChange();
+  void geometryChange();
 
-	/* stress singularity related */
+  /* stress singularity related */
 
-	void drawStressSingularity();
+  void updateStressSingularity();
 
-	void updateStressSingularity();
+  void toggleStressSingularity();
 
-  void divideCells();
+  void splitFaces();
+
+  void toggleSplitedFaces();
 
   void extractSingularLines();
 
-	void test();
+  void toggleSingularLines();
+
+  void test();
 };
