@@ -341,7 +341,8 @@ bool VtkWrapper::drawLines(
 
 bool VtkWrapper::drawSegments(
     std::string name, const std::vector<Eigen::Vector3d> &points,
-    const std::vector<Eigen::Matrix<long long, 2, 1>> &vertices_pairs) {
+    const std::vector<Eigen::Matrix<long long, 2, 1>> &vertices_pairs,
+    double line_width) {
 
   auto data = processPolyData<2>(points, vertices_pairs);
 
@@ -349,8 +350,9 @@ bool VtkWrapper::drawSegments(
   mapper->SetInputData(data);
   vtkNew<vtkActor> actor;
   actor->SetMapper(mapper);
-  auto ac = new PointsActorControler(name, actor);
+  auto ac = new SegmentActorControler(name, actor);
   ac->setColor(0.2, 0.9, 0.0);
+  ac->setSize(line_width);
   insert(name, ac);
 
   return true;
@@ -428,5 +430,9 @@ bool VtkWrapper::exit(std::string name) {
 }
 
 void VtkWrapper::testRenderFunction() {}
+
+void SegmentActorControler::setSize(double size) {
+  _actor->GetProperty()->SetLineWidth(size);
+}
 
 } // namespace viewtools

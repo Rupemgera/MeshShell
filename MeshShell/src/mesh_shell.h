@@ -45,14 +45,6 @@ public:
 
   /************************* actor related begin *************************/
 
-  /**
-   *@brief set visibility status of actors
-   */
-  void setVisibility(std::string name, bool visi);
-
-  void setVertexScalars(std::string name, std::vector<double> &scalars,
-                        double lower_bound, double upper_bound);
-
   /************************* actor related end *************************/
 
   /************************* stress begin *************************/
@@ -72,7 +64,7 @@ public:
 
   void singularitySizeChange(int point_size);
 
-  std::string divideCells(double tolerance);
+  std::string splitFaces(double tolerance);
 
   std::string extractSingularLines();
 
