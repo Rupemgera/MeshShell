@@ -1,6 +1,5 @@
 ﻿#include "meshwidget.h"
 #include "ui_meshwidget.h"
-#include "view_tools/vtk_wrapper.h"
 #include <qmessagebox.h>
 MeshWidget::MeshWidget(QWidget *parent)
     : QWidget(parent), ui(new Ui::MeshWidget) {
@@ -33,6 +32,9 @@ void MeshWidget::addSlot() {
           &MeshWidget::readStressField);
   connect(this->ui->pushButton_readCombination, &QPushButton::clicked, this,
           &MeshWidget::readCombination);
+  connect(this->ui->pushButton_refresh_listWidget, &QPushButton::clicked, this,
+          &MeshWidget::on_refresh_listWidget_clicked);
+
   /* draw stress field */
   connect(this->ui->checkBox_render_stress, &QCheckBox::toggled, this,
           &MeshWidget::drawStressField);
@@ -248,3 +250,20 @@ void MeshWidget::toggleSingularLines() {
 }
 
 void MeshWidget::test() { _shell->test(); }
+
+void MeshWidget::on_refresh_listWidget_clicked() {
+  auto additem = [&](viewtools::ActorControler *ac) {
+    QListWidgetItem *new_item = new QListWidgetItem(ac->name_.c_str());
+    new_item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsUserCheckable);
+    if (ac->getVisibility())
+      new_item->setCheckState(Qt::Checked);
+    else
+      new_item->setCheckState(Qt::Unchecked);
+    ui->listWidget->addItem(new_item);
+  };
+
+  
+  for (auto &ac : _viewer->getTable()) {
+    additem(ac.second);
+  }
+}
