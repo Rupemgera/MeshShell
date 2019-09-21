@@ -16,11 +16,15 @@ class ActorControler {
 protected:
   ActorPtr _actor;
 
+  bool visibility_flag = true;
+
 public:
   ActorControler(std::string name, ActorPtr actor);
   virtual ~ActorControler();
 
   void setVisibility(bool visibility);
+
+  bool getVisibility();
 
   virtual void setRenderSyle(int nRenderStyle);
 
@@ -31,6 +35,9 @@ public:
   virtual void setColor(double r, double g, double b);
 
   virtual void setSize(double size);
+
+  // tuple 1.visibility 2.opacity 3.size
+  virtual std::tuple<bool, double, double> getStatus();
 
   ActorPtr get_actor();
 
@@ -76,6 +83,8 @@ public:
    * set size of points
    */
   void setSize(double size);
+
+  std::tuple<bool, double, double> getStatus();
 };
 
 class SegmentActorControler : public ActorControler {
@@ -141,6 +150,8 @@ public:
   VtkWrapper(QVTKOpenGLWidget *widget);
 
   ~VtkWrapper();
+
+  std::map<std::string, ActorControler *> &getTable();
 
   int refresh();
 

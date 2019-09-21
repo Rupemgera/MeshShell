@@ -1,8 +1,8 @@
 ﻿#include "mesh_shell.h"
 #include <iostream>
 
-#define NORMAL_NAME "normal"
-#define SHRINKED_NAME "shrinked"
+#define NORMAL_NAME "normal_mesh"
+#define SHRINKED_NAME "shrinked_mesh"
 
 TetMeshData::TetMeshData() {
   points.clear();

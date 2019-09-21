@@ -11,6 +11,7 @@ ActorControler::ActorControler(std::string name, ActorPtr actor)
 ActorControler::~ActorControler() {}
 
 void ActorControler::setVisibility(bool visibility) {
+  visibility_flag = visibility;
   _actor->SetVisibility(visibility);
 }
 
@@ -31,6 +32,14 @@ void ActorControler::setColor(double r, double g, double b) {
 
 void ActorControler::setSize(double size) {
   _actor->GetProperty()->SetLineWidth(size);
+}
+
+bool ActorControler::getVisibility() { return visibility_flag; }
+
+std::tuple<bool, double, double> ActorControler::getStatus() {
+  double opacity = _actor->GetProperty()->GetOpacity();
+  double size = _actor->GetProperty()->GetLineWidth();
+  return std::tuple<bool, double, double>(visibility_flag, opacity, size);
 }
 
 ActorPtr ActorControler::get_actor() { return _actor; }
@@ -93,6 +102,12 @@ void PointsActorControler::setSize(double size) {
   _actor->GetProperty()->SetPointSize(size);
 }
 
+std::tuple<bool, double, double> PointsActorControler::getStatus() {
+  double opacity = _actor->GetProperty()->GetOpacity();
+  double size = _actor->GetProperty()->GetPointSize();
+  return std::tuple<bool, double, double>(visibility_flag, opacity, size);
+}
+
 /************************* MeshActorControler   end  *************************/
 
 VtkWrapper::VtkWrapper(QVTKOpenGLWidget *Qwidget) {
@@ -128,6 +143,10 @@ VtkWrapper::~VtkWrapper() {
       delete u.second;
     }
   }
+}
+
+std::map<std::string, ActorControler *> &VtkWrapper::getTable() {
+  return _table_;
 }
 
 int VtkWrapper::addActor(vtkActor *actor) {

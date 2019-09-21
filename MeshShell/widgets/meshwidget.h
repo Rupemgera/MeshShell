@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "src/mesh_shell.h"
+#include "view_tools/vtk_wrapper.h"
 
 #include <QFile>
 #include <QFileDialog>
@@ -28,7 +29,7 @@ private:
   void addSlot();
 
 
-  ViewManager *_viewer;
+  viewtools::VtkWrapper *_viewer;
   std::shared_ptr<MeshShell> _shell;
   ActorMap active_actors;
 
@@ -82,4 +83,6 @@ private slots:
   void toggleSingularLines();
 
   void test();
+
+  void on_refresh_listWidget_clicked();
 };
