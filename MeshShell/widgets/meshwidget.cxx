@@ -52,6 +52,8 @@ void MeshWidget::addSlot() {
           &MeshWidget::splitFaces);
   connect(this->ui->pushButton_singular_edges_refresh, &QPushButton::clicked,
           this, &MeshWidget::extractSingularLines);
+  connect(this->ui->checkBox_render_singular_edges, &QCheckBox::toggled, this,
+          &MeshWidget::toggleSingularLines);
 };
 
 void MeshWidget::updateMeshInfo() {
