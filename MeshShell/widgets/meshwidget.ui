@@ -403,13 +403,6 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="2">
-           <widget class="QLabel" name="label_actor_color">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
           <item row="1" column="0">
            <widget class="QPushButton" name="pushButton_actor_color">
             <property name="text">
@@ -418,7 +411,20 @@
            </widget>
           </item>
           <item row="3" column="2">
-           <widget class="QDoubleSpinBox" name="doubleSpinBox_actor_size"/>
+           <widget class="QDoubleSpinBox" name="actor_size"/>
+          </item>
+          <item row="1" column="2">
+           <widget class="QFrame" name="color_frame">
+            <property name="autoFillBackground">
+             <bool>true</bool>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::StyledPanel</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
@@ -486,8 +492,8 @@
    <slot>updateMeshOpacity()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>276</x>
-     <y>820</y>
+     <x>333</x>
+     <y>799</y>
     </hint>
     <hint type="destinationlabel">
      <x>3</x>

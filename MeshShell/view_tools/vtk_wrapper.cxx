@@ -26,12 +26,24 @@ void ActorControler::setColor(Color color) {
   _actor->GetProperty()->SetColor(color.data());
 }
 
+std::tuple<int, int, int> ActorControler::getIntColor() {
+  double *c = _actor->GetProperty()->GetColor();
+  int r = static_cast<int>(c[0] * 255.0);
+  int g = static_cast<int>(c[1] * 255.0);
+  int b = static_cast<int>(c[2] * 255.0);
+  return std::tuple<int, int, int>(r, g, b);
+}
+
 void ActorControler::setColor(double r, double g, double b) {
   _actor->GetProperty()->SetColor(r, g, b);
 }
 
 void ActorControler::setSize(double size) {
   _actor->GetProperty()->SetLineWidth(size);
+}
+
+double ActorControler::getSize() {
+  return _actor->GetProperty()->GetLineWidth();
 }
 
 bool ActorControler::getVisibility() { return visibility_flag; }
@@ -100,6 +112,10 @@ PointsActorControler::PointsActorControler(std::string name, ActorPtr actor)
 void PointsActorControler::setSize(double size) {
   render_status.point_size = size;
   _actor->GetProperty()->SetPointSize(size);
+}
+
+double PointsActorControler::getSize() {
+  return _actor->GetProperty()->GetPointSize();
 }
 
 std::tuple<bool, double, double> PointsActorControler::getStatus() {
@@ -429,11 +445,36 @@ void VtkWrapper::setColor(std::string name, double *color) {
   }
 }
 
+std::tuple<int, int, int> VtkWrapper::getColor(std::string name) {
+  auto target = _table_.find(name);
+  if (target != _table_.end()) {
+    return target->second->getIntColor();
+  }
+  return std::tuple<int, int, int>(0, 0, 0);
+}
+
 void VtkWrapper::setSize(std::string name, double size) {
   auto target = _table_.find(name);
   if (target != _table_.end()) {
     target->second->setSize(size);
   }
+}
+
+double VtkWrapper::getSize(std::string name) {
+  auto target = _table_.find(name);
+  if (target != _table_.end()) {
+    return target->second->getSize();
+  }
+  return 0.0;
+}
+
+std::tuple<double, double> VtkWrapper::getStatus(std::string name) {
+  auto target = _table_.find(name);
+  if (target != _table_.end()) {
+    auto status = target->second->getStatus();
+    return std::tuple<double, double>(std::get<1>(status), std::get<2>(status));
+  }
+  return std::tuple<double, double>(1.0, 0.0);
 }
 
 void VtkWrapper::setRenderStyle(std::string name, int render_style) {
@@ -443,7 +484,7 @@ void VtkWrapper::setRenderStyle(std::string name, int render_style) {
   }
 }
 
-bool VtkWrapper::exit(std::string name) {
+bool VtkWrapper::exist(std::string name) {
   auto target = _table_.find(name);
   return target != _table_.end();
 }

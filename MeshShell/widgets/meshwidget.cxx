@@ -1,5 +1,6 @@
 ﻿#include "meshwidget.h"
 #include "ui_meshwidget.h"
+#include <qcolordialog.h>
 #include <qmessagebox.h>
 MeshWidget::MeshWidget(QWidget *parent)
     : QWidget(parent), ui(new Ui::MeshWidget) {
@@ -32,8 +33,9 @@ void MeshWidget::addSlot() {
           &MeshWidget::readStressField);
   connect(this->ui->pushButton_readCombination, &QPushButton::clicked, this,
           &MeshWidget::readCombination);
-  connect(this->ui->pushButton_refresh_listWidget, &QPushButton::clicked, this,
-          &MeshWidget::on_refresh_listWidget_clicked);
+  /*connect(this->ui->pushButton_refresh_listWidget, &QPushButton::clicked,
+     this, &MeshWidget::on_pushButton_refresh_listWidget_clicked);*/
+  /* connect(this->ui->listWidget,&QListWidget::itemChanged,this,&MeshWidget::on_listWidget_item_changed);*/
 
   /* draw stress field */
   connect(this->ui->checkBox_render_stress, &QCheckBox::toggled, this,
@@ -54,8 +56,11 @@ void MeshWidget::addSlot() {
           &MeshWidget::splitFaces);
   connect(this->ui->pushButton_singular_edges_refresh, &QPushButton::clicked,
           this, &MeshWidget::extractSingularLines);
-  connect(this->ui->checkBox_render_singular_edges, &QCheckBox::toggled, this,
-          &MeshWidget::toggleSingularLines);
+  // connect(this->ui->checkBox_render_singular_edges, &QCheckBox::toggled,
+  // this,
+  //       &MeshWidget::on_checkBox_render_singular_edges_toggled);
+  connect(this->ui->checkBox_render_splited_face, &QCheckBox::toggled, this,
+          &MeshWidget::toggleSplitedFaces);
 };
 
 void MeshWidget::updateMeshInfo() {
@@ -197,7 +202,6 @@ void MeshWidget::geometryChange() {
 }
 void MeshWidget::toggleStressSingularity() {
   if (ui->checkBox_stressSingularity->isChecked()) {
-    // if has not rendered, do first render
     _viewer->setVisibility("Singularity", true);
     ui->doubleSpinBox_pointSize->setDisabled(false);
     ui->doubleSpinBox_stressSingularityTolerance->setDisabled(false);
@@ -225,6 +229,8 @@ void MeshWidget::splitFaces() {
   std::string name = _shell->splitFaces(tolerance);
 
   active_actors["splited_faces"] = name;
+
+  ui->checkBox_render_splited_face->setChecked(true);
 }
 
 void MeshWidget::toggleSplitedFaces() {
@@ -233,28 +239,35 @@ void MeshWidget::toggleSplitedFaces() {
   } else {
     _viewer->setVisibility(active_actors["splited_faces"], false);
   }
+  _viewer->refresh();
 }
 
 void MeshWidget::extractSingularLines() {
   std::string name = _shell->extractSingularLines();
 
   active_actors["singular_edges"] = name;
+
+  ui->checkBox_render_singular_edges->setChecked(true);
 }
 
-void MeshWidget::toggleSingularLines() {
+void MeshWidget::on_checkBox_render_singular_edges_toggled() {
   if (ui->checkBox_render_singular_edges->isChecked()) {
     _viewer->setVisibility(active_actors["singular_edges"], true);
   } else {
     _viewer->setVisibility(active_actors["singular_edges"], false);
   }
+  _viewer->refresh();
 }
 
 void MeshWidget::test() { _shell->test(); }
 
-void MeshWidget::on_refresh_listWidget_clicked() {
+void MeshWidget::on_pushButton_refresh_listWidget_clicked() {
   auto additem = [&](viewtools::ActorControler *ac) {
     QListWidgetItem *new_item = new QListWidgetItem(ac->name_.c_str());
-    new_item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsUserCheckable);
+    /*new_item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsUserCheckable |
+                       Qt::ItemIsEnabled);*/
+    new_item->setFlags(new_item->flags() | Qt::ItemIsUserCheckable);
+
     if (ac->getVisibility())
       new_item->setCheckState(Qt::Checked);
     else
@@ -262,8 +275,64 @@ void MeshWidget::on_refresh_listWidget_clicked() {
     ui->listWidget->addItem(new_item);
   };
 
-  
+  ui->listWidget->clear();
+
   for (auto &ac : _viewer->getTable()) {
-    additem(ac.second);
+    // mesh render is not added
+    if (ac.second->name_.find("mesh") == ac.second->name_.npos)
+      additem(ac.second);
+  }
+
+  /* if (ui->listWidget->count() > 0) {
+     ui->listWidget->item(0)->setSelected(true);
+   }
+   ui->listWidget->setFocus();*/
+}
+
+void MeshWidget::on_listWidget_itemChanged(QListWidgetItem *item) {
+  std::string name = item->text().toStdString();
+  if (item->checkState() == Qt::Checked) {
+    _viewer->setVisibility(name, true);
+  } else {
+    _viewer->setVisibility(name, false);
+  }
+  _viewer->refresh();
+}
+
+// void MeshWidget::on_listWidget_itemSelectionChanged() {
+//  /* auto current_item = ui->listWidget->currentItem();
+//   std::string name = current_item->text().toStdString();
+//   auto status = _viewer->getStatus(name);
+//   ui->actor_opacity->setValue(std::get<0>(status));
+//   ui->actor_size->setValue(std::get<1>(status));*/
+//  //std::cout << "item selection changed" << std::endl;
+//}
+
+void MeshWidget::on_listWidget_itemClicked(QListWidgetItem *item) {
+  std::string name = item->text().toStdString();
+  auto status = _viewer->getStatus(name);
+  ui->actor_opacity->setValue(std::get<0>(status));
+  ui->actor_size->setValue(std::get<1>(status));
+
+  auto c = _viewer->getColor(name);
+  QColor color(std::get<0>(c), std::get<1>(c), std::get<2>(c));
+  ui->color_frame->setPalette(QPalette(color));
+  // std::cout << name << " clicked" << std::endl;
+}
+
+void MeshWidget::on_pushButton_actor_color_clicked() {
+  QColor color = QColorDialog::getColor();
+  if (color.isValid()) {
+    // set actor's color
+    double red = color.red();
+    double green = color.green();
+    double blue = color.blue();
+    double c[] = {red / 255.0, green / 255.0, blue / 255.0};
+    auto item = ui->listWidget->currentItem();
+    std::string name = item->text().toStdString();
+    _viewer->setColor(name, c);
+
+    // gui changes
+    ui->color_frame->setPalette(QPalette(color));
   }
 }

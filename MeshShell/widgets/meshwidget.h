@@ -3,6 +3,7 @@
 #include "src/mesh_shell.h"
 #include "view_tools/vtk_wrapper.h"
 
+#include "QtWidgets/qlistwidget.h"
 #include <QFile>
 #include <QFileDialog>
 #include <QWidget>
@@ -10,7 +11,7 @@
 #include <map>
 #include <memory>
 
-using ActorMap = std::map<std::string ,std::string>;
+using ActorMap = std::map<std::string, std::string>;
 
 namespace Ui {
 class MeshWidget;
@@ -27,7 +28,6 @@ private:
   Ui::MeshWidget *ui;
 
   void addSlot();
-
 
   viewtools::VtkWrapper *_viewer;
   std::shared_ptr<MeshShell> _shell;
@@ -80,9 +80,17 @@ private slots:
 
   void extractSingularLines();
 
-  void toggleSingularLines();
+  void on_checkBox_render_singular_edges_toggled();
 
   void test();
 
-  void on_refresh_listWidget_clicked();
+  void on_pushButton_refresh_listWidget_clicked();
+
+  void on_listWidget_itemChanged(QListWidgetItem *item);
+
+  // void on_listWidget_itemSelectionChanged();
+
+  void on_listWidget_itemClicked(QListWidgetItem *item);
+
+  void on_pushButton_actor_color_clicked();
 };
