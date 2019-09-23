@@ -74,30 +74,30 @@ void StressTensor::reset(double *tensor_component, int order) {
 double StressTensor::diff(StressTensor &b) {
   // if compiler support C++14
 #if __cplusplus >= 201300L
-  auto sin = [](auto &u, auto &v) {
-    return (u.cross(v)).norm();
-  };
+  auto sin = [](auto &u, auto &v) { return (u.cross(v)).norm(); };
 #else
   using T = decltype(eig_vectors.col(0));
-  auto sin = [](T &u, T &v) -> double {
-    return (u.cross(v)).norm();
-  };
+  auto sin = [](T &u, T &v) -> double { return (u.cross(v)).norm(); };
 #endif // __cplusplus > 201300L
 
   double dff = 0;
+  double dff1, dff2;
+  dff1 = dff2 = 0;
+
   /* compare major principal vectors */
 
   dff += sin(this->eig_vectors.col(0), b.eig_vectors.col(0));
 
   /* compare mid pricipal vectors */
 
-  dff += sin(this->eig_vectors.col(1), b.eig_vectors.col(1));
-
+  dff1 += sin(this->eig_vectors.col(1), b.eig_vectors.col(1));
+  dff2 += sin(this->eig_vectors.col(1), b.eig_vectors.col(2));
   /* compare minor pricipal vectors */
 
-  dff += sin(this->eig_vectors.col(2), b.eig_vectors.col(2));
+  dff1 += sin(this->eig_vectors.col(2), b.eig_vectors.col(2));
+  dff2 += sin(this->eig_vectors.col(2), b.eig_vectors.col(1));
 
-  return dff;
+  return std::min(dff + dff1, dff + dff2);
 }
 
 double StressTensor::major_diff(StressTensor &b) {
@@ -109,14 +109,10 @@ double StressTensor::major_diff(StressTensor &b) {
 double StressTensor::permute_diff(StressTensor &b, Permutation_3 permute) {
   // if compiler support C++14
 #if __cplusplus >= 201300L
-  auto sin = [](auto &u, auto &v) {
-    return (u.cross(v)).norm();
-  };
+  auto sin = [](auto &u, auto &v) { return (u.cross(v)).norm(); };
 #else
   using T = decltype(eig_vectors.col(0));
-  auto sin = [](T &u, T &v) -> double {
-    return (u.cross(v)).norm();
-  };
+  auto sin = [](T &u, T &v) -> double { return (u.cross(v)).norm(); };
 #endif // __cplusplus > 201300L
 
   double dff = 0;
@@ -157,7 +153,7 @@ bool PrincipalStressField::readInStress(std::string filename, VMeshPtr mesh,
   std::ifstream stress_fin(filename);
 
   // determine if file exits
-  if (!stress_fin.good()){
+  if (!stress_fin.good()) {
     return false;
   }
 

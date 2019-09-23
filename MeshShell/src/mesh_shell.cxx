@@ -28,7 +28,7 @@ MeshShell::MeshShell(ViewManager *viewer) : _viewer(viewer) {
 MeshShell::~MeshShell() { delete mesh_wrapper; }
 
 void MeshShell::drawMesh(int nRenderStyle) {
-  if (!_viewer->exit(NORMAL_NAME)) {
+  if (!_viewer->exist(NORMAL_NAME)) {
     std::vector<int> boundary_face_id_list;
 
     mesh_wrapper->getFaceData(mesh_data.points, mesh_data.faces);
@@ -87,7 +87,7 @@ void MeshShell::updateFaceOpacity(double opacity, int geometryStyle) {
 }
 
 void MeshShell::drawShrink(int nRenderStyle) {
-  if (!_viewer->exit(SHRINKED_NAME)) {
+  if (!_viewer->exist(SHRINKED_NAME)) {
     std::vector<Eigen::Vector3d> points;
     std::vector<Eigen::Matrix<long long, 3, 1>> faces;
 

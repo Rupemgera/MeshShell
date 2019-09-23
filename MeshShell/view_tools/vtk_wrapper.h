@@ -32,9 +32,13 @@ public:
 
   virtual void setColor(Color color);
 
+  virtual std::tuple<int,int,int> getIntColor();
+
   virtual void setColor(double r, double g, double b);
 
   virtual void setSize(double size);
+
+  virtual double getSize();
 
   // tuple 1.visibility 2.opacity 3.size
   virtual std::tuple<bool, double, double> getStatus();
@@ -83,6 +87,8 @@ public:
    * set size of points
    */
   void setSize(double size);
+
+  double getSize();
 
   std::tuple<bool, double, double> getStatus();
 };
@@ -196,14 +202,20 @@ public:
 
   void setColor(std::string name, double *color);
 
+  std::tuple<int,int,int> getColor(std::string name);
+
   void setSize(std::string name, double size);
 
+  double getSize(std::string name);
+
+  // 1.opacity 2.size
+  std::tuple<double, double> getStatus(std::string name);
   /**
    *@param render_style 1: only edges 2: only faces 3:edges and faces
    */
   void setRenderStyle(std::string name, int render_style);
 
-  bool exit(std::string name);
+  bool exist(std::string name);
 
 private:
   vtkSmartPointer<vtkRenderer> _renderer;

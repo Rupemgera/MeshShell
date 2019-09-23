@@ -193,7 +193,7 @@ void MeshImpl::getShrinkMesh(
 
 void MeshImpl::get_edge_data(std::vector<OvmEgH> &edge_ids,
                              std::vector<Eigen::Vector3d> &edge_points) {
-  edge_points.reserve(edge_ids.size()*2);
+  edge_points.reserve(edge_ids.size() * 2);
   for (auto eh : edge_ids) {
     OvmVeH u = ovm_mesh->edge(eh).to_vertex();
     OvmVeH v = ovm_mesh->edge(eh).from_vertex();
@@ -305,7 +305,8 @@ int MeshImpl::get_cell_loop(OvmHaEgH halfedge, std::vector<int> &cell_loop) {
       for (auto next = ei.first; next != ei.second; ++next) {
         v = boost::target(*next, *matching_graph);
         // if v is a cell adjacent to halfedge and is not visited
-        if (v != last_u && adjacent_cells.find((int)v) != adjacent_cells.end()) {
+        if (v != last_u &&
+            adjacent_cells.find((int)v) != adjacent_cells.end()) {
           // do match transform
           auto trans_match = edge_map[*next];
           edge_index =
@@ -361,7 +362,8 @@ int MeshImpl::get_edge_matching_index(OvmHaEgH halfedge_handle) {
       for (auto next = ei.first; next != ei.second; ++next) {
         v = boost::target(*next, *matching_graph);
         // if v is a cell adjacent to halfedge and is not visited
-        if (adjacent_cells.find((int)v) != adjacent_cells.end() && v != last_u) {
+        if (adjacent_cells.find((int)v) != adjacent_cells.end() &&
+            v != last_u) {
           // do match transform
           edge_index = Permutation_3::transform(edge_index,
                                                 edge_map[*next].matching_index);
@@ -415,7 +417,8 @@ void MeshImpl::divideCells(std::vector<StressTensor> &tensors,
   split_face_ids.clear();
   for (auto ceh : ovm_mesh->cells()) {
     for (auto cci = ovm_mesh->cc_iter(ceh); cci.valid(); ++cci) {
-      double dff = tensors[ceh.idx()].major_diff(tensors[cci->idx()]);
+      // double dff = tensors[ceh.idx()].major_diff(tensors[cci->idx()]);
+      double dff = tensors[ceh.idx()].diff(tensors[cci->idx()]);
       if (dff > tolerance) {
         split_face_ids.push_back(commonFace(ceh, *cci).idx());
       }

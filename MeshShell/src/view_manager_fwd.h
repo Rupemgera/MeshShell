@@ -82,7 +82,7 @@ public:
   /**
    *@brief whether name is in actor table
    */
-  virtual bool exit(std::string name) = 0;
+  virtual bool exist(std::string name) = 0;
 
   /********** process data  end  **********/
 
