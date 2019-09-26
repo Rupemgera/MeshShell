@@ -1,9 +1,9 @@
 ﻿#include "stress_field.h"
 
+#include <stdio.h>
 #include <Eigen/Eigen>
 #include <Eigen/Eigenvalues>
 #include <sstream>
-#include <stdio.h>
 
 /*
  hypermesh tensor stress order :
@@ -73,12 +73,12 @@ void StressTensor::reset(double *tensor_component, int order) {
 
 double StressTensor::diff(StressTensor &b) {
   // if compiler support C++14
-#if __cplusplus >= 201300L
-  auto sin = [](auto &u, auto &v) { return (u.cross(v)).norm(); };
-#else
-  using T = decltype(eig_vectors.col(0));
-  auto sin = [](T &u, T &v) -> double { return (u.cross(v)).norm(); };
-#endif // __cplusplus > 201300L
+  //#if __cplusplus >= 201300L
+  // auto sin = [](auto &u, auto &v) { return (u.cross(v)).norm(); };
+  //#else
+  // using T = decltype(eig_vectors.col(0));
+  // auto sin = [](T &u, T &v) -> double { return (u.cross(v)).norm(); };
+  //#endif // __cplusplus > 201300L
 
   double dff = 0;
   double dff1, dff2;
@@ -108,12 +108,12 @@ double StressTensor::major_diff(StressTensor &b) {
 
 double StressTensor::permute_diff(StressTensor &b, Permutation_3 permute) {
   // if compiler support C++14
-#if __cplusplus >= 201300L
-  auto sin = [](auto &u, auto &v) { return (u.cross(v)).norm(); };
-#else
-  using T = decltype(eig_vectors.col(0));
-  auto sin = [](T &u, T &v) -> double { return (u.cross(v)).norm(); };
-#endif // __cplusplus > 201300L
+  //#if __cplusplus >= 201300L
+  //  auto sin = [](auto &u, auto &v) { return (u.cross(v)).norm(); };
+  //#else
+  // using T = decltype(eig_vectors.col(0));
+  // auto sin = [](T &u, T &v) -> double { return (u.cross(v)).norm(); };
+  //#endif  // __cplusplus > 201300L
 
   double dff = 0;
   /* compare major principal vectors */
@@ -250,8 +250,7 @@ const bool PrincipalStressField::set_mesh(VMeshPtr mesh) {
 
 void PrincipalStressField::get_locations(std::vector<Eigen::Vector3d> &ret) {
   ret.reserve(location.size());
-  for (auto d : location)
-    ret.push_back(Eigen::Vector3d(d.data()));
+  for (auto d : location) ret.push_back(Eigen::Vector3d(d.data()));
 }
 
 void PrincipalStressField::get_principal_dirs(std::vector<Eigen::Vector3d> &ret,
@@ -459,11 +458,11 @@ void PrincipalStressField::readStressHypermeshStyle(std::ifstream &stress_fin,
 #ifdef __linux
     sscanf(line.c_str(), "%d , %lf %lf %lf %lf %lf %lf", &n, sigma, sigma + 1,
            sigma + 2, sigma + 3, sigma + 4, sigma + 5);
-#endif // __linux
+#endif  // __linux
 #ifdef _WIN64
     sscanf_s(line.c_str(), "%d , %lf %lf %lf %lf %lf %lf", &n, sigma, sigma + 1,
              sigma + 2, sigma + 3, sigma + 4, sigma + 5);
-#endif // _WIN64
+#endif  // _WIN64
   };
 
   if (mesh != nullptr) {
@@ -478,8 +477,7 @@ void PrincipalStressField::readStressHypermeshStyle(std::ifstream &stress_fin,
   }
 
   while (std::getline(stress_fin, tmp)) {
-    if (tmp == "")
-      continue;
+    if (tmp == "") continue;
     /**
        读取stress的六个独立分量
     */
@@ -507,18 +505,17 @@ void PrincipalStressField::readStressAbaqusStyle(std::ifstream &stress_fin) {
     sscanf(line.c_str(), "%lf , %lf , %lf , %lf , %lf , %lf , %lf , %lf , %lf",
            coo, coo + 1, coo + 2, sigma, sigma + 1, sigma + 2, sigma + 3,
            sigma + 4, sigma + 5);
-#endif // __linux
+#endif  // __linux
 #ifdef _WIN64
     sscanf_s(line.c_str(),
              "%lf , %lf , %lf , %lf , %lf , %lf , %lf , %lf , %lf", coo,
              coo + 1, coo + 2, sigma, sigma + 1, sigma + 2, sigma + 3,
              sigma + 4, sigma + 5);
-#endif // _WIN64
+#endif  // _WIN64
   };
 
   while (std::getline(stress_fin, tmp)) {
-    if (tmp == "")
-      continue;
+    if (tmp == "") continue;
     /**
        读取stress的六个独立分量
     */
@@ -544,4 +541,4 @@ bool PrincipalStressField::reserve(size_t elements_number) {
   return true;
 }
 
-} // namespace meshtools
+}  // namespace meshtools
