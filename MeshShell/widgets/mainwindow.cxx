@@ -1,4 +1,4 @@
-#include "mainwindow.h"
+﻿#include "mainwindow.h"
 #include "ui_mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
@@ -26,8 +26,9 @@ void MainWindow::addSlot()
 {
 	// signal slot
 
-	connect(this->ui->actionNewMeshShell, &QAction::triggered, this, &MainWindow::NewMeshShell);
+	connect(this->ui->actionNewMeshShell, &QAction::triggered, this, &MainWindow::newMeshShell);
 
+	connect (this->ui->tabWidget, SIGNAL (tabCloseRequested(int)), this, SLOT (closeMeshShell(int)));
 	//测试按钮
 	//connect(this->ui->testButton, &QPushButton::clicked, this, &MainWindow::testButtonClicked);
 
@@ -41,7 +42,13 @@ void MainWindow::addSlot()
 	//connect(this->ui->pushButton_draw_mesh, &QPushButton::clicked, this, &MainWindow::drawMesh);
 }
 
-void MainWindow::NewMeshShell()
+void MainWindow::closeMeshShell(int id) {
+	auto shell = ui->tabWidget->widget(id);
+	ui->tabWidget->removeTab(id);
+	delete shell;
+}
+
+void MainWindow::newMeshShell()
 {
 	auto mesh_widget = new MeshWidget(this);
 	ui->tabWidget->addTab(mesh_widget, "Mesh Shell");

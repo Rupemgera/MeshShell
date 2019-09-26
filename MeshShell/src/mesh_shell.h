@@ -1,47 +1,90 @@
-#include "mesh_wrapper.h"
-#include "view_tools/view_wrapper.h"
-
-#include <map>
+﻿#include "mesh_wrapper.h"
+#include "view_manager_fwd.h"
 
 /*********** defines begin **************/
+
 using MeshWrapper = meshtools::MeshWrapper;
-using VtkWrapper = viewtools::VtkWrapper;
-using ActorControler = viewtools::ActorControler;
-using ActorMap = std::map<std::string, vtkSmartPointer<vtkActor>>;
+
 /*********** defines end **************/
+
+class TetMeshData {
+public:
+  TetMeshData();
+
+  void getFaceData(std::vector<int> &face_ids,
+                   std::vector<meshtools::FaceVertices<3>> &ext);
+
+  std::vector<Eigen::Vector3d> points;
+  std::vector<meshtools::FaceVertices<3>> faces;
+  std::vector<meshtools::FaceVertices<3>> boundary_faces;
+};
 
 class MeshShell {
 public:
-  MeshShell(VtkWrapper *viewer);
+  MeshShell(ViewManager *viewer);
   ~MeshShell();
 
   void drawMesh(int nRenderStyle = 3);
 
   void readMesh(std::string filename);
 
-	void updateMeshRenderStyle(int nRenderStyle);
+  void updateMeshRenderStyle(int nRenderStyle);
 
-	void drawShrink(int nRenderStyle = 3);
+  /**
+   *geometry = 1 : normal mesh
+   *geometry = 2 : shrinked mesh
+   */
+  void updateFaceOpacity(double opacity, int geometryStyle);
 
-	void setVertexScalars(std::vector<double> &scalars, double lower_bound, double upper_bound);
+  void drawShrink(int nRenderStyle = 3);
 
-	void renderScalars(vtkSmartPointer<vtkActor> actor, bool flag);
+  /*void setVertexScalars(std::vector<double> &scalars, double lower_bound,
+                        double upper_bound);*/
+
+  /*void renderScalars(vtkSmartPointer<vtkActor> actor, bool flag);*/
+
+  /************************* actor related begin *************************/
+
+  /************************* actor related end *************************/
+
+  /************************* stress begin *************************/
+
+  /**
+   *input two groups of data, separated by ','
+   *first group contains 1 integer, that is the id of the cell
+   *second group contains 6 decimal, that the 6 tensor stress component,ordered
+   *by XX YY ZZ XY YZ ZX
+   */
+  bool readStressField(std::string filename);
+
+  void drawStressField(bool major = true, bool middle = false,
+                       bool minor = false);
+
+  std::string stressSingularity(double tolerance, double point_size = 10.0);
+
+  void singularitySizeChange(int point_size);
+
+  std::string splitFaces(double tolerance);
+
+  std::string extractSingularLines();
+
+  /************************* stress  end  *************************/
+
+  /***************************** test ***********************************/
+
+  void test();
+
 
   bool mesh_loaded = false;
 
-	bool shrinked = false;
+  bool shrinked = false;
 
-	std::string mesh_name;
+  std::string mesh_name;
 
-	MeshWrapper *ovm_mesh;
+  MeshWrapper *mesh_wrapper;
+
+  TetMeshData mesh_data;
 
 protected:
-
-  VtkWrapper *_viewer;
-
-	ActorControler *_main_actor = nullptr;
-
-	ActorControler *_shrink_actor = nullptr;
-  
-  ActorMap map_actors;
+  ViewManager *_viewer;
 };

@@ -2,4 +2,7 @@
 [Bb]in/
 [Dd]ug/
 [Rr]elease/
+[Oo]ut/
 .vs/
+.vscode/
+*.json

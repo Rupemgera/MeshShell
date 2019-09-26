@@ -1,12 +1,17 @@
-#pragma once
+﻿#pragma once
 
 #include "src/mesh_shell.h"
+#include "view_tools/vtk_wrapper.h"
 
+#include "QtWidgets/qlistwidget.h"
 #include <QFile>
 #include <QFileDialog>
 #include <QWidget>
 
+#include <map>
 #include <memory>
+
+using ActorMap = std::map<std::string, std::string>;
 
 namespace Ui {
 class MeshWidget;
@@ -24,22 +29,21 @@ private:
 
   void addSlot();
 
-  /*VTK */
-
-  VtkWrapper *_viewer;
+  viewtools::VtkWrapper *_viewer;
   std::shared_ptr<MeshShell> _shell;
+  ActorMap active_actors;
 
   bool _mesh_loaded = false;
 
   /* functions */
 
-  void renderMesh();
+  void updateMeshInfo();
 
-	void updateMeshInfo();
+  int getRenderStyle();
 
-  void message(QString news);
+  std::string filenameFromDialog(const char *dialog_name, const char *filter);
 
-	int getRenderStyle();
+  void messageBox(const char *info);
 
   /* properties */
 #ifdef __linux
@@ -52,9 +56,41 @@ private:
 private slots:
   void readMesh();
 
-	void updateMeshRenderStyle();
+  void readStressField();
 
-	void geometryChange();
+  void readCombination();
 
-	void test();
+  void drawStressField();
+
+  void updateMeshRenderStyle();
+
+  void updateMeshOpacity();
+
+  void geometryChange();
+
+  /* stress singularity related */
+
+  void updateStressSingularity();
+
+  void toggleStressSingularity();
+
+  void splitFaces();
+
+  void toggleSplitedFaces();
+
+  void extractSingularLines();
+
+  void on_checkBox_render_singular_edges_toggled();
+
+  void test();
+
+  void on_pushButton_refresh_listWidget_clicked();
+
+  void on_listWidget_itemChanged(QListWidgetItem *item);
+
+  // void on_listWidget_itemSelectionChanged();
+
+  void on_listWidget_itemClicked(QListWidgetItem *item);
+
+  void on_pushButton_actor_color_clicked();
 };
