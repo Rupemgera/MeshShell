@@ -107,9 +107,6 @@ void MeshShell::drawShrink(int nRenderStyle) {
   _viewer->refresh();
 }
 
-
-
-
 bool MeshShell::readStressField(std::string filename) {
   return mesh_wrapper->readStressField(filename);
 }
@@ -126,19 +123,21 @@ void MeshShell::drawStressField(bool major, bool middle, bool minor) {
 
   // get cell size
   double cell_size = mesh_wrapper->cellSize();
+  // scale vectors' length
+  double scaled_size = cell_size * 0.7;
 
   mesh_wrapper->get_principal_vectors(loc, major_v, middle_v, minor_v);
 
   // major principal vector
-  _viewer->drawVector("major", loc, major_v, cell_size);
+  _viewer->drawVector("major", loc, major_v, scaled_size);
   _viewer->setColor("major", major_c);
 
   // middle principal vector
-  _viewer->drawVector("middle", loc, middle_v, cell_size);
+  _viewer->drawVector("middle", loc, middle_v, scaled_size);  
   _viewer->setColor("middle", middle_c);
 
   // minor principal vector
-  _viewer->drawVector("minor", loc, minor_v, cell_size);
+  _viewer->drawVector("minor", loc, minor_v, scaled_size);
   _viewer->setColor("minor", minor_c);
 
   // decide visibility

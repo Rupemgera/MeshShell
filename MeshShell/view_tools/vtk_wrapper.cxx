@@ -48,6 +48,10 @@ double ActorControler::getSize() {
 
 bool ActorControler::getVisibility() { return visibility_flag; }
 
+ActorControlerType ActorControler::getClassType() {
+  return ActorControlerType::BASE;
+}
+
 std::tuple<bool, double, double> ActorControler::getStatus() {
   double opacity = _actor->GetProperty()->GetOpacity();
   double size = _actor->GetProperty()->GetLineWidth();
@@ -100,6 +104,10 @@ void MeshActorControler::setRenderSyle(int nRenderStyle) {
   }
 }
 
+ActorControlerType MeshActorControler::getClassType() {
+  return ActorControlerType::MESH;
+}
+
 /************************* MeshActorControler   end  *************************/
 
 /************************* MeshActorControler  begein *************************/
@@ -125,6 +133,15 @@ std::tuple<bool, double, double> PointsActorControler::getStatus() {
 }
 
 /************************* MeshActorControler   end  *************************/
+/************************* SegmentActorControler  *************************/
+
+void SegmentActorControler::setSize(double size) {
+  _actor->GetProperty()->SetLineWidth(size);
+}
+
+ActorControlerType SegmentActorControler::getClassType() {
+  return ActorControlerType::SEGMENT;
+}
 
 VtkWrapper::VtkWrapper(QVTKOpenGLWidget *Qwidget) {
   // Create the usual rendering stuff
@@ -491,8 +508,8 @@ bool VtkWrapper::exist(std::string name) {
 
 void VtkWrapper::testRenderFunction() {}
 
-void SegmentActorControler::setSize(double size) {
-  _actor->GetProperty()->SetLineWidth(size);
+ActorControlerType VectorActorControler::getClassType() {
+  return ActorControlerType::VECTOR;
 }
 
 } // namespace viewtools

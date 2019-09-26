@@ -30,10 +30,10 @@ bool MeshWrapper::readStressField(std::string filename) {
     if (!field->readInStress(filename))
       return false;
   }
-  std::cout << "field : " << field->tensors.size() << std::endl;
+  std::cout << "field : " << field->element_tensors_.size() << std::endl;
 
   // construct matching graph
-  impl->construct_matching_graph(field->tensors);
+  impl->construct_matching_graph(field->element_tensors_);
   return true;
 }
 
@@ -53,7 +53,7 @@ void MeshWrapper::singularityLoaction(std::vector<V3d> &loc, double tolerance) {
 
 void MeshWrapper::divideCells(std::vector<int> &split_face_ids,
                               double tolerance) {
-  impl->divideCells(field->tensors, split_face_ids, tolerance);
+  impl->divideCells(field->element_tensors_, split_face_ids, tolerance);
 }
 
 void MeshWrapper::request_cell_centers(std::vector<V3d> &retrieve_val) {
@@ -72,7 +72,7 @@ std::vector<V3d> &MeshWrapper::request_cell_centers() {
 void MeshWrapper::test() {
   // test matching graph
 
-  impl->construct_matching_graph(field->tensors);
+  impl->construct_matching_graph(field->element_tensors_);
 
   std::vector<int> loop;
   OvmHaEgH he = impl->ovm_mesh->halfedge((OvmVeH)0, (OvmVeH)6);

@@ -76,7 +76,7 @@ private slots:
 
   void splitFaces();
 
-  void toggleSplitedFaces();
+  void on_checkBox_render_splited_faces_toggled();
 
   void extractSingularLines();
 
@@ -93,4 +93,6 @@ private slots:
   void on_listWidget_itemClicked(QListWidgetItem *item);
 
   void on_pushButton_actor_color_clicked();
+
+  void on_actor_refresh_clicked();
 };

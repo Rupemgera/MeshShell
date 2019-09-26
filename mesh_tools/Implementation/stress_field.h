@@ -5,12 +5,12 @@
 ####################
 ***/
 
-#include "frame_field.h"
 #include <Eigen/Dense>
 #include <fstream>
 #include <string>
 #include <unordered_set>
 #include <vector>
+#include "frame_field.h"
 
 namespace meshtools {
 
@@ -36,10 +36,10 @@ enum STRESS_ELEMENT_TYPE { Node, Cell, NotDefined };
  *eig_vectors    orders correspond to eig_value
  */
 class StressTensor {
-private:
+ private:
   void init(double *tensor_component, int order = 0);
 
-public:
+ public:
   /*
   data begin
   */
@@ -52,12 +52,23 @@ public:
   data end
   */
   StressTensor();
+
   /**
-   *order = 0 : hypermesh way XX YY ZZ XY YZ ZX
-   *order = 1 : abaqus way S-S11,S-S22,S-S33,S-S12,S-S13,S-S23
+   *order = 0 : hypermesh way 00 11 22 01 12 02
+   *order = 1 : abaqus way 00 11 22 01 02 12
+   *order = 2 : GAUSS way 00 11 22 12 02 01
    */
   StressTensor(double *tensor_component, int order = 0);
+
   void reset(double *tensor_component, int order = 0);
+
+  /**
+   *
+   */
+  template <typename T>
+  double sin(T u, T v) {
+    return (u.cross(v)).norm();
+  }
 
   /**
    *compare frames difference of 2 stress
@@ -84,12 +95,14 @@ public:
  *@brief 主应力场类
  */
 class PrincipalStressField {
-public:
+ public:
   /*
   data begin
   */
 
-  std::vector<StressTensor> tensors;
+  std::vector<StressTensor> element_tensors_;
+
+  std::vector<StressTensor> node_tensors_;
 
   std::vector<Eigen::Vector3d> location;
 
@@ -132,8 +145,8 @@ public:
   void get_locations(std::vector<Eigen::Vector3d> &ret);
 
   /**
-          *@para P = 0,1,2 corresponds to major,middle,minor principal vector
-  */
+   *@para P = 0,1,2 corresponds to major,middle,minor principal vector
+   */
   void get_principal_dirs(std::vector<Eigen::Vector3d> &ret, int P = 0);
 
   /*****************
@@ -147,7 +160,7 @@ public:
 
   STRESS_ELEMENT_TYPE element_type = STRESS_ELEMENT_TYPE::NotDefined;
 
-private:
+ private:
   /*成员变量*/
   size_t _n;
   // mesh的指针
@@ -171,8 +184,12 @@ private:
 
   void readStressAbaqusStyle(std::ifstream &stress_fin);
 
+  void readStressGaussStyle(std::ifstream &stress_fin);
+
+  void readProcessedStress(std::vector<StressTensor>& tensors, std::ifstream &stress_fin, int n_lines = -1);
+
   bool resize(size_t elements_number);
 
   bool reserve(size_t elements_number);
 };
-} // namespace meshtools
+}  // namespace meshtools

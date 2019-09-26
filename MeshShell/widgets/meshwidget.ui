@@ -298,7 +298,7 @@
            </widget>
           </item>
           <item row="2" column="0">
-           <widget class="QCheckBox" name="checkBox_render_splited_face">
+           <widget class="QCheckBox" name="checkBox_render_splited_faces">
             <property name="text">
              <string>Render</string>
             </property>
@@ -376,10 +376,16 @@
           <string>Properties</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_6">
-          <item row="3" column="0">
-           <widget class="QLabel" name="label_3">
-            <property name="text">
-             <string>Size</string>
+          <item row="1" column="2">
+           <widget class="QFrame" name="color_frame">
+            <property name="autoFillBackground">
+             <bool>true</bool>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::StyledPanel</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
             </property>
            </widget>
           </item>
@@ -393,6 +399,16 @@
             </property>
             <property name="value">
              <double>1.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="2">
+           <widget class="QDoubleSpinBox" name="actor_size"/>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string>Size</string>
             </property>
            </widget>
           </item>
@@ -410,19 +426,10 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="2">
-           <widget class="QDoubleSpinBox" name="actor_size"/>
-          </item>
-          <item row="1" column="2">
-           <widget class="QFrame" name="color_frame">
-            <property name="autoFillBackground">
-             <bool>true</bool>
-            </property>
-            <property name="frameShape">
-             <enum>QFrame::StyledPanel</enum>
-            </property>
-            <property name="frameShadow">
-             <enum>QFrame::Raised</enum>
+          <item row="5" column="2">
+           <widget class="QPushButton" name="actor_refresh">
+            <property name="text">
+             <string>Refresh</string>
             </property>
            </widget>
           </item>

@@ -59,8 +59,8 @@ void MeshWidget::addSlot() {
   // connect(this->ui->checkBox_render_singular_edges, &QCheckBox::toggled,
   // this,
   //       &MeshWidget::on_checkBox_render_singular_edges_toggled);
-  connect(this->ui->checkBox_render_splited_face, &QCheckBox::toggled, this,
-          &MeshWidget::toggleSplitedFaces);
+  /*connect(this->ui->checkBox_render_splited_face, &QCheckBox::toggled, this,
+          &MeshWidget::on_checkBox_render_splited_face_toggled);*/
 };
 
 void MeshWidget::updateMeshInfo() {
@@ -230,11 +230,11 @@ void MeshWidget::splitFaces() {
 
   active_actors["splited_faces"] = name;
 
-  ui->checkBox_render_splited_face->setChecked(true);
+  ui->checkBox_render_splited_faces->setChecked(true);
 }
 
-void MeshWidget::toggleSplitedFaces() {
-  if (ui->checkBox_render_splited_face->isChecked()) {
+void MeshWidget::on_checkBox_render_splited_faces_toggled() {
+  if (ui->checkBox_render_splited_faces->isChecked()) {
     _viewer->setVisibility(active_actors["splited_faces"], true);
   } else {
     _viewer->setVisibility(active_actors["splited_faces"], false);
@@ -335,4 +335,13 @@ void MeshWidget::on_pushButton_actor_color_clicked() {
     // gui changes
     ui->color_frame->setPalette(QPalette(color));
   }
+}
+
+void MeshWidget::on_actor_refresh_clicked() {
+  double size = ui->actor_size->value();
+  double opacity = ui->actor_opacity->value();
+  auto item = ui->listWidget->currentItem();
+  std::string name = item->text().toStdString();
+  _viewer->setSize(name, size);
+  _viewer->setOpacity(name, opacity);
 }

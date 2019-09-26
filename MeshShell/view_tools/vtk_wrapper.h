@@ -12,6 +12,9 @@ namespace viewtools {
 
 using ActorPtr = vtkSmartPointer<vtkActor>;
 
+// all subclass of ActorControler
+enum ActorControlerType { BASE, MESH, SEGMENT, POINT, VECTOR };
+
 class ActorControler {
 protected:
   ActorPtr _actor;
@@ -32,13 +35,18 @@ public:
 
   virtual void setColor(Color color);
 
-  virtual std::tuple<int,int,int> getIntColor();
+  virtual std::tuple<int, int, int> getIntColor();
 
   virtual void setColor(double r, double g, double b);
 
   virtual void setSize(double size);
 
   virtual double getSize();
+
+  /**
+   *@brief return the actual class name of the instance
+   */
+  virtual ActorControlerType getClassType();
 
   // tuple 1.visibility 2.opacity 3.size
   virtual std::tuple<bool, double, double> getStatus();
@@ -67,6 +75,8 @@ public:
    * 1: edge 2:face 3:both
    */
   void setRenderSyle(int nRenderStyle);
+
+  ActorControlerType getClassType();
 };
 
 class PointsActorControler : public ActorControler {
@@ -86,11 +96,11 @@ public:
   /**
    * set size of points
    */
-  void setSize(double size);
+  void setSize(double size) override;
 
-  double getSize();
+  double getSize() override;
 
-  std::tuple<bool, double, double> getStatus();
+  std::tuple<bool, double, double> getStatus() override;
 };
 
 class SegmentActorControler : public ActorControler {
@@ -98,13 +108,17 @@ public:
   SegmentActorControler(std::string name, ActorPtr actor)
       : ActorControler(name, actor) {}
 
-  void setSize(double size);
+  void setSize(double size) override;
+
+  ActorControlerType getClassType() override;
 };
 
 class VectorActorControler : public ActorControler {
 public:
   VectorActorControler(std::string name, ActorPtr actor)
       : ActorControler(name, actor) {}
+
+  ActorControlerType getClassType() override;
 };
 
 class VtkWrapper : public ViewManager {
@@ -202,7 +216,7 @@ public:
 
   void setColor(std::string name, double *color);
 
-  std::tuple<int,int,int> getColor(std::string name);
+  std::tuple<int, int, int> getColor(std::string name);
 
   void setSize(std::string name, double size);
 
