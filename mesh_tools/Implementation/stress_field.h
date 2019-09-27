@@ -5,12 +5,12 @@
 ####################
 ***/
 
+#include "frame_field.h"
 #include <Eigen/Dense>
 #include <fstream>
 #include <string>
 #include <unordered_set>
 #include <vector>
-#include "frame_field.h"
 
 namespace meshtools {
 
@@ -36,15 +36,17 @@ enum STRESS_ELEMENT_TYPE { Node, Cell, NotDefined };
  *eig_vectors    orders correspond to eig_value
  */
 class StressTensor {
- private:
+private:
   void init(double *tensor_component, int order = 0);
 
- public:
+  void decompose();
+
+public:
   /*
   data begin
   */
 
-  Matrix_3 _tensor;
+  Matrix_3 matrix_;
   double eig_values[3];
   Matrix_3 eig_vectors;
 
@@ -52,6 +54,8 @@ class StressTensor {
   data end
   */
   StressTensor();
+
+  StressTensor(Matrix_3 matrix);
 
   /**
    *order = 0 : hypermesh way 00 11 22 01 12 02
@@ -65,10 +69,7 @@ class StressTensor {
   /**
    *
    */
-  template <typename T>
-  double sin(T u, T v) {
-    return (u.cross(v)).norm();
-  }
+  template <typename T> double sin(T u, T v) { return (u.cross(v)).norm(); }
 
   /**
    *compare frames difference of 2 stress
@@ -95,7 +96,7 @@ class StressTensor {
  *@brief 主应力场类
  */
 class PrincipalStressField {
- public:
+public:
   /*
   data begin
   */
@@ -119,16 +120,28 @@ class PrincipalStressField {
   /**
    *@param save    if true, save stress field to vector form. default false.
    *@see saveStress
+   *@deprecated
    */
   bool readInStress(std::string filename, VMeshPtr mesh = nullptr,
                     bool save = false);
+  /**
+   *@brief read stress field from processed file
+   *first line contains "# flag number". flag is 'node' or 'element', number is
+   *the number of lines
+   */
+  bool readProcessedStress(std::string filename, VMeshPtr mesh);
 
   /**
    * one line for one cell
    *1 int represent cell id, then follows 9 decimals ,every 3 represent a
    *vector. Each vector is a unit vector
    */
-  bool saveStress(std::ofstream &stress_fout);
+  bool saveEigenVectors(std::ofstream &stress_fout);
+
+  /**
+   *@brief when read node stress tensors, run this to calculate element tensors
+   */
+  bool init_element_tensors(VMeshPtr mesh);
 
   /**
    *@param loc  coordinates of singularites
@@ -142,6 +155,7 @@ class PrincipalStressField {
 
   //设定mesh
   const bool set_mesh(VMeshPtr mesh);
+
   void get_locations(std::vector<Eigen::Vector3d> &ret);
 
   /**
@@ -160,17 +174,11 @@ class PrincipalStressField {
 
   STRESS_ELEMENT_TYPE element_type = STRESS_ELEMENT_TYPE::NotDefined;
 
- private:
+private:
   /*成员变量*/
   size_t _n;
   // mesh的指针
   std::shared_ptr<VMesh> _mesh = nullptr;
-
-  // std::unordered_set<OvmEgH> singular_ehs;//网格奇异边的集合
-  // std::unordered_set<OvmEgH> regular_singular_ehs;//有效奇异线的集合
-  // std::unordered_set<OvmEgH> irregular_singular_ehs;//无效奇异线的集合
-  // std::unordered_set<OvmEgH> negative_singularities;//负奇异线集合
-  // std::unordered_set<OvmEgH> postive_singularities;//正奇异线集合
 
   /*deprecated
 
@@ -186,10 +194,9 @@ class PrincipalStressField {
 
   void readStressGaussStyle(std::ifstream &stress_fin);
 
-  void readProcessedStress(std::vector<StressTensor>& tensors, std::ifstream &stress_fin, int n_lines = -1);
 
   bool resize(size_t elements_number);
 
   bool reserve(size_t elements_number);
 };
-}  // namespace meshtools
+} // namespace meshtools

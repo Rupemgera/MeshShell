@@ -9,6 +9,7 @@
 #include <QFile>
 #include <QWidget>
 #include <QFileDialog>
+#include <qdir.h>
 
 namespace Ui
 {
@@ -56,6 +57,8 @@ private slots:
 	void newMeshShell();
 
 	void closeMeshShell(int id);
+
+  void newEmptyMeshShell();
 
 	// void trigerMemu(QAction *act);
 

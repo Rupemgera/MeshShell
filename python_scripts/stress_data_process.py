@@ -2,6 +2,9 @@
 import sys
 import os
 import numpy as np
+import tkinter
+from tkinter import ttk
+from tkinter import filedialog
 
 
 def readHypermeshStyle(lines):
@@ -44,22 +47,43 @@ def readGuassStyle(lines):
     return k, res[:k]
 
 
-if __name__ == "__main__":
-    file_name = sys.argv[1]
-    base_name = os.path.basename(file_name)
-    # ext = os.path.splitext(file_name)[1]
-    save_file_name = "processed_" + base_name
+def process(data_format):
+    file_name = filedialog.askopenfilename(
+        filetypes=[('csv', '*.csv'), ('txt', '.txt')])
+    path = os.path.split(file_name)[0]
     with open(file_name, 'r') as fin:
         header = fin.readline()
         lines = fin.readlines()
         if header.find("GAUSS") >= 0:
             k, res = readGuassStyle(lines)
+            type = "node"
         else:
             k, res = readHypermeshStyle(lines)
+            type = "element"
         # header = str(k)
+        save_file_name = filedialog.asksaveasfilename(
+            filetypes=[("csv", "*.csv")], initialdir=path)
         if len(sys.argv) > 2:
             np.savetxt(save_file_name, res, fmt="%.4e",
                        delimiter=' ', header=sys.argv[2]+" " + str(k))
         else:
             np.savetxt(save_file_name, res, fmt="%.4e",
-                       delimiter=' ', header="element " + str(k))
+                       delimiter=' ', header=type+" " + str(k))
+
+
+if __name__ == "__main__":
+    root = tkinter.Tk()
+
+    comvalue = tkinter.StringVar()
+    format_box = ttk.Combobox(
+        root, textvariable=comvalue, state='readonly')
+    format_box["values"] = ("hypermesh", "GAUSS")
+    format_box.current(0)
+    format_box.grid(column=1, row=1)
+
+    open_button = tkinter.Button(
+        root, text="Open stress field file",
+        command=lambda: process(format_box.get()))
+    open_button.grid(column=1, row=0)
+
+    root.mainloop()

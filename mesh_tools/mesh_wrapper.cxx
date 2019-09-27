@@ -22,18 +22,40 @@ MeshWrapper::~MeshWrapper() {
 void MeshWrapper::readMesh(std::string filename) { impl->readMesh(filename); }
 
 bool MeshWrapper::readStressField(std::string filename) {
-  // impl->readStressField(filename);
-  if (impl->mesh_loaded) {
-    if (!field->readInStress(filename, impl->ovm_mesh))
-      return false;
-  } else {
-    if (!field->readInStress(filename))
-      return false;
-  }
+  // old way
+  /* if (impl->mesh_loaded) {
+     if (!field->readInStress(filename, impl->ovm_mesh))
+       return false;
+   } else {
+     if (!field->readInStress(filename))
+       return false;
+   }*/
+
+  // new way, read processed data
+
+  field->readProcessedStress(filename, impl->ovm_mesh);
+
   std::cout << "field : " << field->element_tensors_.size() << std::endl;
 
   // construct matching graph
   impl->construct_matching_graph(field->element_tensors_);
+
+  saveElementTensors("element.csv");
+  
+  return true;
+}
+
+bool MeshWrapper::saveElementTensors(std::string filename) {
+  std::ofstream fout(filename);
+
+  fout << "# element " << field->element_tensors_.size() << std::endl;
+
+  for (auto s : field->element_tensors_) {
+    fout << s.matrix_(0, 0) << ' ' << s.matrix_(1, 1) << ' ' << s.matrix_(2, 2)
+         << ' ' << s.matrix_(0, 1) << ' ' << s.matrix_(1, 2) << ' '
+         << s.matrix_(0, 2) << std::endl;
+  }
+
   return true;
 }
 
@@ -41,7 +63,8 @@ void MeshWrapper::get_principal_vectors(std::vector<V3d> &loc,
                                         std::vector<V3d> &major,
                                         std::vector<V3d> &middle,
                                         std::vector<V3d> &minor) {
-  field->get_locations(loc);
+  // field->get_locations(loc);
+  request_cell_centers(loc);
   field->get_principal_dirs(major, 0);
   field->get_principal_dirs(middle, 1);
   field->get_principal_dirs(minor, 2);

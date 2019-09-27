@@ -53,6 +53,7 @@
      <string>New</string>
     </property>
     <addaction name="actionNewMeshShell"/>
+    <addaction name="actionMeshShell_mesh_stress"/>
    </widget>
    <widget class="QMenu" name="menufile">
     <property name="title">
@@ -94,7 +95,12 @@
   </action>
   <action name="actionNewMeshShell">
    <property name="text">
-    <string>MeshShell</string>
+    <string>MeshShell (empty)</string>
+   </property>
+  </action>
+  <action name="actionMeshShell_mesh_stress">
+   <property name="text">
+    <string>MeshShell (mesh&amp;stress)</string>
    </property>
   </action>
  </widget>

@@ -13,6 +13,32 @@ MeshWidget::MeshWidget(QWidget *parent)
   addSlot();
 }
 
+MeshWidget::MeshWidget(QWidget *parent, std::string mesh_file,
+                       std::string stress_file)
+    : QWidget(parent), ui(new Ui::MeshWidget) {
+  ui->setupUi(this);
+  _viewer = new viewtools::VtkWrapper(ui->viewerWidget);
+
+  _shell = std::shared_ptr<MeshShell>(new MeshShell(_viewer));
+
+  addSlot();
+
+  /********** Mesh *************/
+
+  ui->pushButton_read->setDisabled(true);
+  ui->pushButton_readStressFile->setDisabled(true);
+  ui->pushButton_readCombination->setDisabled(true);
+
+  _shell->readMesh(mesh_file);
+  _shell->drawMesh(getRenderStyle());
+  updateMeshOpacity();
+  updateMeshInfo();
+
+  /******** stress ************/
+
+  _shell->readStressField(stress_file);
+}
+
 MeshWidget::~MeshWidget() {
   delete _viewer;
   delete ui;

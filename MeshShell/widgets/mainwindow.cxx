@@ -1,18 +1,14 @@
 ﻿#include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
-										  ui(new Ui::MainWindow)
-{
-	ui->setupUi(this);
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent), ui(new Ui::MainWindow) {
+  ui->setupUi(this);
 
-	addSlot();
+  addSlot();
 }
 
-MainWindow::~MainWindow()
-{
-	delete ui;
-}
+MainWindow::~MainWindow() { delete ui; }
 
 // void MainWindow::browserPrint(QString text)
 // {
@@ -22,38 +18,57 @@ MainWindow::~MainWindow()
 // 	_console_widget->print(text);
 // }
 
-void MainWindow::addSlot()
-{
-	// signal slot
+void MainWindow::addSlot() {
+  // signal slot
 
-	connect(this->ui->actionNewMeshShell, &QAction::triggered, this, &MainWindow::newMeshShell);
+  connect(this->ui->actionNewMeshShell, &QAction::triggered, this,
+          &MainWindow::newEmptyMeshShell);
 
-	connect (this->ui->tabWidget, SIGNAL (tabCloseRequested(int)), this, SLOT (closeMeshShell(int)));
-	//测试按钮
-	//connect(this->ui->testButton, &QPushButton::clicked, this, &MainWindow::testButtonClicked);
+  connect(this->ui->actionMeshShell_mesh_stress, &QAction::triggered, this,
+          &MainWindow::newMeshShell);
 
-	//打开mesh文件
-	//connect(this->ui->actionOpenMeshFile, &QAction::triggered, this, &MainWindow::openMeshFile);
-
-	//打开stress field 文件
-	//connect(this->ui->actionOpenStressFile, &QAction::triggered, this, &MainWindow::openStressFile);
-
-	// render mesh
-	//connect(this->ui->pushButton_draw_mesh, &QPushButton::clicked, this, &MainWindow::drawMesh);
+  connect(this->ui->tabWidget, SIGNAL(tabCloseRequested(int)), this,
+          SLOT(closeMeshShell(int)));
 }
 
 void MainWindow::closeMeshShell(int id) {
-	auto shell = ui->tabWidget->widget(id);
-	ui->tabWidget->removeTab(id);
-	delete shell;
+  auto shell = ui->tabWidget->widget(id);
+  ui->tabWidget->removeTab(id);
+  delete shell;
 }
 
-void MainWindow::newMeshShell()
-{
-	auto mesh_widget = new MeshWidget(this);
-	ui->tabWidget->addTab(mesh_widget, "Mesh Shell");
-	ui->tabWidget->setCurrentWidget(mesh_widget);
-	ui->tabWidget->show();
+void MainWindow::newEmptyMeshShell() {
+  auto mesh_widget = new MeshWidget(this);
+  ui->tabWidget->addTab(mesh_widget, "Mesh Shell");
+  ui->tabWidget->setCurrentWidget(mesh_widget);
+  ui->tabWidget->show();
+}
+
+void MainWindow::newMeshShell() {
+  QString qfname = QFileDialog::getOpenFileName(
+      0, "open mesh shell", QDir::homePath(), "mesh shell files(*.ms)");
+
+  if (qfname == "")
+    return;
+
+  int i = qfname.lastIndexOf('/');
+  auto dir_path = qfname.left(i).toStdString();
+  std::string mesh_name, stress_name;
+  std::ifstream fin(qfname.toStdString());
+  fin >> mesh_name >> stress_name;
+#ifdef _WIN64
+  mesh_name = dir_path + "\\" + mesh_name;
+  stress_name = dir_path + "\\" + stress_name;
+#endif
+#ifdef __linux
+  mesh_name = dir_path + "/" + mesh_name;
+  stress_name = dir_path + "/" + stress_name;
+#endif
+
+  auto mesh_widget = new MeshWidget(this,mesh_name,stress_name);
+  ui->tabWidget->addTab(mesh_widget, "Mesh Shell");
+  ui->tabWidget->setCurrentWidget(mesh_widget);
+  ui->tabWidget->show();
 }
 
 // void MainWindow::trigerMemu(QAction *act)
@@ -76,7 +91,8 @@ void MainWindow::newMeshShell()
 // 	browserPrint("start open mesh file");
 
 // 	QString qfname = QFileDialog::getOpenFileName(0, "Open mesh file",
-// 												  QDir::currentPath(), "OVM files(*.ovm);;Abaqus inp files(*.inp)");
+// 												  QDir::currentPath(),
+// "OVM files(*.ovm);;Abaqus inp files(*.inp)");
 
 // 	if (qfname == "")
 // 	{
@@ -114,8 +130,9 @@ void MainWindow::newMeshShell()
 // 	else
 // 	{
 // 		mesh_tmp = meshtools::MeshProcessingTools::readFromInp(fin);
-// 		// if read in a inp file, then save mesh to ovm file for future use
-// 		meshtools::MeshProcessingTools::saveToOVM(mesh_tmp, rest_filename + "ovm");
+// 		// if read in a inp file, then save mesh to ovm file for future
+// use 		meshtools::MeshProcessingTools::saveToOVM(mesh_tmp,
+// rest_filename + "ovm");
 // 	}
 // 	fin.close();
 

@@ -21,6 +21,7 @@ class MeshWidget : public QWidget {
   Q_OBJECT
 public:
   MeshWidget(QWidget *parent);
+  MeshWidget(QWidget *parent,std::string mesh_file,std::string stress_file);
   // QVtkMeshWidget(VMeshPtr mesh, QVTKOpenGLWidget *widget, QWidget *parent);
   ~MeshWidget();
 
