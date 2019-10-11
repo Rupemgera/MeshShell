@@ -294,6 +294,68 @@ bool VtkWrapper::drawVector(std::string name,
   return true;
 }
 
+bool VtkWrapper::drawVector(std::string name,
+                            const std::vector<Eigen::Vector3d> &points,
+                            const std::vector<Eigen::Vector3d> &vectors,
+                            std::vector<double> &scalars, double scale_factor,
+                            double line_width) {
+  size_t n = points.size();
+  vtkNew<vtkPoints> locs;
+  locs->Allocate(n);
+  vtkNew<vtkDoubleArray> dirs;
+  dirs->SetNumberOfComponents(3);
+  dirs->SetNumberOfTuples(n);
+  vtkNew<vtkDoubleArray> scals;
+  scals->Allocate(n);
+
+  double x[3] = {0, 0, 0};
+  double v[3] = {1, 0, 0};
+  double low_bound = 1e20, high_bound = -1e20;
+  for (int i = 0; i < n; ++i) {
+    locs->InsertPoint(i, points[i].data());
+    dirs->InsertTuple(i, vectors[i].data());
+    scals->InsertNextValue(scalars[i]);
+    if (scalars[i] < low_bound) {
+      low_bound = scalars[i];
+    } else if (scalars[i] > high_bound) {
+      high_bound = scalars[i];
+    }
+  }
+
+  std::cout<<"low : "<<low_bound<<"--> high : "<<high_bound<<std::endl;
+
+  vtkNew<vtkPolyData> ps;
+  ps->SetPoints(locs);
+  ps->GetPointData()->SetVectors(dirs);
+  ps->GetPointData()->SetScalars(scals);
+
+  vtkNew<vtkHedgeHog> hedgehog;
+  hedgehog->SetInputData(ps);
+  hedgehog->SetScaleFactor(scale_factor);
+
+  // Mapper
+  vtkNew<vtkPolyDataMapper> mapper;
+  // mapper->SetInputConnection(input);
+  mapper->SetInputConnection(hedgehog->GetOutputPort());
+  mapper->SetScalarModeToUsePointData();
+  mapper->SetScalarRange(low_bound,high_bound);
+
+  // Actor in scene _actor->SetMapper(mapper)
+  vtkNew<vtkActor> actor;
+
+  // Actor in scene
+  actor->SetMapper(mapper);
+  actor->GetProperty()->SetLineWidth(line_width);
+
+  auto ac = new VectorActorControler(name, actor);
+
+  insert(name, ac);
+
+  // actor->GetProperty()->SetColor(color.data());
+
+  return true;
+}
+
 void VtkWrapper::setVertexScalars(std::string name,
                                   std::vector<double> &scalars,
                                   double lower_bound, double upper_bound) {

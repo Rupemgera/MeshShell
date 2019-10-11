@@ -117,6 +117,7 @@ void MeshShell::drawStressField(bool major, bool middle, bool minor) {
   std::vector<Eigen::Vector3d> major_v;
   std::vector<Eigen::Vector3d> middle_v;
   std::vector<Eigen::Vector3d> minor_v;
+  std::vector<double> scalars;
   double major_c[] = {1.0, 0.0, 0.0};
   double middle_c[] = {0.0, 1.0, 0.0};
   double minor_c[] = {0.0, 0.0, 1.0};
@@ -127,10 +128,12 @@ void MeshShell::drawStressField(bool major, bool middle, bool minor) {
   double scaled_size = cell_size * 0.7;
 
   mesh_wrapper->get_principal_vectors(loc, major_v, middle_v, minor_v);
+  mesh_wrapper->request_von_mises(scalars);
 
   // major principal vector
-  _viewer->drawVector("major", loc, major_v, scaled_size);
-  _viewer->setColor("major", major_c);
+  //_viewer->drawVector("major", loc, major_v, scaled_size);
+  _viewer->drawVector("major",loc,major_v,scalars,scaled_size);
+  //_viewer->setColor("major", major_c);
 
   // middle principal vector
   _viewer->drawVector("middle", loc, middle_v, scaled_size);  

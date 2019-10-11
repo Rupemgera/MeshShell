@@ -35,10 +35,10 @@ bool MeshWrapper::readStressField(std::string filename) {
 
   field->readProcessedStress(filename, impl->ovm_mesh);
 
-  std::cout << "field : " << field->element_tensors_.size() << std::endl;
+  std::cout << "field : " << field->cell_tensors_.size() << std::endl;
 
   // construct matching graph
-  impl->construct_matching_graph(field->element_tensors_);
+  impl->construct_matching_graph(field->cell_tensors_);
 
   saveElementTensors("element.csv");
   
@@ -48,9 +48,9 @@ bool MeshWrapper::readStressField(std::string filename) {
 bool MeshWrapper::saveElementTensors(std::string filename) {
   std::ofstream fout(filename);
 
-  fout << "# element " << field->element_tensors_.size() << std::endl;
+  fout << "# element " << field->cell_tensors_.size() << std::endl;
 
-  for (auto s : field->element_tensors_) {
+  for (auto s : field->cell_tensors_) {
     fout << s.matrix_(0, 0) << ' ' << s.matrix_(1, 1) << ' ' << s.matrix_(2, 2)
          << ' ' << s.matrix_(0, 1) << ' ' << s.matrix_(1, 2) << ' '
          << s.matrix_(0, 2) << std::endl;
@@ -76,7 +76,7 @@ void MeshWrapper::singularityLoaction(std::vector<V3d> &loc, double tolerance) {
 
 void MeshWrapper::divideCells(std::vector<int> &split_face_ids,
                               double tolerance) {
-  impl->divideCells(field->element_tensors_, split_face_ids, tolerance);
+  impl->divideCells(field->cell_tensors_, split_face_ids, tolerance);
 }
 
 void MeshWrapper::request_cell_centers(std::vector<V3d> &retrieve_val) {
@@ -92,10 +92,14 @@ std::vector<V3d> &MeshWrapper::request_cell_centers() {
   return impl->cell_centers;
 }
 
+void MeshWrapper::request_von_mises(std::vector<double> &von_mises) {
+  field->get_von_mises(von_mises);
+}
+
 void MeshWrapper::test() {
   // test matching graph
 
-  impl->construct_matching_graph(field->element_tensors_);
+  impl->construct_matching_graph(field->cell_tensors_);
 
   std::vector<int> loop;
   OvmHaEgH he = impl->ovm_mesh->halfedge((OvmVeH)0, (OvmVeH)6);

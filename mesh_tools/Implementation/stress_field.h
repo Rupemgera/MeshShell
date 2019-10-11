@@ -67,7 +67,7 @@ public:
   void reset(double *tensor_component, int order = 0);
 
   /**
-   *
+   * u,v must be unit vector, otherwise the result will be wrong
    */
   template <typename T> double sin(T u, T v) { return (u.cross(v)).norm(); }
 
@@ -90,6 +90,8 @@ public:
    *@brief calculate the matching index of *this->v
    */
   int get_matching_index(StressTensor &v);
+
+  double von_mises();
 };
 
 /**
@@ -101,7 +103,7 @@ public:
   data begin
   */
 
-  std::vector<StressTensor> element_tensors_;
+  std::vector<StressTensor> cell_tensors_;
 
   std::vector<StressTensor> node_tensors_;
 
@@ -162,6 +164,9 @@ public:
    *@para P = 0,1,2 corresponds to major,middle,minor principal vector
    */
   void get_principal_dirs(std::vector<Eigen::Vector3d> &ret, int P = 0);
+
+  void get_von_mises(std::vector<double> &von_mises);
+
 
   /*****************
   not completed yet

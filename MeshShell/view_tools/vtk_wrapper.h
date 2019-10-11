@@ -186,6 +186,13 @@ public:
                   const std::vector<Eigen::Vector3d> &vectors,
                   double scale_factor = 0.8, double line_width = 1.0);
 
+ virtual bool drawVector(std::string name,
+                          const std::vector<Eigen::Vector3d> &points,
+                          const std::vector<Eigen::Vector3d> &vectors,
+    std::vector<double> &scalars,
+                          double scale_factor = 0.8,
+                          double line_width = 1.0);
+
   /* Vertex Scalar */
   void setVertexScalars(std::string name, std::vector<double> &scalars,
                         double lower_bound, double upper_bound);

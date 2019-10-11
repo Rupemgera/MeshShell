@@ -132,6 +132,8 @@ public:
 
   std::vector<V3d> &request_cell_centers();
 
+  void request_von_mises(std::vector<double> &von_mises);
+
   /********** stress related functions  end  **********/
 
   void test();

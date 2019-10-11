@@ -2,6 +2,7 @@
 
 #include <Eigen/Eigen>
 #include <Eigen/Eigenvalues>
+#include <cmath>
 #include <sstream>
 #include <stdio.h>
 
@@ -164,6 +165,14 @@ int StressTensor::get_matching_index(StressTensor &v) {
   return index;
 }
 
+double StressTensor::von_mises() {
+  double s1 = eig_values[0] - eig_values[1];
+  double s2 = eig_values[1] - eig_values[2];
+  double s3 = eig_values[2] - eig_values[0];
+  auto v = Eigen::Vector3d(s1, s2, s3);
+  return sqrt(v.dot(v) / 2);
+}
+
 /************************ StressTensor end ***********************************/
 
 /************************ PrincipalStressField begin *************************/
@@ -237,22 +246,22 @@ bool PrincipalStressField::readProcessedStress(std::string filename,
     read(node_tensors_);
     init_element_tensors(mesh);
   } else
-    read(element_tensors_);
+    read(cell_tensors_);
   return true;
 }
 
 bool PrincipalStressField::saveEigenVectors(std::ofstream &fout) {
   for (int i = 0; i < location.size(); ++i) {
     fout << i << ' ';
-    fout << element_tensors_[i].eig_vectors(0, 0) << ' '
-         << element_tensors_[i].eig_vectors(1, 0) << ' '
-         << element_tensors_[i].eig_vectors(2, 0) << ' ';
-    fout << element_tensors_[i].eig_vectors(0, 1) << ' '
-         << element_tensors_[i].eig_vectors(1, 1) << ' '
-         << element_tensors_[i].eig_vectors(2, 1) << ' ';
-    fout << element_tensors_[i].eig_vectors(0, 2) << ' '
-         << element_tensors_[i].eig_vectors(1, 2) << ' '
-         << element_tensors_[i].eig_vectors(2, 2) << ' ';
+    fout << cell_tensors_[i].eig_vectors(0, 0) << ' '
+         << cell_tensors_[i].eig_vectors(1, 0) << ' '
+         << cell_tensors_[i].eig_vectors(2, 0) << ' ';
+    fout << cell_tensors_[i].eig_vectors(0, 1) << ' '
+         << cell_tensors_[i].eig_vectors(1, 1) << ' '
+         << cell_tensors_[i].eig_vectors(2, 1) << ' ';
+    fout << cell_tensors_[i].eig_vectors(0, 2) << ' '
+         << cell_tensors_[i].eig_vectors(1, 2) << ' '
+         << cell_tensors_[i].eig_vectors(2, 2) << ' ';
     fout << location[i][0] << ' ' << location[i][1] << ' ' << location[i][2]
          << std::endl;
   }
@@ -262,7 +271,7 @@ bool PrincipalStressField::saveEigenVectors(std::ofstream &fout) {
 bool PrincipalStressField::init_element_tensors(VMeshPtr mesh) {
   assert(mesh->n_vertices() == node_tensors_.size());
 
-  element_tensors_.resize(mesh->n_cells());
+  cell_tensors_.resize(mesh->n_cells());
 
   for (auto ci : mesh->cells()) {
     int k = 0;
@@ -275,7 +284,7 @@ bool PrincipalStressField::init_element_tensors(VMeshPtr mesh) {
     if (k != 0) {
       tmp /= k;
     }
-    element_tensors_[ci.idx()] = StressTensor(tmp);
+    cell_tensors_[ci.idx()] = StressTensor(tmp);
   }
 
   return true;
@@ -283,12 +292,12 @@ bool PrincipalStressField::init_element_tensors(VMeshPtr mesh) {
 
 void PrincipalStressField::singularityLoaction(
     std::vector<Eigen::Vector3d> &loc, double tolerance) {
-  size_t n = element_tensors_.size();
+  size_t n = cell_tensors_.size();
   auto diff = [tolerance](double &x, double &y, double &z) {
     return std::abs(x - y) < tolerance || std::abs(z - y) < tolerance;
   };
   for (size_t i = 0; i < n; i++) {
-    StressTensor &t = element_tensors_[i];
+    StressTensor &t = cell_tensors_[i];
     if (diff(t.eig_values[0], t.eig_values[1], t.eig_values[2])) {
       loc.push_back(Eigen::Vector3d(location[i].data()));
     }
@@ -316,7 +325,7 @@ PrincipalStressField::PrincipalStressField() {
   /* initialize */
   /*_stress.clear();
   _frames.clear();*/
-  element_tensors_.clear();
+  cell_tensors_.clear();
   _n = -1;
 }
 
@@ -335,11 +344,20 @@ void PrincipalStressField::get_locations(std::vector<Eigen::Vector3d> &ret) {
 
 void PrincipalStressField::get_principal_dirs(std::vector<Eigen::Vector3d> &ret,
                                               int P) {
-  ret.resize(element_tensors_.size());
-  for (int i = 0; i < element_tensors_.size(); ++i) {
-    ret[i][0] = element_tensors_[i].eig_vectors(0, P);
-    ret[i][1] = element_tensors_[i].eig_vectors(1, P);
-    ret[i][2] = element_tensors_[i].eig_vectors(2, P);
+  ret.resize(cell_tensors_.size());
+  for (int i = 0; i < cell_tensors_.size(); ++i) {
+    ret[i][0] = cell_tensors_[i].eig_vectors(0, P);
+    ret[i][1] = cell_tensors_[i].eig_vectors(1, P);
+    ret[i][2] = cell_tensors_[i].eig_vectors(2, P);
+  }
+}
+
+void PrincipalStressField::get_von_mises(std::vector<double> &von_mises) {
+  von_mises.clear();
+  von_mises.reserve(cell_tensors_.size());
+  for (auto &u : cell_tensors_) {
+    von_mises.push_back(u.von_mises());
+    // von_mises.push_back(std::abs(u.eig_values[0]));
   }
 }
 
@@ -382,10 +400,10 @@ void PrincipalStressField::readStressHypermeshStyle(std::ifstream &stress_fin,
     read_sigma(tmp, n);
 
     // hypermesh way, default, order = 1
-    element_tensors_.push_back(StressTensor(sigma));
+    cell_tensors_.push_back(StressTensor(sigma));
   }
 
-  _n = element_tensors_.size();
+  _n = cell_tensors_.size();
 }
 
 void PrincipalStressField::readStressAbaqusStyle(std::ifstream &stress_fin) {
@@ -421,7 +439,7 @@ void PrincipalStressField::readStressAbaqusStyle(std::ifstream &stress_fin) {
     read_sigma(tmp);
 
     // abaqus way, order set to 1
-    element_tensors_.push_back(StressTensor(sigma, 1));
+    cell_tensors_.push_back(StressTensor(sigma, 1));
     location.push_back(Eigen::Vector3d(coo));
   }
 }
@@ -435,20 +453,20 @@ void PrincipalStressField::readStressGaussStyle(std::ifstream &stress_fin) {
     for (size_t i = 1; i < 6; i++) {
       stress_fin >> sigma[i];
     }
-    element_tensors_.push_back(StressTensor(sigma, 2));
+    cell_tensors_.push_back(StressTensor(sigma, 2));
   }
 }
 
 bool PrincipalStressField::resize(size_t elements_number) {
   _n = elements_number;
-  element_tensors_.resize(elements_number);
+  cell_tensors_.resize(elements_number);
   location.resize(elements_number);
   return true;
 }
 
 bool PrincipalStressField::reserve(size_t elements_number) {
   _n = elements_number;
-  element_tensors_.reserve(elements_number);
+  cell_tensors_.reserve(elements_number);
   location.resize(elements_number);
   return true;
 }
