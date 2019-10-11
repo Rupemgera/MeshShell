@@ -23,6 +23,9 @@ else()
 	#message (FATAL_ERROR "can not found Boost")
 endif()
 
+find_package(dlib REQUIRED)
+#include_directories(${dlib_INCLUDE_DIRS})
+
 include(eigen3)
 import_eigen3()
 
@@ -78,7 +81,7 @@ ${impl_sources}
 
 add_library(mesh_tools STATIC ${source_list})
 
-target_link_libraries(mesh_tools ${Boost_LIBRARIES})
+target_link_libraries(mesh_tools ${Boost_LIBRARIES} dlib::dlib)
 
 if(MSVC)
 	foreach(srcf ${source_list})

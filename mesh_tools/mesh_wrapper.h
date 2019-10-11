@@ -134,6 +134,8 @@ public:
 
   void request_von_mises(std::vector<double> &von_mises);
 
+  std::vector<V3d> request_smoothed_stress_field();
+
   /********** stress related functions  end  **********/
 
   void test();

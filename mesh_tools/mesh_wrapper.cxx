@@ -6,6 +6,7 @@
 #include "mesh_wrapper.h"
 #include "Implementation/mesh_implement.h"
 #include "Implementation/stress_field.h"
+#include "dlib/optimization.h"
 
 namespace meshtools {
 MeshWrapper::MeshWrapper()
@@ -41,7 +42,7 @@ bool MeshWrapper::readStressField(std::string filename) {
   impl->construct_matching_graph(field->cell_tensors_);
 
   saveElementTensors("element.csv");
-  
+
   return true;
 }
 
@@ -94,6 +95,11 @@ std::vector<V3d> &MeshWrapper::request_cell_centers() {
 
 void MeshWrapper::request_von_mises(std::vector<double> &von_mises) {
   field->get_von_mises(von_mises);
+}
+
+std::vector<V3d> MeshWrapper::request_smoothed_stress_field() {
+  std::vector<V3d> smoothed_vectors;
+  return smoothed_vectors;
 }
 
 void MeshWrapper::test() {
