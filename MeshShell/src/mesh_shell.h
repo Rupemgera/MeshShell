@@ -68,6 +68,8 @@ public:
 
   std::string extractSingularLines();
 
+  std::string smoothStressField(int index);
+
   /************************* stress  end  *************************/
 
   /***************************** test ***********************************/

@@ -6,6 +6,12 @@
 #include <sstream>
 #include <stdio.h>
 
+/**
+alias
+*/
+
+using V3d = Eigen::Vector3d;
+
 /*
  hypermesh tensor stress order :
  XX YY ZZ XY YZ ZX
@@ -62,7 +68,7 @@ void StressTensor::decompose() {
   }
 
   // check for right hand
-  Eigen::Vector3d c = eig_vectors.col(0).cross(eig_vectors.col(1));
+  V3d c = eig_vectors.col(0).cross(eig_vectors.col(1));
 
   // if not right-handed
   if (c.dot(eig_vectors.col(2)) < 0) {
@@ -169,7 +175,7 @@ double StressTensor::von_mises() {
   double s1 = eig_values[0] - eig_values[1];
   double s2 = eig_values[1] - eig_values[2];
   double s3 = eig_values[2] - eig_values[0];
-  auto v = Eigen::Vector3d(s1, s2, s3);
+  auto v = V3d(s1, s2, s3);
   return sqrt(v.dot(v) / 2);
 }
 
@@ -290,8 +296,8 @@ bool PrincipalStressField::init_element_tensors(VMeshPtr mesh) {
   return true;
 }
 
-void PrincipalStressField::singularityLoaction(
-    std::vector<Eigen::Vector3d> &loc, double tolerance) {
+void PrincipalStressField::singularityLoaction(std::vector<V3d> &loc,
+                                               double tolerance) {
   size_t n = cell_tensors_.size();
   auto diff = [tolerance](double &x, double &y, double &z) {
     return std::abs(x - y) < tolerance || std::abs(z - y) < tolerance;
@@ -299,7 +305,7 @@ void PrincipalStressField::singularityLoaction(
   for (size_t i = 0; i < n; i++) {
     StressTensor &t = cell_tensors_[i];
     if (diff(t.eig_values[0], t.eig_values[1], t.eig_values[2])) {
-      loc.push_back(Eigen::Vector3d(location[i].data()));
+      loc.push_back(V3d(location[i].data()));
     }
   }
 }
@@ -315,7 +321,7 @@ bool PrincipalStressField::setCellCenter(VMeshPtr mesh) {
       MeshPoint p = mesh->vertex(*viter);
       c += p;
     }
-    location[citer->idx()] = Eigen::Vector3d((c / 4).data());
+    location[citer->idx()] = V3d((c / 4).data());
   }
 
   return true;
@@ -336,14 +342,13 @@ const bool PrincipalStressField::set_mesh(VMeshPtr mesh) {
   return true;
 }
 
-void PrincipalStressField::get_locations(std::vector<Eigen::Vector3d> &ret) {
+void PrincipalStressField::get_locations(std::vector<V3d> &ret) {
   ret.reserve(location.size());
   for (auto d : location)
-    ret.push_back(Eigen::Vector3d(d.data()));
+    ret.push_back(V3d(d.data()));
 }
 
-void PrincipalStressField::get_principal_dirs(std::vector<Eigen::Vector3d> &ret,
-                                              int P) {
+void PrincipalStressField::get_principal_dirs(std::vector<V3d> &ret, int P) {
   ret.resize(cell_tensors_.size());
   for (int i = 0; i < cell_tensors_.size(); ++i) {
     ret[i][0] = cell_tensors_[i].eig_vectors(0, P);
@@ -440,7 +445,7 @@ void PrincipalStressField::readStressAbaqusStyle(std::ifstream &stress_fin) {
 
     // abaqus way, order set to 1
     cell_tensors_.push_back(StressTensor(sigma, 1));
-    location.push_back(Eigen::Vector3d(coo));
+    location.push_back(V3d(coo));
   }
 }
 
@@ -471,4 +476,157 @@ bool PrincipalStressField::reserve(size_t elements_number) {
   return true;
 }
 
+V3d VectorField::Euler2Vector(double theta, double phi) {
+  double z = std::cos(phi);
+  double v_z = std::sin(phi);
+  double x = std::cos(theta) * v_z;
+  double y = std::sin(theta) * v_z;
+  return V3d(x, y, z);
+}
+
+void VectorField::Vector2Euler(Eigen::Vector3d v, double &theta, double &phi) {
+  dlib::matrix<double, 1, 2> angle;
+  auto v_z = V3d(v(0), v(1), 0);
+  v_z.normalize();
+  angle = {v_z.dot(V3d(1, 0, 0)), v.dot(V3d(0, 0, 1))};
+  angle = dlib::acos(angle);
+  theta = angle(0);
+  phi = angle(1);
+}
+
+double VectorField::dot(double t1, double t2, double p1, double p2) {
+  double sp1 = std::sin(p1);
+  double sp2 = std::sin(p2);
+  double cp1 = std::cos(p1);
+  double cp2 = std::cos(p2);
+
+  return sp1 * sp2 * std::cos(t1 - t2) + cp1 * cp2;
+}
+
+double VectorField::metric_func(double t1, double p1, double t2, double p2) {
+  return std::pow(t1 - t2, 2) + std::pow(p1 - p2, 2);
+}
+
+double VectorField::metric_grad1(double t1, double t2, double p1, double p2) {
+  return 2 * (t1 - t2);
+}
+
+double VectorField::metric_grad2(double t1, double p1, double t2, double p2) {
+  return 2 * (p1 - p2);
+}
+
+double VectorField::obj_func(column_vector &m, double w_consist,
+                             double w_smooth) {
+  double obj = 0.0;
+  double consist_value = 0.0;
+  double smooth_value = 0.0;
+  int n = euler1_.size(), n1, n2;
+  double theta, phi;
+  for (size_t i = 0; i < n; i++) {
+    // consistance to original vector
+    // consist_value += dot(theta, phi, euler1_[i], euler2_[i]);
+    consist_value +=
+        metric_func(m(i * 2), m(i * 2 + 1), euler1_[i], euler2_[i]);
+  }
+
+  // smoothness to neighbor vectors
+  for (int j = 0; j < variable_pairs_.nr(); ++j) {
+    int k = variable_pairs_(j, 0);
+    int z = variable_pairs_(j, 1);
+    smooth_value += metric_func(m(k * 2), m(k * 2 + 1), m(z * 2), m(z * 2 + 1));
+  }
+
+  obj = consist_value * w_consist + smooth_value * w_smooth;
+  return obj;
+}
+
+column_vector VectorField::gradient_func(column_vector &m, double w_consist,
+                                         double w_smooth) {
+  int n = euler1_.size(), n1, n2;
+  double consist_value, smooth_value, theta, phi;
+  column_vector grad_consist = dlib::zeros_matrix<double>(m.nr(), 1);
+  column_vector grad_smooth = dlib::zeros_matrix<double>(m.nr(), 1);
+
+  for (size_t i = 0; i < n; i++) {
+    n1 = i * 2;
+    n2 = i * 2 + 1;
+    grad_consist(n1) += metric_grad1(m(n1), m(n2), euler1_[i], euler2_[i]);
+    grad_consist(n2) += metric_grad2(m(n1), m(n2), euler1_[i], euler2_[i]);
+  }
+
+  // smooth value
+  for (size_t j = 0; j < variable_pairs_.nr(); j++) {
+    n1 = variable_pairs_(j, 0) * 2;
+    n2 = variable_pairs_(j, 0) * 2 + 1;
+    int k1 = variable_pairs_(j, 1) * 2;
+    int k2 = variable_pairs_(j, 1) * 2 + 1;
+    grad_smooth(n1) += metric_grad1(m(n1), m(n2), m(k1), m(k2));
+    grad_smooth(n2) += metric_grad2(m(n1), m(n2), m(k1), m(k2));
+    grad_smooth(k1) += metric_grad1(m(k1), m(k2), m(n1), m(n2));
+    grad_smooth(k2) += metric_grad2(m(k1), m(k2), m(n1), m(n2));
+  }
+
+  return grad_consist * w_consist + grad_smooth * w_smooth;
+}
+
+VectorField::VectorField(VMeshPtr mesh, std::vector<V3d> &vectors) {
+  size_t _n = vectors.size();
+  euler1_.reserve(_n);
+  euler2_.reserve(_n);
+  double phi, theta;
+  for (auto v : vectors) {
+    Vector2Euler(v, theta, phi);
+    euler1_.push_back(theta);
+    euler2_.push_back(phi);
+  }
+
+  auto edges = dlib::matrix<int>(_n * 4, 2);
+
+  int k = 0;
+  for (int i = 0; i < _n; ++i) {
+    auto ch = OvmCeH(i);
+    for (auto c = mesh->cc_iter(ch); c.valid(); ++c) {
+      edges(k, 0) = i;
+      edges(k, 1) = c->idx();
+      k++;
+    }
+  }
+
+  // discard excess parts
+  variable_pairs_ = dlib::rowm(edges, dlib::range(0, k - 1));
+}
+
+std::vector<V3d> VectorField::smooth_vector_field(double w_consistance,
+                                                  double w_smooth) {
+  std::vector<V3d> smoothed_vectors;
+  size_t _n = euler1_.size();
+  column_vector variables(_n * 2);
+
+  for (int i = 0; i < _n; ++i) {
+    variables(i * 2) = euler1_[i];
+    variables(i * 2 + 1) = euler2_[i];
+  }
+
+  // object function
+  auto object_func = [this, w_consistance, w_smooth](column_vector &m) {
+    return obj_func(m, w_consistance, w_smooth);
+  };
+
+  // derivative
+  auto derivative_func = [this, w_consistance, w_smooth](column_vector &m) {
+    return gradient_func(m, w_consistance, w_smooth);
+  };
+
+  // optimize
+  dlib::find_min(dlib::bfgs_search_strategy(),
+                 dlib::objective_delta_stop_strategy(1e-7), object_func,
+                 derivative_func, variables, -1);
+
+  smoothed_vectors.resize(_n);
+  for (size_t i = 0; i < _n; i++) {
+    smoothed_vectors[i] = Euler2Vector(variables(i * 2), variables(i * 2 + 1));
+  }
+
+  return smoothed_vectors;
+}
 } // namespace meshtools

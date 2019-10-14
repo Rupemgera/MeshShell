@@ -132,11 +132,11 @@ void MeshShell::drawStressField(bool major, bool middle, bool minor) {
 
   // major principal vector
   //_viewer->drawVector("major", loc, major_v, scaled_size);
-  _viewer->drawVector("major",loc,major_v,scalars,scaled_size);
+  _viewer->drawVector("major", loc, major_v, scalars, scaled_size);
   //_viewer->setColor("major", major_c);
 
   // middle principal vector
-  _viewer->drawVector("middle", loc, middle_v, scaled_size);  
+  _viewer->drawVector("middle", loc, middle_v, scaled_size);
   _viewer->setColor("middle", middle_c);
 
   // minor principal vector
@@ -187,6 +187,15 @@ std::string MeshShell::extractSingularLines() {
   std::vector<Eigen::Matrix<long long, 2, 1>> vertices_pairs;
   mesh_wrapper->get_singular_edges(vertices_pairs);
   _viewer->drawSegments(name, mesh_data.points, vertices_pairs);
+  return name;
+}
+
+std::string MeshShell::smoothStressField(int index) {
+  std::string name("smoothed_field");
+  double w_consistance = 1.0, w_smooth = 0.5;
+  auto smoothed_field =
+      mesh_wrapper->request_smoothed_stress_field(w_consistance, w_smooth);
+  _viewer->drawVector(name, mesh_data.points, smoothed_field);
   return name;
 }
 

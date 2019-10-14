@@ -51,7 +51,8 @@ public:
   // 3:filename without extension
   std::vector<std::string> separateFilename(std::string filename);
 
-  void getFaceData(std::vector<V3d> &points, std::vector<FaceVertices<3>> &faces);
+  void getFaceData(std::vector<V3d> &points,
+                   std::vector<FaceVertices<3>> &faces);
 
   /**
    *@brief given a list of cell's ids, return their coordinates in corresponding
@@ -90,7 +91,8 @@ public:
 
   /**
    *@brief find all edges that is singular
-   *@return a vector of Vector3d, every two elements represents edges's two points
+   *@return a vector of Vector3d, every two elements represents edges's two
+   *points
    */
   bool get_singular_edges(std::vector<V3d> &edge_points);
 
@@ -134,7 +136,8 @@ public:
 
   void request_von_mises(std::vector<double> &von_mises);
 
-  std::vector<V3d> request_smoothed_stress_field();
+  std::vector<V3d> request_smoothed_stress_field(double w_consistance = 1.0,
+                                                 double w_smooth = 1.0);
 
   /********** stress related functions  end  **********/
 

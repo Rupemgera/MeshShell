@@ -97,9 +97,15 @@ void MeshWrapper::request_von_mises(std::vector<double> &von_mises) {
   field->get_von_mises(von_mises);
 }
 
-std::vector<V3d> MeshWrapper::request_smoothed_stress_field() {
+std::vector<V3d>
+MeshWrapper::request_smoothed_stress_field(double w_consistance,
+                                           double w_smooth) {
   std::vector<V3d> smoothed_vectors;
-  return smoothed_vectors;
+  field->get_principal_dirs(smoothed_vectors, 0);
+
+  VectorField optimizer(impl->ovm_mesh, smoothed_vectors);
+
+  return optimizer.smooth_vector_field(w_consistance, w_smooth);
 }
 
 void MeshWrapper::test() {

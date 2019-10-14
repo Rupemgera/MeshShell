@@ -7,6 +7,7 @@
 
 #include "frame_field.h"
 #include <Eigen/Dense>
+#include <dlib/optimization.h>
 #include <fstream>
 #include <string>
 #include <unordered_set>
@@ -20,7 +21,11 @@ namespace meshtools {
 //列向量形式保存点的坐标
 using Point = Eigen::Vector3d;
 //列向量形式保存方向向量
-using Direction = Eigen::Vector3d;
+using V3d = Eigen::Vector3d;
+// euler angle
+// using EulerAngle = dlib::matrix<double, 1, 2>;
+
+using column_vector = dlib::matrix<double, 0, 1>;
 
 //四面体网格
 /*
@@ -167,7 +172,6 @@ public:
 
   void get_von_mises(std::vector<double> &von_mises);
 
-
   /*****************
   not completed yet
 
@@ -199,9 +203,41 @@ private:
 
   void readStressGaussStyle(std::ifstream &stress_fin);
 
-
   bool resize(size_t elements_number);
 
   bool reserve(size_t elements_number);
+};
+
+class VectorField {
+private:
+  // vectors of theta and phi
+  std::vector<double> euler1_, euler2_;
+
+  dlib::matrix<int> variable_pairs_;
+
+  Eigen::Vector3d Euler2Vector(double theta, double phi);
+
+  void Vector2Euler(Eigen::Vector3d v, double &theta, double &phi);
+
+  // euler angle form of inner product
+  double dot(double t1, double t2, double p1, double p2);
+
+  // metric function for vectors
+  double metric_func(double t1, double p1, double t2, double p2);
+
+  double metric_grad1(double t1, double p1, double t2, double p2);
+
+  double metric_grad2(double t1, double p1, double t2, double p2);
+
+  double obj_func(column_vector &m, double w_consist, double w_smooth);
+
+  column_vector gradient_func(column_vector &m, double w_consist,
+                              double w_smooth);
+
+public:
+  VectorField(VMeshPtr mesh, std::vector<Eigen::Vector3d> &vectors);
+
+  std::vector<Eigen::Vector3d> smooth_vector_field(double w_consistance = 1.0,
+                                                   double w_smooth = 1.0);
 };
 } // namespace meshtools
