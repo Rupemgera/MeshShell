@@ -72,6 +72,8 @@ void MeshWidget::addSlot() {
           &MeshWidget::drawStressField);
   connect(this->ui->checkBox_minor, &QCheckBox::toggled, this,
           &MeshWidget::drawStressField);
+  /*connect(this->ui->checkBox_smoothed_major, &QCheckBox::toggled, this,
+          &MeshWidget::drawStressField);*/
 
   /* sigularity */
   connect(this->ui->checkBox_stressSingularity, &QCheckBox::toggled, this,
@@ -308,11 +310,6 @@ void MeshWidget::on_pushButton_refresh_listWidget_clicked() {
     if (ac.second->name_.find("mesh") == ac.second->name_.npos)
       additem(ac.second);
   }
-
-  /* if (ui->listWidget->count() > 0) {
-     ui->listWidget->item(0)->setSelected(true);
-   }
-   ui->listWidget->setFocus();*/
 }
 
 void MeshWidget::on_listWidget_itemChanged(QListWidgetItem *item) {
@@ -370,4 +367,14 @@ void MeshWidget::on_actor_refresh_clicked() {
   std::string name = item->text().toStdString();
   _viewer->setSize(name, size);
   _viewer->setOpacity(name, opacity);
+}
+
+void MeshWidget::on_checkBox_smoothed_major_toggled() {
+  _viewer->setVisibility("smoothed_field",
+                         ui->checkBox_smoothed_major->isChecked());
+}
+
+void MeshWidget::on_pushButton_smooth_clicked() {
+  _shell->smoothStressField(0);
+  ui->checkBox_smoothed_major->setDisabled(false);
 }

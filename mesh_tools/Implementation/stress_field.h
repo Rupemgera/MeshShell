@@ -225,13 +225,13 @@ private:
   // metric function for vectors
   double metric_func(double t1, double p1, double t2, double p2);
 
-  double metric_grad1(double t1, double p1, double t2, double p2);
+  double metric_grad1(double t1, double t2, double p1, double p2);
 
   double metric_grad2(double t1, double p1, double t2, double p2);
 
-  double obj_func(column_vector &m, double w_consist, double w_smooth);
+  double obj_func(const column_vector &m, double w_consist, double w_smooth);
 
-  column_vector gradient_func(column_vector &m, double w_consist,
+  column_vector gradient_func(const column_vector &m, double w_consist,
                               double w_smooth);
 
 public:

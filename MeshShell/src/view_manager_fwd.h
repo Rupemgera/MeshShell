@@ -45,7 +45,7 @@ public:
   /**
    *@brief draw vector, color is determined by scalars
    */
-  virtual bool drawVector(std::string name,
+  virtual bool drawVectorWithScalars(std::string name,
                           const std::vector<Eigen::Vector3d> &points,
                           const std::vector<Eigen::Vector3d> &vectors,
     std::vector<double> &scalars,

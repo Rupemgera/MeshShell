@@ -112,8 +112,8 @@ public:
 
   bool saveElementTensors(std::string filename);
 
-  void get_principal_vectors(std::vector<V3d> &loc, std::vector<V3d> &major,
-                             std::vector<V3d> &middle, std::vector<V3d> &minor);
+  void get_principal_vectors(std::vector<V3d> &major, std::vector<V3d> &middle,
+                             std::vector<V3d> &minor);
 
   /**
       @param loc  coordinates of singularites

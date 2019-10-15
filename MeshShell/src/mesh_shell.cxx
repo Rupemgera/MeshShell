@@ -108,12 +108,14 @@ void MeshShell::drawShrink(int nRenderStyle) {
 }
 
 bool MeshShell::readStressField(std::string filename) {
-  return mesh_wrapper->readStressField(filename);
+  bool flag = mesh_wrapper->readStressField(filename);
+  mesh_wrapper->request_cell_centers(mesh_data.cell_centors);
+  return flag;
 }
 
 void MeshShell::drawStressField(bool major, bool middle, bool minor) {
   // we get the data
-  std::vector<Eigen::Vector3d> loc;
+  // std::vector<Eigen::Vector3d> mesh_data.cell_centors;
   std::vector<Eigen::Vector3d> major_v;
   std::vector<Eigen::Vector3d> middle_v;
   std::vector<Eigen::Vector3d> minor_v;
@@ -127,20 +129,21 @@ void MeshShell::drawStressField(bool major, bool middle, bool minor) {
   // scale vectors' length
   double scaled_size = cell_size * 0.7;
 
-  mesh_wrapper->get_principal_vectors(loc, major_v, middle_v, minor_v);
+  mesh_wrapper->get_principal_vectors(major_v, middle_v, minor_v);
   mesh_wrapper->request_von_mises(scalars);
 
   // major principal vector
-  //_viewer->drawVector("major", loc, major_v, scaled_size);
-  _viewer->drawVector("major", loc, major_v, scalars, scaled_size);
+  //_viewer->drawVector("major", mesh_data.cell_centors, major_v, scaled_size);
+  _viewer->drawVectorWithScalars("major", mesh_data.cell_centors, major_v,
+                                 scalars, scaled_size);
   //_viewer->setColor("major", major_c);
 
   // middle principal vector
-  _viewer->drawVector("middle", loc, middle_v, scaled_size);
+  _viewer->drawVector("middle", mesh_data.cell_centors, middle_v, scaled_size);
   _viewer->setColor("middle", middle_c);
 
   // minor principal vector
-  _viewer->drawVector("minor", loc, minor_v, scaled_size);
+  _viewer->drawVector("minor", mesh_data.cell_centors, minor_v, scaled_size);
   _viewer->setColor("minor", minor_c);
 
   // decide visibility
@@ -192,10 +195,22 @@ std::string MeshShell::extractSingularLines() {
 
 std::string MeshShell::smoothStressField(int index) {
   std::string name("smoothed_field");
+  std::vector<double> von_mises;
   double w_consistance = 1.0, w_smooth = 0.5;
+
+  // get cell size
+  double cell_size = mesh_wrapper->cellSize();
+
+  // get von mises stress
+  mesh_wrapper->request_von_mises(von_mises);
+
   auto smoothed_field =
       mesh_wrapper->request_smoothed_stress_field(w_consistance, w_smooth);
-  _viewer->drawVector(name, mesh_data.points, smoothed_field);
+
+  // rendering
+  _viewer->drawVectorWithScalars(name, mesh_data.cell_centors, smoothed_field,
+                                 von_mises, cell_size);
+
   return name;
 }
 

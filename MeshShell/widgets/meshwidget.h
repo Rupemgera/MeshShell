@@ -96,4 +96,8 @@ private slots:
   void on_pushButton_actor_color_clicked();
 
   void on_actor_refresh_clicked();
+
+  void on_checkBox_smoothed_major_toggled();
+
+  void on_pushButton_smooth_clicked();
 };

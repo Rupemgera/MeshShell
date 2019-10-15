@@ -17,6 +17,7 @@ public:
   std::vector<Eigen::Vector3d> points;
   std::vector<meshtools::FaceVertices<3>> faces;
   std::vector<meshtools::FaceVertices<3>> boundary_faces;
+  std::vector<Eigen::Vector3d> cell_centors;
 };
 
 class MeshShell {
@@ -75,7 +76,6 @@ public:
   /***************************** test ***********************************/
 
   void test();
-
 
   bool mesh_loaded = false;
 

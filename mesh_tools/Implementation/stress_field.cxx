@@ -488,10 +488,10 @@ void VectorField::Vector2Euler(Eigen::Vector3d v, double &theta, double &phi) {
   dlib::matrix<double, 1, 2> angle;
   auto v_z = V3d(v(0), v(1), 0);
   v_z.normalize();
-  angle = {v_z.dot(V3d(1, 0, 0)), v.dot(V3d(0, 0, 1))};
-  angle = dlib::acos(angle);
-  theta = angle(0);
-  phi = angle(1);
+  theta = std::acos(v_z.dot(V3d(1, 0, 0)));
+  if (v_z.y() < 0)
+    theta = -theta;
+  phi = std::acos(v.dot(V3d(0, 0, 1)));
 }
 
 double VectorField::dot(double t1, double t2, double p1, double p2) {
@@ -507,21 +507,20 @@ double VectorField::metric_func(double t1, double p1, double t2, double p2) {
   return std::pow(t1 - t2, 2) + std::pow(p1 - p2, 2);
 }
 
-double VectorField::metric_grad1(double t1, double t2, double p1, double p2) {
-  return 2 * (t1 - t2);
+double VectorField::metric_grad1(double t1, double p1, double t2, double p2) {
+  return (t1 - t2) * 2;
 }
 
 double VectorField::metric_grad2(double t1, double p1, double t2, double p2) {
-  return 2 * (p1 - p2);
+  return (p1 - p2) * 2;
 }
 
-double VectorField::obj_func(column_vector &m, double w_consist,
+double VectorField::obj_func(const column_vector &m, double w_consist,
                              double w_smooth) {
   double obj = 0.0;
   double consist_value = 0.0;
   double smooth_value = 0.0;
-  int n = euler1_.size(), n1, n2;
-  double theta, phi;
+  int n = euler1_.size();
   for (size_t i = 0; i < n; i++) {
     // consistance to original vector
     // consist_value += dot(theta, phi, euler1_[i], euler2_[i]);
@@ -536,14 +535,13 @@ double VectorField::obj_func(column_vector &m, double w_consist,
     smooth_value += metric_func(m(k * 2), m(k * 2 + 1), m(z * 2), m(z * 2 + 1));
   }
 
-  obj = consist_value * w_consist + smooth_value * w_smooth;
-  return obj;
+  return consist_value * w_consist + smooth_value * w_smooth;
+  // return consist_value;
 }
 
-column_vector VectorField::gradient_func(column_vector &m, double w_consist,
-                                         double w_smooth) {
+column_vector VectorField::gradient_func(const column_vector &m,
+                                         double w_consist, double w_smooth) {
   int n = euler1_.size(), n1, n2;
-  double consist_value, smooth_value, theta, phi;
   column_vector grad_consist = dlib::zeros_matrix<double>(m.nr(), 1);
   column_vector grad_smooth = dlib::zeros_matrix<double>(m.nr(), 1);
 
@@ -567,6 +565,7 @@ column_vector VectorField::gradient_func(column_vector &m, double w_consist,
   }
 
   return grad_consist * w_consist + grad_smooth * w_smooth;
+  // return grad_consist;
 }
 
 VectorField::VectorField(VMeshPtr mesh, std::vector<V3d> &vectors) {
@@ -594,6 +593,7 @@ VectorField::VectorField(VMeshPtr mesh, std::vector<V3d> &vectors) {
 
   // discard excess parts
   variable_pairs_ = dlib::rowm(edges, dlib::range(0, k - 1));
+  std::cout << "variable_pairs : " << variable_pairs_.nr() << std::endl;
 }
 
 std::vector<V3d> VectorField::smooth_vector_field(double w_consistance,
@@ -608,19 +608,28 @@ std::vector<V3d> VectorField::smooth_vector_field(double w_consistance,
   }
 
   // object function
-  auto object_func = [this, w_consistance, w_smooth](column_vector &m) {
+  auto object_func = [this, w_consistance, w_smooth](const column_vector &m) {
     return obj_func(m, w_consistance, w_smooth);
   };
 
   // derivative
-  auto derivative_func = [this, w_consistance, w_smooth](column_vector &m) {
+  auto derivative_func = [this, w_consistance,
+                          w_smooth](const column_vector &m) {
     return gradient_func(m, w_consistance, w_smooth);
   };
 
+#ifdef _DEBUG
+  // check correctness of derivative
+  std::cout << "derivative correctness check : "
+            << dlib::length(dlib::derivative(object_func)(variables) -
+                            derivative_func(variables))
+            << std::endl;
+#endif // _DEBUG
+
   // optimize
-  dlib::find_min(dlib::bfgs_search_strategy(),
-                 dlib::objective_delta_stop_strategy(1e-7), object_func,
-                 derivative_func, variables, -1);
+  dlib::find_min(dlib::lbfgs_search_strategy(10),
+                 dlib::objective_delta_stop_strategy(1e-7).be_verbose(),
+                 object_func, derivative_func, variables, -1);
 
   smoothed_vectors.resize(_n);
   for (size_t i = 0; i < _n; i++) {

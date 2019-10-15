@@ -294,7 +294,7 @@ bool VtkWrapper::drawVector(std::string name,
   return true;
 }
 
-bool VtkWrapper::drawVector(std::string name,
+bool VtkWrapper::drawVectorWithScalars(std::string name,
                             const std::vector<Eigen::Vector3d> &points,
                             const std::vector<Eigen::Vector3d> &vectors,
                             std::vector<double> &scalars, double scale_factor,
@@ -322,7 +322,7 @@ bool VtkWrapper::drawVector(std::string name,
     }
   }
 
-  std::cout<<"low : "<<low_bound<<"--> high : "<<high_bound<<std::endl;
+  std::cout<<"stress low : "<<low_bound<<"--> high : "<<high_bound<<std::endl;
 
   vtkNew<vtkPolyData> ps;
   ps->SetPoints(locs);

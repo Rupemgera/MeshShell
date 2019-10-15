@@ -60,12 +60,11 @@ bool MeshWrapper::saveElementTensors(std::string filename) {
   return true;
 }
 
-void MeshWrapper::get_principal_vectors(std::vector<V3d> &loc,
-                                        std::vector<V3d> &major,
+void MeshWrapper::get_principal_vectors(std::vector<V3d> &major,
                                         std::vector<V3d> &middle,
                                         std::vector<V3d> &minor) {
   // field->get_locations(loc);
-  request_cell_centers(loc);
+  // request_cell_centers(loc);
   field->get_principal_dirs(major, 0);
   field->get_principal_dirs(middle, 1);
   field->get_principal_dirs(minor, 2);
