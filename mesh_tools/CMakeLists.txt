@@ -67,7 +67,7 @@ acg_append_files (sources "*.cc" ${directories})
 acg_append_files (impl_headers "*.h" "./Implementation")
 acg_append_files (impl_sources "*.cxx" "./Implementation")
 acg_append_files (wrap_sources "*.cxx" .)
-acg_append_files (wrap_headers "*h" .)
+acg_append_files (wrap_headers "*.h" .)
 
 set(source_list 
 ${sources} 

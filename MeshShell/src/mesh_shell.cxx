@@ -196,7 +196,7 @@ std::string MeshShell::extractSingularLines() {
 std::string MeshShell::smoothStressField(int index) {
   std::string name("smoothed_field");
   std::vector<double> von_mises;
-  double w_consistance = 1.0, w_smooth = 0.5;
+  double w_consistance = 1.0, w_smooth = 1.0;
 
   // get cell size
   double cell_size = mesh_wrapper->cellSize();

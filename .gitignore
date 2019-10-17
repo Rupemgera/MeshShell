@@ -3,6 +3,7 @@
 [Dd]ug/
 [Rr]elease/
 [Oo]ut/
+data/
 .vs/
 .vscode/
 *.json
